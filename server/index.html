@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quiz App</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const socket = io.connect();
+
+      socket.on('question', (questionData) => {
+        document.getElementById('question').innerText = questionData.question;
+      });
+
+      socket.on('answerResult', (data) => {
+        // Update scores and show results
+        document.getElementById('result').innerText = data.isCorrect ? 'Correct!' : 'Wrong!';
+        document.getElementById('scores').innerText = 'Scores: ' + JSON.stringify(data.scores);
+      });
+
+      document.getElementById('answerBtn').addEventListener('click', () => {
+        const answer = document.getElementById('answerInput').value;
+        socket.emit('submitAnswer', { answer });
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Quiz App</h1>
+  <div id="question">Loading question...</div>
+  <input type="text" id="answerInput" placeholder="Enter your answer">
+  <button id="answerBtn">Submit Answer</button>
+  <div id="result"></div>
+  <div id="scores"></div>
+</body>
+</html>
