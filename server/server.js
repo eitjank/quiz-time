@@ -14,22 +14,45 @@ const io = socketIo(server, {
 });
 
 const quizQuestions = [
-  { question: 'What is the capital of France?', answer: 'Paris' },
-  { question: 'What is 2 + 2?', answer: '4' },
-  { question: 'Who wrote "Romeo and Juliet"?', answer: 'William Shakespeare' },
-  { question: 'What is the largest planet in our solar system?', answer: 'Jupiter' },
-  { question: 'What is the chemical symbol for water?', answer: 'H2O' },
-  { question: 'Who painted the Mona Lisa?', answer: 'Leonardo da Vinci' },
-  { question: 'In what year did the Titanic sink?', answer: '1912' },
-  { question: 'Which element has the atomic number 1?', answer: 'Hydrogen' },
-  { question: 'What is the capital city of Japan?', answer: 'Tokyo' },
-  { question: 'Who is known as the father of computers?', answer: 'Charles Babbage' },
-  { question: 'What is the largest country in the world?', answer: 'Russia' },
-  { question: 'How many continents are there on Earth?', answer: '7' },
-  { question: 'What is the main ingredient in sushi?', answer: 'Rice' },
-  { question: 'What is the fastest land animal?', answer: 'Cheetah' },
-  { question: 'Who is the author of the "Harry Potter" series?', answer: 'J.K. Rowling' },
-  // Add more questions as needed
+  {
+    type: 'multipleChoice',
+    question: 'What is the capital of France?',
+    options: ['Paris', 'London', 'Berlin', 'Madrid'],
+    answer: 'Paris',
+  },
+  {
+    type: 'multipleChoice',
+    question: 'What is 2 + 2?',
+    options: ['3', '4', '5', '6'],
+    answer: '4',
+  },
+  {
+    type: 'multipleChoice',
+    question: 'What is the largest planet in our solar system?',
+    options: ['Earth', 'Jupiter', 'Saturn', 'Mars'],
+    answer: 'Jupiter',
+  },
+  {
+    type: 'openEnded',
+    question: 'Name the author of "To Kill a Mockingbird".',
+    answer: 'Harper Lee',
+  },
+  {
+    type: 'openEnded',
+    question: 'What is the chemical symbol for the element oxygen?',
+    answer: 'O',
+  },
+  {
+    type: 'trueFalse',
+    question: 'The earth is flat.',
+    answer: 'False',
+  },
+  {
+    type: 'trueFalse',
+    question: 'The sun is a star.',
+    answer: 'True',
+  }
+  // Add more questions with various types
 ];
 
 io.on('connection', (socket) => {
