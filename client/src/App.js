@@ -16,6 +16,7 @@ function App() {
       setCurrentQuestion(question);
       setUserAnswer(''); // Reset answer for the new question
       setTimer(question.timeLimit); // Initialize timer with question's time limit
+      setShowTimesUpMessage(false); // Hide "Time's Up" message
     });
 
     // Request a question when the component mounts

@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const Question = require('./models/Question');
 
 const app = express();
 app.use(cors());  // Enable CORS for all routes
@@ -13,63 +15,33 @@ const io = socketIo(server, {
   }
 });
 
-const quizQuestions = [
-  {
-    type: 'multipleChoice',
-    question: 'What is the capital of France?',
-    options: ['Paris', 'London', 'Berlin', 'Madrid'],
-    answer: 'Paris',
-    timeLimit: 10
-  },
-  {
-    type: 'multipleChoice',
-    question: 'What is 2 + 2?',
-    options: ['3', '4', '5', '6'],
-    answer: '4',
-    timeLimit: 10
-  },
-  {
-    type: 'multipleChoice',
-    question: 'What is the largest planet in our solar system?',
-    options: ['Earth', 'Jupiter', 'Saturn', 'Mars'],
-    answer: 'Jupiter',
-    timeLimit: 10
-  },
-  {
-    type: 'openEnded',
-    question: 'Name the author of "To Kill a Mockingbird".',
-    answer: 'Harper Lee',
-    timeLimit: 10
-  },
-  {
-    type: 'openEnded',
-    question: 'What is the chemical symbol for the element oxygen?',
-    answer: 'O',
-    timeLimit: 10
-  },
-  {
-    type: 'trueFalse',
-    question: 'The earth is flat.',
-    answer: 'False',
-    timeLimit: 10
-  },
-  {
-    type: 'trueFalse',
-    question: 'The sun is a star.',
-    answer: 'True', 
-    timeLimit: 10
-  }
-  // Add more questions with various types
-];
+// MongoDB connection string
+const mongoURI = 'mongodb://127.0.0.1:27017/quizApp'; // localhost instead of 127.0.0.1 does not work
+
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB connected...'))
+  .catch(err => console.error(err));
 
 let currentQuestionIndex = 0;
+let allQuestions = []; // Cache for storing questions from MongoDB
+
+async function loadQuestions() {
+  try {
+    allQuestions = await Question.find().sort('_id');
+    // console.log('Loading questions from cache:', allQuestions)
+  } catch (err) {
+    console.error('Error loading questions from MongoDB:', err);
+  }
+};
+ 
+loadQuestions();
 
 io.on('connection', (socket) => {
   console.log(`New client connected with ID: ${socket.id}`);
 
   socket.on('requestQuestion', (data) => {
-    socket.emit('receiveQuestion', quizQuestions[currentQuestionIndex]);
-    currentQuestionIndex = (currentQuestionIndex + 1) % quizQuestions.length;
+    socket.emit('receiveQuestion', allQuestions[currentQuestionIndex]);
+    currentQuestionIndex = (currentQuestionIndex + 1) % allQuestions.length;
   });
 
   socket.on('disconnect', () => {
