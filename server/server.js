@@ -19,38 +19,45 @@ const quizQuestions = [
     question: 'What is the capital of France?',
     options: ['Paris', 'London', 'Berlin', 'Madrid'],
     answer: 'Paris',
+    timeLimit: 10
   },
   {
     type: 'multipleChoice',
     question: 'What is 2 + 2?',
     options: ['3', '4', '5', '6'],
     answer: '4',
+    timeLimit: 10
   },
   {
     type: 'multipleChoice',
     question: 'What is the largest planet in our solar system?',
     options: ['Earth', 'Jupiter', 'Saturn', 'Mars'],
     answer: 'Jupiter',
+    timeLimit: 10
   },
   {
     type: 'openEnded',
     question: 'Name the author of "To Kill a Mockingbird".',
     answer: 'Harper Lee',
+    timeLimit: 10
   },
   {
     type: 'openEnded',
     question: 'What is the chemical symbol for the element oxygen?',
     answer: 'O',
+    timeLimit: 10
   },
   {
     type: 'trueFalse',
     question: 'The earth is flat.',
     answer: 'False',
+    timeLimit: 10
   },
   {
     type: 'trueFalse',
     question: 'The sun is a star.',
     answer: 'True',
+    timeLimit: 10
   }
   // Add more questions with various types
 ];

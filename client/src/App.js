@@ -8,11 +8,14 @@ const socket = socketIOClient(ENDPOINT);
 function App() {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [userAnswer, setUserAnswer] = useState('');
+  const [timer, setTimer] = useState(0);
+  const [showTimesUpMessage, setShowTimesUpMessage] = useState(false);
 
   useEffect(() => {
     socket.on('receiveQuestion', (question) => {
       setCurrentQuestion(question);
       setUserAnswer(''); // Reset answer for the new question
+      setTimer(question.timeLimit); // Initialize timer with question's time limit
     });
 
     // Request a question when the component mounts
@@ -23,9 +26,30 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const countdown = setInterval(() => {
+      setTimer((prevTimer) => {
+        if (prevTimer <= 0) {
+          clearInterval(countdown); // Stop the countdown
+          setShowTimesUpMessage(true); // Show "Time's Up" message
+          // Handle timeout (e.g., submit answer, show message, request next question)
+          setTimeout(() => {
+            // Request a new question
+            socket.emit('requestQuestion', {});
+            setShowTimesUpMessage(false); // Hide "Time's Up" message
+          }, 1500); // Wait 1.5 seconds before requesting a new question
+          return 0;
+        }
+        return prevTimer - 1;
+      });
+    }, 1000); // Update every second
+
+    return () => clearInterval(countdown); // Cleanup on component unmount or when new question comes in
+  }, [currentQuestion]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(userAnswer === currentQuestion.answer) {
+    if (userAnswer === currentQuestion.answer) {
       alert('Correct!');
     } else {
       alert('Incorrect!');
@@ -77,11 +101,18 @@ function App() {
     }
   };
 
+  const progressBarWidth = (currentQuestion.timeLimit - timer) / currentQuestion.timeLimit * 100;
+
   return (
     <div className="App">
       <h1>Quiz Time!</h1>
       {currentQuestion.question && (
         <>
+          <div className="progress-container">
+            <div className="progress-bar" style={{ width: `${progressBarWidth}%` }}></div>
+            {showTimesUpMessage && <p className="times-up-message">Time's Up! Next question coming up...</p>}
+          </div>
+          <p>Time left: {timer} seconds</p>
           <p>{currentQuestion.question}</p>
           <form onSubmit={handleSubmit}>
             {renderQuestionInput(currentQuestion)}
