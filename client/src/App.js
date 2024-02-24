@@ -27,25 +27,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const countdown = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer <= 0) {
-          clearInterval(countdown); // Stop the countdown
-          setShowTimesUpMessage(true); // Show "Time's Up" message
-          // Handle timeout (e.g., submit answer, show message, request next question)
-          setTimeout(() => {
-            // Request a new question
-            socket.emit('requestQuestion', {});
-            setShowTimesUpMessage(false); // Hide "Time's Up" message
-          }, 1500); // Wait 1.5 seconds before requesting a new question
-          return 0;
-        }
-        return prevTimer - 1;
-      });
-    }, 1000); // Update every second
-
-    return () => clearInterval(countdown); // Cleanup on component unmount or when new question comes in
-  }, [currentQuestion]);
+    if (timer > 0) {
+      const countdown = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000); // Update every second
+  
+      return () => clearInterval(countdown); // Cleanup on component unmount or when new question comes in
+    } else if (timer === 0) {
+      setShowTimesUpMessage(true); // Show "Time's Up" message
+      // Handle timeout (e.g., submit answer, show message, request next question)
+      const timeout = setTimeout(() => {
+        // Request a new question
+        socket.emit('requestQuestion', {});
+        setShowTimesUpMessage(false); // Hide "Time's Up" message
+      }, 1500); // Wait 1.5 seconds before requesting a new question
+  
+      return () => clearTimeout(timeout);
+    }
+  }, [timer]); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -101,7 +100,7 @@ function App() {
     }
   };
 
-  const progressBarWidth = (currentQuestion.timeLimit - timer) / currentQuestion.timeLimit * 100;
+  const progressBarWidth = (timer - 1) / (currentQuestion.timeLimit - 1) * 100;
 
   return (
     <div className="App">

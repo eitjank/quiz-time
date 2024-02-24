@@ -56,19 +56,20 @@ const quizQuestions = [
   {
     type: 'trueFalse',
     question: 'The sun is a star.',
-    answer: 'True',
+    answer: 'True', 
     timeLimit: 10
   }
   // Add more questions with various types
 ];
 
+let currentQuestionIndex = 0;
+
 io.on('connection', (socket) => {
-  console.log('New client connected');
+  console.log(`New client connected with ID: ${socket.id}`);
 
   socket.on('requestQuestion', (data) => {
-    // Send a random quiz question to the client
-    const randomQuestion = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
-    socket.emit('receiveQuestion', randomQuestion);
+    socket.emit('receiveQuestion', quizQuestions[currentQuestionIndex]);
+    currentQuestionIndex = (currentQuestionIndex + 1) % quizQuestions.length;
   });
 
   socket.on('disconnect', () => {
