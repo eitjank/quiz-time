@@ -10,6 +10,8 @@ function App() {
   const [userAnswer, setUserAnswer] = useState('');
   const [timer, setTimer] = useState(0);
   const [showTimesUpMessage, setShowTimesUpMessage] = useState(false);
+  const [quizId, setQuizId] = useState('');
+  const [joined, setJoined] = useState(false);
 
   useEffect(() => {
     socket.on('receiveQuestion', (question) => {
@@ -17,6 +19,15 @@ function App() {
       setUserAnswer(''); // Reset answer for the new question
       setTimer(question.timeLimit); // Initialize timer with question's time limit
       setShowTimesUpMessage(false); // Hide "Time's Up" message
+    });
+
+    socket.on('joinedQuiz', (data) => {
+      if (data.success) {
+        setJoined(true);
+      } else {
+        setJoined(false);
+        alert(data.message);
+      }
     });
 
     // Request a question when the component mounts
@@ -32,7 +43,7 @@ function App() {
       const countdown = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000); // Update every second
-  
+
       return () => clearInterval(countdown); // Cleanup on component unmount or when new question comes in
     } else if (timer === 0) {
       setShowTimesUpMessage(true); // Show "Time's Up" message
@@ -42,10 +53,10 @@ function App() {
         socket.emit('requestQuestion', {});
         setShowTimesUpMessage(false); // Hide "Time's Up" message
       }, 1500); // Wait 1.5 seconds before requesting a new question
-  
+
       return () => clearTimeout(timeout);
     }
-  }, [timer]); 
+  }, [timer]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -101,25 +112,44 @@ function App() {
     }
   };
 
+  const handleJoinQuiz = (e) => {
+    e.preventDefault();
+    socket.emit('joinQuiz', { quizId });
+  };
+
   const progressBarWidth = (timer - 1) / (currentQuestion.timeLimit - 1) * 100;
 
   return (
     <div className="App">
-      <h1>Quiz Time!</h1>
-      {currentQuestion.question && (
+
+      {!joined ? (
+        <form onSubmit={handleJoinQuiz}>
+          <input
+            type="text"
+            placeholder="Enter Quiz ID"
+            value={quizId}
+            onChange={(e) => setQuizId(e.target.value)}
+          />
+          <button type="submit">Join Quiz</button>
+        </form>
+      ) : (
         <>
-          <div className="progress-container">
-            <div className="progress-bar" style={{ width: `${progressBarWidth}%` }}></div>
-            {showTimesUpMessage && <p className="times-up-message">Time's Up! Next question coming up...</p>}
-          </div>
-          <p>Time left: {timer} seconds</p>
-          <p>{currentQuestion.question}</p>
-          <form onSubmit={handleSubmit}>
-            {renderQuestionInput(currentQuestion)}
-            <button type="submit">Submit</button>
-          </form>
-        </>
-      )}
+          <h1>Quiz Time!</h1>
+          {currentQuestion.question && (
+            <>
+              <div className="progress-container">
+                <div className="progress-bar" style={{ width: `${progressBarWidth}%` }}></div>
+                {showTimesUpMessage && <p className="times-up-message">Time's Up! Next question coming up...</p>}
+              </div>
+              <p>Time left: {timer} seconds</p>
+              <p>{currentQuestion.question}</p>
+              <form onSubmit={handleSubmit}>
+                {renderQuestionInput(currentQuestion)}
+                <button type="submit">Submit</button>
+              </form>
+            </>
+          )}
+        </>)}
     </div>
   );
 }
