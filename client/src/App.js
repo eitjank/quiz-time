@@ -15,6 +15,7 @@ function App() {
 
   useEffect(() => {
     socket.on('receiveQuestion', (question) => {
+      console.log('Received question:', question);
       setCurrentQuestion(question);
       setUserAnswer(''); // Reset answer for the new question
       setTimer(question.timeLimit); // Initialize timer with question's time limit
@@ -24,39 +25,39 @@ function App() {
     socket.on('joinedQuiz', (data) => {
       if (data.success) {
         setJoined(true);
+        socket.emit('requestQuestion', { quizId: data.quizId });
       } else {
         setJoined(false);
         alert(data.message);
       }
     });
 
-    // Request a question when the component mounts
-    socket.emit('requestQuestion', {});
+    socket.on('timeUpdate', (timeRemaining) => {
+      setTimer(timeRemaining);
+    });
 
+    // removing the event listeners from the socket. 
+    // This is done to prevent memory leaks and strange behavior from old 
+    // event listeners still being active after the component has unmounted or before it re-renders.
     return () => {
       socket.off('receiveQuestion');
+      socket.off('joinedQuiz');
     };
   }, []);
 
-  useEffect(() => {
-    if (timer > 0) {
-      const countdown = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1000); // Update every second
+  // Timer logic
+  // use server side timer logic?
+  // useEffect(() => {
+  //   if (timer > 0) {
+  //     const countdown = setInterval(() => {
+  //       setTimer((prevTimer) => prevTimer - 1);
+  //     }, 1000); // Update every second
 
-      return () => clearInterval(countdown); // Cleanup on component unmount or when new question comes in
-    } else if (timer === 0) {
-      setShowTimesUpMessage(true); // Show "Time's Up" message
-      // Handle timeout (e.g., submit answer, show message, request next question)
-      const timeout = setTimeout(() => {
-        // Request a new question
-        socket.emit('requestQuestion', {});
-        setShowTimesUpMessage(false); // Hide "Time's Up" message
-      }, 1500); // Wait 1.5 seconds before requesting a new question
-
-      return () => clearTimeout(timeout);
-    }
-  }, [timer]);
+  //     return () => clearInterval(countdown); // Cleanup on component unmount or when new question comes in
+  //   } else if (timer === 0) {
+  //     setShowTimesUpMessage(true); // Show "Time's Up" message
+  //   }
+  // }, [timer]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,8 +66,6 @@ function App() {
     } else {
       alert('Incorrect!');
     }
-    // Request a new question
-    socket.emit('requestQuestion', {});
   };
 
   const renderQuestionInput = (question) => {
