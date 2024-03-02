@@ -3,8 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const Question = require('./models/Question');
-const { v4: uuidv4 } = require('uuid');
+const Quiz = require('./models/Quiz');
 
 const app = express();
 app.use(cors());  // Enable CORS for all routes
@@ -22,54 +21,35 @@ mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB connected...'))
   .catch(err => console.error(err));
 
-let currentQuestionIndex = 0;
-let allQuestions = []; // Cache for storing questions from MongoDB
-
-async function loadQuestions() {
-  try {
-    allQuestions = await Question.find().sort('_id');
-    // console.log('Loading questions from cache:', allQuestions)
-  } catch (err) {
-    console.error('Error loading questions from MongoDB:', err);
-  }
-};
-
-loadQuestions();
-
 let activeQuizzes = {}; // Store active quizzes
-
-// Function to simulate quiz creation
-function createQuiz() {
-  const quizId = uuidv4();
-  activeQuizzes[quizId] = {
-    participants: [], questions: [], currentQuestionIndex: 0,
-    isFinished: false
-  };
-  return quizId;
-}
-
-// Create a sample quiz on server start
-const sampleQuizId = createQuiz();
-console.log(`Sample Quiz ID: ${sampleQuizId}`); // Use this ID to test joining
 
 io.on('connection', (socket) => {
   console.log(`New client connected with ID: ${socket.id}`);
   let questionStartTime = Date.now();
 
   socket.on('requestQuestion', (data) => {
-    socket.emit('receiveQuestion', allQuestions[currentQuestionIndex]);
+    const quiz = activeQuizzes[data.quizId];
+    socket.emit('receiveQuestion', quiz.questions[quiz.currentQuestionIndex]);
   });
 
-  function startQuestionTimer() {
+  function startQuestionTimer(quizId) {
     questionStartTime = Date.now();
-    console.log(`Moving to question #${currentQuestionIndex}`);
-    io.to(sampleQuizId).emit('receiveQuestion', allQuestions[currentQuestionIndex]);
+    const quiz = activeQuizzes[quizId];
+    console.log(`Moving to question #${quiz.currentQuestionIndex}`);
+    io.to(quizId).emit('receiveQuestion', quiz.questions[quiz.currentQuestionIndex]);
   }
 
-  socket.on('joinQuiz', ({ quizId }) => {
-    // const activeQuiz = ActiveQuiz.findById(quizId);
-    // if (activeQuiz) {
-    if (activeQuizzes[quizId]) {
+  socket.on('joinQuiz', async ({ quizId }) => {
+    const quiz = await Quiz.findById(quizId)
+    if (activeQuizzes[quizId] || quiz) {
+
+      if (!activeQuizzes[quizId]) {
+        activeQuizzes[quizId] = {
+          participants: [], questions: quiz.questions, currentQuestionIndex: 0,
+          isFinished: false
+        };
+      }
+
       socket.join(quizId);
       console.log(`User ${socket.id} joined quiz ${quizId}`);
       socket.emit('joinedQuiz', { success: true, quizId, message: "Successfully joined quiz." });
@@ -84,27 +64,28 @@ io.on('connection', (socket) => {
         setInterval(() => {
           if (questionStartTime) {
             const timeElapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-            const timeRemaining = allQuestions[currentQuestionIndex]?.timeLimit - timeElapsed;
+            const allQuestions = activeQuizzes[quizId].questions;
+            const quiz = activeQuizzes[quizId];
+            const timeRemaining = allQuestions[quiz.currentQuestionIndex]?.timeLimit - timeElapsed;
 
             if (timeRemaining >= 0) {
-              io.to(sampleQuizId).emit('timeUpdate', timeRemaining);
+              io.to(quizId).emit('timeUpdate', timeRemaining);
             } else {
               // Time's up, move to next question or show results
               questionStartTime = null;
-              if (++currentQuestionIndex < allQuestions.length) {
-                startQuestionTimer();
+              if (++(quiz.currentQuestionIndex) < allQuestions.length) {
+                startQuestionTimer(quizId);
               } else {
-                io.to(sampleQuizId).emit('quizFinished', { message: "Quiz has finished." });
+                io.to(quizId).emit('quizFinished', { message: "Quiz has finished." });
                 // start over the quiz
                 // for testing purposes
-                currentQuestionIndex = 0;
-                startQuestionTimer();
+                quiz.currentQuestionIndex = 0;
+                startQuestionTimer(quizId);
               }
             }
           }
         }, 1000); // Update every second
       }
-
     } else {
       socket.emit('joinedQuiz', { success: false, message: "Quiz not found." });
     }
@@ -113,6 +94,44 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
+});
+
+app.get('/api/quizzes', async (req, res) => {
+  try {
+    const quizzes = await Quiz.find();
+    res.json(quizzes);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/quizzes', async (req, res) => {
+  const quiz = new Quiz({
+    name: req.body.name,
+    description: req.body.description,
+    questions: req.body.questions
+  });
+
+  try {
+    const newQuiz = await quiz.save();
+    res.status(201).json(newQuiz);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+app.delete('/api/quizzes/:id', async (req, res) => {
+  try {
+    const result = await Quiz.findByIdAndDelete(req.params.id);
+    if (result) {
+      res.json({ message: 'Deleted Quiz' });
+    } else {
+      res.status(404).json({ message: 'Quiz not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3001;

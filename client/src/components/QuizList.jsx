@@ -1,0 +1,52 @@
+import React, { useEffect, useState } from 'react';
+
+function QuizList() {
+  const [quizzes, setQuizzes] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/quizzes')
+      .then((res) => res.json())
+      .then((data) => setQuizzes(data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  const handleView = (quiz) => {
+    // Handle view logic here
+  };
+
+  const handleEdit = (quiz) => {
+    // Handle edit logic here
+  };
+
+  const handleDelete = async (quiz) => {
+    try {
+      await fetch(`http://localhost:3001/api/quizzes/${quiz._id}`, { method: 'DELETE' });
+      setQuizzes(quizzes.filter(q => q._id !== quiz._id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
+  const handlePlay = (quiz) => {
+    // Handle play logic here
+  };
+
+  return (
+    <div>
+      <ul>
+        {quizzes && quizzes.map((quiz, index) => (
+          <li key={index}>
+            <h2>{quiz.name}</h2>
+            <p>Quiz id: {quiz._id}</p>
+            <button onClick={() => handlePlay(quiz)}>Play</button>
+            <button onClick={() => handleView(quiz)}>View</button>
+            <button onClick={() => handleEdit(quiz)}>Edit</button>
+            <button onClick={() => handleDelete(quiz)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default QuizList;
