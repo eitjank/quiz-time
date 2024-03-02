@@ -96,43 +96,9 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get('/api/quizzes', async (req, res) => {
-  try {
-    const quizzes = await Quiz.find();
-    res.json(quizzes);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+const routes = require('./routes/quizzes'); // Import the exported router
 
-app.post('/quizzes', async (req, res) => {
-  const quiz = new Quiz({
-    name: req.body.name,
-    description: req.body.description,
-    questions: req.body.questions
-  });
-
-  try {
-    const newQuiz = await quiz.save();
-    res.status(201).json(newQuiz);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-app.delete('/api/quizzes/:id', async (req, res) => {
-  try {
-    const result = await Quiz.findByIdAndDelete(req.params.id);
-    if (result) {
-      res.json({ message: 'Deleted Quiz' });
-    } else {
-      res.status(404).json({ message: 'Quiz not found' });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-});
+app.use('/api', routes); // Mount the routes under /api prefix
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
