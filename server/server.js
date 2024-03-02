@@ -16,7 +16,6 @@ const io = socketIo(server, {
   }
 });
 
-// MongoDB connection string
 const mongoURI = 'mongodb://127.0.0.1:27017/quizApp'; // localhost instead of 127.0.0.1 does not work
 
 mongoose.connect(mongoURI)
@@ -63,7 +62,7 @@ io.on('connection', (socket) => {
 
   function startQuestionTimer() {
     questionStartTime = Date.now();
-    console.log('Moving to next question...');
+    console.log(`Moving to question #${currentQuestionIndex}`);
     io.to(sampleQuizId).emit('receiveQuestion', allQuestions[currentQuestionIndex]);
   }
 
@@ -93,11 +92,13 @@ io.on('connection', (socket) => {
               // Time's up, move to next question or show results
               questionStartTime = null;
               if (++currentQuestionIndex < allQuestions.length) {
-                console.log('Moving to next question...');
                 startQuestionTimer();
               } else {
                 io.to(sampleQuizId).emit('quizFinished', { message: "Quiz has finished." });
-                activeQuizzes[quizId].isFinished = true;
+                // start over the quiz
+                // for testing purposes
+                currentQuestionIndex = 0;
+                startQuestionTimer();
               }
             }
           }
