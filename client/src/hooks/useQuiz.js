@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
 const ENDPOINT = 'http://localhost:3001';
 const socket = socketIOClient(ENDPOINT);
@@ -8,6 +9,7 @@ function useQuiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [timer, setTimer] = useState(0);
   const [joined, setJoined] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     socket.on('receiveQuestion', (question) => {
@@ -19,6 +21,7 @@ function useQuiz() {
       if (data.success) {
         setJoined(true);
         socket.emit('requestQuestion', { quizId: data.quizId });
+        navigate(`/quiz/${data.quizId}`);
       } else {
         setJoined(false);
         alert(data.message);
