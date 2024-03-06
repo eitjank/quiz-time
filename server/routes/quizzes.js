@@ -1,7 +1,10 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const Quiz = require('../models/Quiz');
 
 const router = express.Router();
+
+router.use(bodyParser.json());
 
 router.get('/quizzes', async (req, res) => {
   try {
@@ -37,6 +40,24 @@ router.post('/quizzes', async (req, res) => {
     res.status(201).json(newQuiz);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+
+router.put('/quizzes/:id', async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    if (quiz) {
+      quiz.name = req.body.name;
+      quiz.description = req.body.description;
+      quiz.questions = req.body.questions;
+      const updatedQuiz = await quiz.save();
+      res.json(updatedQuiz);
+    } else {
+      res.status(404).json({ message: 'Quiz not found' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 });
 

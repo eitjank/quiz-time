@@ -21,7 +21,7 @@ function useQuiz() {
       if (data.success) {
         setJoined(true);
         socket.emit('requestQuestion', { quizId: data.quizId });
-        navigate(`/quiz/${data.quizId}`);
+        navigate(`/quizzes/${data.quizId}`);
       } else {
         setJoined(false);
         alert(data.message);
@@ -36,7 +36,7 @@ function useQuiz() {
       socket.off('receiveQuestion');
       socket.off('joinedQuiz');
     };
-  }, []);
+  }, [navigate]);
 
   const joinQuiz = (quizId) => {
     socket.emit('joinQuiz', { quizId });

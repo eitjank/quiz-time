@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function QuizList() {
   const [quizzes, setQuizzes] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('http://localhost:3001/api/quizzes')
@@ -15,7 +17,7 @@ function QuizList() {
   };
 
   const handleEdit = (quiz) => {
-    // Handle edit logic here
+    navigate(`/quizzes/${quiz._id}/edit`);
   };
 
   const handleDelete = async (quiz) => {

@@ -4,6 +4,7 @@ import useQuiz from './hooks/useQuiz';
 import JoinQuizForm from './components/JoinQuizForm';
 import Quiz from './components/Quiz';
 import QuizList from './components/QuizList';
+import QuizEdit from './components/QuizEdit';
 import { Routes, Route, Link } from 'react-router-dom';
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<QuizList />} />
         <Route
-          path="/quiz/:id"
+          path="/quizzes/:id"
           element={
             <Quiz
               question={currentQuestion}
@@ -33,6 +34,7 @@ function App() {
             />
           }
         />
+        <Route path="/quizzes/:id/edit" element={<QuizEdit />} />
         <Route path="/join" element={<JoinQuizForm onJoinQuiz={joinQuiz} />} />
       </Routes>
     </div>
