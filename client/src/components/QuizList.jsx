@@ -20,13 +20,15 @@ function QuizList() {
 
   const handleDelete = async (quiz) => {
     try {
-      await fetch(`http://localhost:3001/api/quizzes/${quiz._id}`, { method: 'DELETE' });
-      setQuizzes(quizzes.filter(q => q._id !== quiz._id));
+      await fetch(`http://localhost:3001/api/quizzes/${quiz._id}`, {
+        method: 'DELETE',
+      });
+      setQuizzes(quizzes.filter((q) => q._id !== quiz._id));
     } catch (err) {
       console.error(err);
     }
   };
-  
+
   const handlePlay = (quiz) => {
     // Handle play logic here
   };
@@ -34,16 +36,17 @@ function QuizList() {
   return (
     <div>
       <ul>
-        {quizzes && quizzes.map((quiz, index) => (
-          <li key={index}>
-            <h2>{quiz.name}</h2>
-            <p>Quiz id: {quiz._id}</p>
-            <button onClick={() => handlePlay(quiz)}>Play</button>
-            <button onClick={() => handleView(quiz)}>View</button>
-            <button onClick={() => handleEdit(quiz)}>Edit</button>
-            <button onClick={() => handleDelete(quiz)}>Delete</button>
-          </li>
-        ))}
+        {quizzes &&
+          quizzes.map((quiz, index) => (
+            <li key={index}>
+              <h2>{quiz.name}</h2>
+              <p>Quiz id: {quiz._id}</p>
+              <button onClick={() => handlePlay(quiz)}>Play</button>
+              <button onClick={() => handleView(quiz)}>View</button>
+              <button onClick={() => handleEdit(quiz)}>Edit</button>
+              <button onClick={() => handleDelete(quiz)}>Delete</button>
+            </li>
+          ))}
       </ul>
     </div>
   );
