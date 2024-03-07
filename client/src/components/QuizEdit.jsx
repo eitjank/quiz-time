@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 function QuizEdit() {
-  const [quiz, setQuiz] = useState(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [questions, setQuestions] = useState([]);
@@ -13,7 +12,6 @@ function QuizEdit() {
     fetch(`http://localhost:3001/api/quizzes/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        setQuiz(data);
         setName(data.name);
         setDescription(data.description);
         setQuestions(data.questions);
@@ -35,7 +33,7 @@ function QuizEdit() {
     }
   };
 
-  if (!quiz) return <div>Loading...</div>;
+  if (!questions) return <div>Loading...</div>;
 
   return (
     <div>
@@ -77,31 +75,51 @@ function QuizEdit() {
                 <p>Question:</p>
                 <input
                   type="text"
-                  value={question.text}
+                  value={questions[index].question}
                   onChange={(e) => {
                     const newQuestions = [...questions];
                     newQuestions[index].text = e.target.value;
                     setQuestions(newQuestions);
                   }}
-                  placeholder={questions[index].question}
                 />
                 {question.type === 'multipleChoice' && (
                   <>
                     <p>Options:</p>
                     {question.options.map((option, optionIndex) => (
-                      <input
-                        key={optionIndex}
-                        type="text"
-                        value={option}
-                        onChange={(e) => {
-                          const newQuestions = [...questions];
-                          newQuestions[index].options[optionIndex] =
-                            e.target.value;
-                          setQuestions(newQuestions);
-                        }}
-                        placeholder={option}
-                      />
+                      <div key={optionIndex}>
+                        <input
+                          type="text"
+                          value={option}
+                          onChange={(e) => {
+                            const newQuestions = [...questions];
+                            newQuestions[index].options[optionIndex] =
+                              e.target.value;
+                            setQuestions(newQuestions);
+                          }}
+                          placeholder={option}
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const newQuestions = [...questions];
+                            newQuestions[index].options.splice(optionIndex, 1);
+                            setQuestions(newQuestions);
+                          }}
+                        >
+                          Remove Option
+                        </button>
+                      </div>
                     ))}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const newQuestions = [...questions];
+                        newQuestions[index].options.push('');
+                        setQuestions(newQuestions);
+                      }}
+                    >
+                      Add Option
+                    </button>
                   </>
                 )}
                 <p>Answer:</p>
@@ -115,7 +133,7 @@ function QuizEdit() {
                   }}
                   placeholder={questions[index].answer}
                 />
-                <p>timeLimit:</p>
+                <p>timeLimit (seconds):</p>
                 <input
                   type="number"
                   value={question.timeLimit}
@@ -126,8 +144,6 @@ function QuizEdit() {
                   }}
                   placeholder={questions[index].timeLimit}
                 />
-                <br />
-                <br />
                 <br />
                 <br />
               </li>
