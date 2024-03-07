@@ -1,11 +1,13 @@
 import './App.css';
 import React from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
 import useQuiz from './hooks/useQuiz';
 import JoinQuizForm from './components/JoinQuizForm';
 import Quiz from './components/Quiz';
 import QuizList from './components/QuizList';
 import QuizEdit from './components/QuizEdit';
-import { Routes, Route, Link } from 'react-router-dom';
+import QuizView from './components/QuizView';
+import QuizCreate from './components/QuizCreate';
 
 function App() {
   const { currentQuestion, timer, joinQuiz, submitAnswer } = useQuiz();
@@ -23,7 +25,7 @@ function App() {
         </ul>
       </nav>
       <Routes>
-        <Route path="/" element={<QuizList />} />
+        <Route path="/" element={<QuizList onJoinQuiz={joinQuiz} />} />
         <Route
           path="/quizzes/:id"
           element={
@@ -35,6 +37,8 @@ function App() {
           }
         />
         <Route path="/quizzes/:id/edit" element={<QuizEdit />} />
+        <Route path="/quizzes/:id/view" element={<QuizView />} />
+        <Route path="/quizzes/create" element={<QuizCreate />} />
         <Route path="/join" element={<JoinQuizForm onJoinQuiz={joinQuiz} />} />
       </Routes>
     </div>

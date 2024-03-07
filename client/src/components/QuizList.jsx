@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function QuizList() {
+function QuizList({ onJoinQuiz }) {
   const [quizzes, setQuizzes] = useState([]);
   const navigate = useNavigate();
 
@@ -13,7 +13,7 @@ function QuizList() {
   }, []);
 
   const handleView = (quiz) => {
-    // Handle view logic here
+    navigate(`/quizzes/${quiz._id}/view`);
   };
 
   const handleEdit = (quiz) => {
@@ -31,19 +31,21 @@ function QuizList() {
     }
   };
 
-  const handlePlay = (quiz) => {
-    // Handle play logic here
+  const handlePlay = (quizId) => {
+    onJoinQuiz(quizId);
   };
 
   return (
     <div>
+      <h1>Quizzes</h1>
+      <button onClick={() => navigate('/quizzes/create')}>Create Quiz</button>
       <ul>
         {quizzes &&
           quizzes.map((quiz, index) => (
             <li key={index}>
               <h2>{quiz.name}</h2>
               <p>Quiz id: {quiz._id}</p>
-              <button onClick={() => handlePlay(quiz)}>Play</button>
+              <button onClick={() => handlePlay(quiz._id)}>Play</button>
               <button onClick={() => handleView(quiz)}>View</button>
               <button onClick={() => handleEdit(quiz)}>Edit</button>
               <button onClick={() => handleDelete(quiz)}>Delete</button>

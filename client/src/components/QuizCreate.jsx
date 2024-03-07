@@ -1,29 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function QuizEdit() {
+function QuizCreate() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [questions, setQuestions] = useState([]);
-  const { id } = useParams();
+  const [questions, setQuestions] = useState([
+    { type: 'multipleChoice', question: '', options: [''] },
+  ]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch(`http://localhost:3001/api/quizzes/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setName(data.name);
-        setDescription(data.description);
-        setQuestions(data.questions);
-      })
-      .catch((err) => console.error(err));
-  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await fetch(`http://localhost:3001/api/quizzes/${id}`, {
-        method: 'PUT',
+      await fetch('http://localhost:3001/api/quizzes', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description, questions }),
       });
@@ -33,11 +23,9 @@ function QuizEdit() {
     }
   };
 
-  if (!questions) return <div>Loading...</div>;
-
   return (
     <div>
-      <h1>Edit Quiz</h1>
+      <h1>Create Quiz</h1>
       <form onSubmit={handleSubmit}>
         <label>
           Name:
@@ -150,10 +138,10 @@ function QuizEdit() {
             ))}
           </ul>
         </label>
-        <button type="submit">Update Quiz</button>
+        <button type="submit">Create Quiz</button>
       </form>
     </div>
   );
 }
 
-export default QuizEdit;
+export default QuizCreate;

@@ -16,7 +16,7 @@ const questions1 = [
   {
     type: 'multipleChoice',
     question: 'What is 2 + 2?',
-    options: ['3', '4', '5', '6'],
+    options: ['3', '4', '5', '22'],
     answer: '4',
     timeLimit: 10,
   },
