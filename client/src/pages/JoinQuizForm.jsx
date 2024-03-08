@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function JoinQuizForm({ onJoinQuiz }) {
+function JoinQuizForm() {
   const [quizId, setQuizId] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onJoinQuiz(quizId);
+    if(!quizId) return alert('Please enter a quiz ID')
+    navigate(`/quizzes/${quizId}`);
   };
 
   return (

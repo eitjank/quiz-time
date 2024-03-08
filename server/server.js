@@ -26,7 +26,6 @@ let activeQuizzes = {};
 
 io.on('connection', (socket) => {
   console.log(`New client connected with ID: ${socket.id}`);
-  let questionStartTime = Date.now();
 
   socket.on('requestQuestion', (data) => {
     const quiz = activeQuizzes[data.quizId];
@@ -34,7 +33,6 @@ io.on('connection', (socket) => {
   });
 
   function startQuestionTimer(quizId) {
-    questionStartTime = Date.now();
     const quiz = activeQuizzes[quizId];
     quiz.currentQuestionStartTime = Date.now();
     console.log(
@@ -47,7 +45,12 @@ io.on('connection', (socket) => {
   }
 
   socket.on('joinQuiz', async ({ quizId }) => {
-    const quiz = await Quiz.findById(quizId);
+    let quiz = null;
+    try {
+      quiz = await Quiz.findById(quizId);
+    } catch (err) {
+      console.error(err);
+    }
     if (activeQuizzes[quizId] || quiz) {
       if (!activeQuizzes[quizId]) {
         activeQuizzes[quizId] = {
@@ -70,14 +73,17 @@ io.on('connection', (socket) => {
       // Add participant to the quiz
       activeQuizzes[quizId].participants.push(socket.id);
 
-      activeQuizzes[quizId].currentQuestionStartTime = Date.now();
       // Start the quiz timer if it's the first participant
       if (activeQuizzes[quizId].participants.length === 1) {
+        activeQuizzes[quizId].currentQuestionStartTime = Date.now();
         console.log(
           `participant length: ${activeQuizzes[quizId].participants.length}`
         );
         setInterval(() => {
-          if (activeQuizzes[quizId].currentQuestionStartTime) {
+          if (
+            activeQuizzes[quizId] &&
+            activeQuizzes[quizId].currentQuestionStartTime
+          ) {
             const quiz = activeQuizzes[quizId];
             const timeElapsed = Math.floor(
               (Date.now() - quiz.currentQuestionStartTime) / 1000
@@ -97,10 +103,10 @@ io.on('connection', (socket) => {
                 io.to(quizId).emit('quizFinished', {
                   message: 'Quiz has finished.',
                 });
-                // start over the quiz
-                // for testing purposes
-                quiz.currentQuestionIndex = 0;
-                startQuestionTimer(quizId);
+                console.log(`Quiz ${quizId} has finished`);
+                // start over the quiz // for testing purposes
+                // quiz.currentQuestionIndex = 0;
+                // startQuestionTimer(quizId);
               }
             }
           }
@@ -111,8 +117,40 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('submitAnswer', (data) => {
+    const quiz = activeQuizzes[data.quizId];
+    const question = quiz.questions[quiz.currentQuestionIndex];
+    const participantIndex = quiz.participants.indexOf(socket.id);
+    if (participantIndex !== -1) {
+      if (!question.answers) {
+        question.answers = [];
+      }
+      question.answers.push({
+        participantId: socket.id,
+        answer: data.answer,
+      });
+      if (data.answer === question.answer) {
+        console.log(`User ${socket.id} answered correctly`);
+      } else {
+        console.log(`User ${socket.id} answered incorrectly`);
+      }
+    }
+  });
+
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
+    console.log(`Client disconnected with ID: ${socket.id}`);
+    for (const quizId in activeQuizzes) {
+      const quiz = activeQuizzes[quizId];
+      const participantIndex = quiz.participants.indexOf(socket.id);
+      if (participantIndex !== -1) {
+        quiz.participants.splice(participantIndex, 1);
+        console.log(`User ${socket.id} left quiz ${quizId}`);
+        if (quiz.participants.length === 0) {
+          delete activeQuizzes[quizId];
+          console.log(`Active quiz ${quizId} deleted`);
+        }
+      }
+    }
   });
 });
 

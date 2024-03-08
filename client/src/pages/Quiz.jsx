@@ -1,26 +1,72 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import socketIOClient from 'socket.io-client';
 
-function Quiz({ question, timer, onSubmitAnswer }) {
+const ENDPOINT = 'http://localhost:3001';
+
+function Quiz() {
   const [answer, setAnswer] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState({});
+  const [timer, setTimer] = useState(null);
+  const [joined, setJoined] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [socket, setSocket] = useState(null);
 
   const progressBarWidth =
-    question.timeLimit !== 0
-      ? ((timer - 1) / (question.timeLimit - 1)) * 100
+    currentQuestion.timeLimit !== 0
+      ? ((timer - 1) / (currentQuestion.timeLimit - 1)) * 100
       : 0;
+
+  useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+    setSocket(socket);
+
+    socket.on('receiveQuestion', (question) => {
+      setCurrentQuestion(question);
+      setTimer(question.timeLimit);
+    });
+
+    socket.emit('joinQuiz', { quizId: id });
+
+    socket.on('joinedQuiz', (data) => {
+      if (data.success) {
+        setJoined(true);
+        socket.emit('requestQuestion', { quizId: data.quizId });
+      } else {
+        console.log(data.message);
+        setJoined(false);
+        alert(data.message);
+        navigate('/join');
+      }
+    });
+
+    socket.on('timeUpdate', (timeRemaining) => {
+      setTimer(timeRemaining);
+    });
+
+    return () => {
+      // Clean up the socket connection
+      socket.off('receiveQuestion');
+      socket.off('joinedQuiz');
+      socket.off('timeUpdate');
+      socket.disconnect();
+    };
+  }, [id, navigate]);
 
   useEffect(() => {
     if (timer === 0) {
       setShowAnswer(true);
-      setIsCorrect(answer === question.answer);
-      onSubmitAnswer(answer);
+      setIsCorrect(answer === currentQuestion.answer);
+      socket.emit('submitAnswer', { quizId: id, answer });
       setAnswer('');
     } else {
       setShowAnswer(false);
       setIsCorrect(null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer]);
 
   const renderQuestionInput = (question) => {
@@ -66,6 +112,10 @@ function Quiz({ question, timer, onSubmitAnswer }) {
     }
   };
 
+  if (joined === false) {
+    return <p>Joining quiz...</p>;
+  }
+
   return (
     <>
       <h1>Quiz Time!</h1>
@@ -76,9 +126,9 @@ function Quiz({ question, timer, onSubmitAnswer }) {
         ></div>
       </div>
       <p>Time left: {timer} seconds</p>
-      <p>{question.question}</p>
-      {renderQuestionInput(question)}
-      {showAnswer && <p>The correct answer is: {question.answer}</p>}
+      <p>{currentQuestion.question}</p>
+      {renderQuestionInput(currentQuestion)}
+      {showAnswer && <p>The correct answer is: {currentQuestion.answer}</p>}
       {showAnswer &&
         isCorrect !== null &&
         (isCorrect ? (
