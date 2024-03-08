@@ -20,6 +20,7 @@ function Quiz({ question, timer, onSubmitAnswer }) {
       setShowAnswer(false);
       setIsCorrect(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer]);
 
   const renderQuestionInput = (question) => {

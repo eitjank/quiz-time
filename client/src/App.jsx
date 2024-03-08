@@ -2,12 +2,12 @@ import './App.css';
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import useQuiz from './hooks/useQuiz';
-import JoinQuizForm from './components/JoinQuizForm';
-import Quiz from './components/Quiz';
+import JoinQuizForm from './pages/JoinQuizForm';
+import Quiz from './pages/Quiz';
 import QuizList from './components/QuizList';
-import QuizEdit from './components/QuizEdit';
-import QuizView from './components/QuizView';
-import QuizCreate from './components/QuizCreate';
+import QuizEdit from './pages/QuizEdit';
+import QuizView from './pages/QuizView';
+import QuizCreate from './pages/QuizCreate';
 
 function App() {
   const { currentQuestion, timer, joinQuiz, submitAnswer } = useQuiz();
