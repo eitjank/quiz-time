@@ -7,6 +7,7 @@ import QuizList from './pages/QuizList';
 import QuizEdit from './pages/QuizEdit';
 import QuizView from './pages/QuizView';
 import QuizCreate from './pages/QuizCreate';
+import QuizHostSession from './pages/QuizHostSession';
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
         <Route path="/quizzes/:id/view" element={<QuizView />} />
         <Route path="/quizzes/create" element={<QuizCreate />} />
         <Route path="/join" element={<JoinQuizForm />} />
+        <Route path="/quizSessions/:id" element={<QuizHostSession />} />
+        <Route path="*" element={<h1>Not Found</h1>} />
       </Routes>
     </div>
   );

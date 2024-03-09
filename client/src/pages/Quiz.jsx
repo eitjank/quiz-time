@@ -29,12 +29,11 @@ function Quiz() {
       setTimer(question.timeLimit);
     });
 
-    socket.emit('joinQuiz', { quizId: id });
+    socket.emit('joinQuiz', { quizSessionId: id });
 
     socket.on('joinedQuiz', (data) => {
       if (data.success) {
         setJoined(true);
-        socket.emit('requestQuestion', { quizId: data.quizId });
       } else {
         console.log(data.message);
         setJoined(false);
@@ -60,7 +59,7 @@ function Quiz() {
     if (timer === 0) {
       setShowAnswer(true);
       setIsCorrect(answer === currentQuestion.answer);
-      socket.emit('submitAnswer', { quizId: id, answer });
+      socket.emit('submitAnswer', { quizSessionId: id, answer });
       setAnswer('');
     } else {
       setShowAnswer(false);

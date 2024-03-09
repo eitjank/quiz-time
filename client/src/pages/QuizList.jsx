@@ -31,8 +31,20 @@ function QuizList() {
     }
   };
 
-  const handleHost = (quizId) => {
-    // TODO: Implement host quiz functionality
+  const handleHost = async (quizId) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/quizSessions/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quizId }),
+      });
+      const data = await res.json();
+      navigate(`/quizSessions/${data.quizSessionId}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

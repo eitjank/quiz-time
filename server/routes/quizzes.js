@@ -1,11 +1,8 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const Quiz = require('../db/models/Quiz');
 const mongoose = require('mongoose');
 
 const router = express.Router();
-
-router.use(bodyParser.json());
 
 router.get('/quizzes', async (req, res) => {
   try {
