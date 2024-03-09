@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Quiz = require('../models/Quiz');
+const Quiz = require('../db/models/Quiz');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -16,6 +17,10 @@ router.get('/quizzes', async (req, res) => {
 });
 
 router.get('/quizzes/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: 'Quiz not found' });
+  }
+
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (quiz) {
@@ -44,6 +49,10 @@ router.post('/quizzes', async (req, res) => {
 });
 
 router.put('/quizzes/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: 'Quiz not found' });
+  }
+
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (quiz) {
@@ -62,6 +71,10 @@ router.put('/quizzes/:id', async (req, res) => {
 });
 
 router.delete('/quizzes/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: 'Quiz not found' });
+  }
+
   try {
     const result = await Quiz.findByIdAndDelete(req.params.id);
     if (result) {

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Quiz = require('./models/Quiz');
+const Quiz = require('./db/models/Quiz');
 
 const db = 'mongodb://127.0.0.1:27017/quizApp';
 
