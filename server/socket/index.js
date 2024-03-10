@@ -1,6 +1,7 @@
 const socketIo = require('socket.io');
 const Quiz = require('../db/models/Quiz');
 const QuizSession = require('../db/models/QuizSession');
+const { instrument } = require('@socket.io/admin-ui');
 require('dotenv').config();
 
 let activeQuizzes = {};
@@ -8,9 +9,16 @@ let activeQuizzes = {};
 function socketSetup(server) {
   const io = socketIo(server, {
     cors: {
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      methods: ['*'],
+      origin: [
+        process.env.CORS_ORIGIN || 'http://localhost:3000',
+        'https://admin.socket.io',
+      ],
+      credentials: true,
     },
+  });
+
+  instrument(io, {
+    auth: false,
   });
 
   io.on('connection', (socket) => {
