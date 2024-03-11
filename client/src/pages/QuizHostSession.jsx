@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import socketIOClient from 'socket.io-client';
+import Leaderboard from '../components/Leaderboard/Leaderboard';
 
 const ENDPOINT = 'http://localhost:3001';
 
@@ -11,6 +12,8 @@ const QuizHostSession = () => {
   const [timer, setTimer] = useState(null);
   const [socket, setSocket] = useState(null);
   const [started, setStarted] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const [results, setResults] = useState([]);
   const { id } = useParams();
 
   useEffect(() => {
@@ -43,8 +46,8 @@ const QuizHostSession = () => {
     });
 
     socket.on('quizFinished', (data) => {
-      console.log('Quiz finished');
-      console.log(data);
+      setFinished(true);
+      setResults(data.participants);
     });
 
     socket.emit('hostJoinQuiz', { quizSessionId: id });
@@ -100,30 +103,38 @@ const QuizHostSession = () => {
     <div>
       <h1>Quiz Host Session</h1>
       <h2>Quiz Session ID: {id}</h2>
-      {!started ? (
+      {!finished ? (
         <>
-          <button onClick={startQuiz}>Start Quiz</button>
-          <h2>Participants:</h2>
-          <ul>
-            {participants.map((participant) => (
-              <li key={participant.id}>{participant.name}</li>
-            ))}
-          </ul>
+          {!started ? (
+            <>
+              <button onClick={startQuiz}>Start Quiz</button>
+              <h2>Participants:</h2>
+              <ul>
+                {participants.map((participant) => (
+                  <li key={participant.id}>{participant.name}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <div>
+              <h1>Quiz Time!</h1>
+              <div className="progress-container">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${progressBarWidth}%` }}
+                ></div>
+              </div>
+              <p>Time left: {timer} seconds</p>
+              <p>{currentQuestion.question}</p>
+              {renderQuestionInput(currentQuestion)}
+              {showAnswer && (
+                <p>The correct answer is: {currentQuestion.answer}</p>
+              )}
+            </div>
+          )}
         </>
       ) : (
-        <div>
-          <h1>Quiz Time!</h1>
-          <div className="progress-container">
-            <div
-              className="progress-bar"
-              style={{ width: `${progressBarWidth}%` }}
-            ></div>
-          </div>
-          <p>Time left: {timer} seconds</p>
-          <p>{currentQuestion.question}</p>
-          {renderQuestionInput(currentQuestion)}
-          {showAnswer && <p>The correct answer is: {currentQuestion.answer}</p>}
-        </div>
+        <Leaderboard results={results} />
       )}
     </div>
   );
