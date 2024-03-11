@@ -38,8 +38,13 @@ const QuizHostSession = () => {
       console.log(`Participant ${data.participantId} joined the quiz`);
       setParticipants((prevParticipants) => [
         ...prevParticipants,
-        { id: data.participantId, name: 'Participant' },
+        { id: data.participantId, name: data.participantId },
       ]);
+    });
+
+    socket.on('quizFinished', (data) => {
+      console.log('Quiz finished');
+      console.log(data);
     });
 
     socket.emit('hostJoinQuiz', { quizSessionId: id });

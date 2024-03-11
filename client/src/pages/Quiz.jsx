@@ -46,6 +46,11 @@ function Quiz() {
       setTimer(timeRemaining);
     });
 
+    socket.on('quizFinished', (data) => {
+      console.log('Quiz finished');
+      console.log(data);
+    });
+
     return () => {
       // Clean up the socket connection
       socket.off('receiveQuestion');
@@ -118,13 +123,17 @@ function Quiz() {
   return (
     <>
       <h1>Quiz Time!</h1>
-      <div className="progress-container">
-        <div
-          className="progress-bar"
-          style={{ width: `${progressBarWidth}%` }}
-        ></div>
-      </div>
-      <p>Time left: {timer} seconds</p>
+      {currentQuestion.question && (
+        <>
+          <div className="progress-container">
+            <div
+              className="progress-bar"
+              style={{ width: `${progressBarWidth}%` }}
+            ></div>
+          </div>
+          <p>Time left: {timer} seconds</p>
+        </>
+      )}
       <p>{currentQuestion.question}</p>
       {renderQuestionInput(currentQuestion)}
       {showAnswer && <p>The correct answer is: {currentQuestion.answer}</p>}

@@ -4,7 +4,7 @@ const QuizSession = require('../db/models/QuizSession');
 const { instrument } = require('@socket.io/admin-ui');
 require('dotenv').config();
 
-let activeQuizzes = {};
+let quizSessions = [];
 
 function socketSetup(server) {
   const io = socketIo(server, {
@@ -25,12 +25,12 @@ function socketSetup(server) {
     console.log(`New client connected with ID: ${socket.id}`);
 
     socket.on('requestQuestion', (data) => {
-      const quiz = activeQuizzes[data.quizSessionId];
+      const quiz = quizSessions[data.quizSessionId];
       socket.emit('receiveQuestion', quiz.questions[quiz.currentQuestionIndex]);
     });
 
     function startQuestionTimer(quizSessionId) {
-      const quiz = activeQuizzes[quizSessionId];
+      const quiz = quizSessions[quizSessionId];
       quiz.currentQuestionStartTime = Date.now();
       console.log(
         `Moving to question #${quiz.currentQuestionIndex} in quiz ${quizSessionId}`
@@ -44,7 +44,7 @@ function socketSetup(server) {
     socket.on('hostJoinQuiz', async ({ quizSessionId }) => {
       const quizSession = await QuizSession.findById(quizSessionId);
       const quiz = await Quiz.findById(quizSession.quiz); // get quiz from quizSession
-      activeQuizzes[quizSessionId] = {
+      quizSessions[quizSessionId] = {
         participants: [],
         host: socket.id,
         questions: quiz.questions,
@@ -63,11 +63,14 @@ function socketSetup(server) {
 
     socket.on('joinQuiz', async ({ quizSessionId }) => {
       const quizSession = await QuizSession.findById(quizSessionId);
-      quizSession.participants.push(socket.id);
+      quizSession.participants[socket.id] = {
+        id: socket.id,
+        score: 0,
+      };
       await quizSession.save();
       const quiz = await Quiz.findById(quizSession.quiz); // get quiz from quizSession
 
-      if (activeQuizzes[quizSessionId]) {
+      if (quizSessions[quizSessionId]) {
         socket.join(quizSessionId);
         console.log(`User ${socket.id} joined quiz ${quizSessionId}`);
         socket.emit('joinedQuiz', {
@@ -77,7 +80,11 @@ function socketSetup(server) {
         });
 
         // Add participant to the quiz
-        activeQuizzes[quizSessionId].participants.push(socket.id);
+        quizSessions[quizSessionId].participants[socket.id] = {
+          // name: participantName, // for future use
+          id: socket.id,
+          score: 0,
+        };
         // Notify the host that a participant has joined
         io.to(quizSessionId).emit('participantJoined', {
           participantId: socket.id,
@@ -93,24 +100,24 @@ function socketSetup(server) {
     socket.on('startQuiz', ({ quizSessionId }) => {
       io.to(quizSessionId).emit(
         'receiveQuestion',
-        activeQuizzes[quizSessionId].questions[
-          activeQuizzes[quizSessionId].currentQuestionIndex
+        quizSessions[quizSessionId].questions[
+          quizSessions[quizSessionId].currentQuestionIndex
         ]
       );
-      activeQuizzes[quizSessionId].currentQuestionStartTime = Date.now();
+      quizSessions[quizSessionId].currentQuestionStartTime = Date.now();
       console.log(
-        `participant length: ${activeQuizzes[quizSessionId].participants.length}`
+        `participant length: ${quizSessions[quizSessionId].participants.length}`
       );
       setInterval(() => {
         if (
-          activeQuizzes[quizSessionId] &&
-          activeQuizzes[quizSessionId].currentQuestionStartTime
+          quizSessions[quizSessionId] &&
+          quizSessions[quizSessionId].currentQuestionStartTime
         ) {
-          const quiz = activeQuizzes[quizSessionId];
+          const quiz = quizSessions[quizSessionId];
           const timeElapsed = Math.floor(
             (Date.now() - quiz.currentQuestionStartTime) / 1000
           );
-          const allQuestions = activeQuizzes[quizSessionId].questions;
+          const allQuestions = quizSessions[quizSessionId].questions;
           const timeRemaining =
             allQuestions[quiz.currentQuestionIndex]?.timeLimit - timeElapsed;
 
@@ -122,8 +129,10 @@ function socketSetup(server) {
             if (++quiz.currentQuestionIndex < allQuestions.length) {
               startQuestionTimer(quizSessionId);
             } else {
+              const participantsArray = Object.values(quiz.participants); // convert object to array
               io.to(quizSessionId).emit('quizFinished', {
                 message: 'Quiz has finished.',
+                participants: participantsArray,
               });
               console.log(`Quiz ${quizSessionId} has finished`);
               // start over the quiz // for testing purposes
@@ -136,32 +145,23 @@ function socketSetup(server) {
     });
 
     socket.on('submitAnswer', (data) => {
-      const quiz = activeQuizzes[data.quizSessionId];
+      const quiz = quizSessions[data.quizSessionId];
       const question = quiz.questions[quiz.currentQuestionIndex];
-      const participantIndex = quiz.participants.indexOf(socket.id);
-      if (participantIndex !== -1) {
-        if (!question.answers) {
-          question.answers = [];
-        }
-        question.answers.push({
-          participantId: socket.id,
-          answer: data.answer,
-        });
-        if (data.answer === question.answer) {
-          console.log(`User ${socket.id} answered correctly`);
-        } else {
-          console.log(`User ${socket.id} answered incorrectly`);
-        }
+      if (data.answer === question.answer) {
+        console.log(`User ${socket.id} answered correctly`);
+        quiz.participants[socket.id].score++;
+      } else {
+        console.log(`User ${socket.id} answered incorrectly`);
       }
     });
 
     socket.on('disconnect', () => {
       console.log(`Client disconnected with ID: ${socket.id}`);
-      for (const quizSessionId in activeQuizzes) {
-        const quiz = activeQuizzes[quizSessionId];
+      for (const quizSessionId in quizSessions) {
+        const quiz = quizSessions[quizSessionId];
         const hostIndex = quiz.host === socket.id;
         if (hostIndex) {
-          delete activeQuizzes[quizSessionId];
+          delete quizSessions[quizSessionId];
           console.log(`Host ${socket.id} left quiz ${quizSessionId}`);
           console.log(`Quiz ${quizSessionId} has been deleted`);
         }
