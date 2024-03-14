@@ -1,22 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import socketIOClient from 'socket.io-client';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
-
-const ENDPOINT = 'http://localhost:3001';
+import { useQuizSession } from '../hooks/useQuizSession';
 
 function Quiz() {
   const [answer, setAnswer] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState({});
-  const [timer, setTimer] = useState(null);
   const [joined, setJoined] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  const [socket, setSocket] = useState(null);
-  const [results, setResults] = useState([]);
-  const [finished, setFinished] = useState(false);
+  const { currentQuestion, timer, socket, results, finished, participants } =
+    useQuizSession(id);
 
   const progressBarWidth =
     currentQuestion.timeLimit !== 0
@@ -24,14 +19,7 @@ function Quiz() {
       : 0;
 
   useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    setSocket(socket);
-
-    socket.on('receiveQuestion', (question) => {
-      setCurrentQuestion(question);
-      setTimer(question.timeLimit);
-    });
-
+    if (!socket) return;
     socket.emit('joinQuiz', { quizSessionId: id });
 
     socket.on('joinedQuiz', (data) => {
@@ -45,23 +33,11 @@ function Quiz() {
       }
     });
 
-    socket.on('timeUpdate', (timeRemaining) => {
-      setTimer(timeRemaining);
-    });
-
-    socket.on('quizFinished', (data) => {
-      setFinished(true);
-      setResults(data.participants);
-    });
-
     return () => {
       // Clean up the socket connection
-      socket.off('receiveQuestion');
       socket.off('joinedQuiz');
-      socket.off('timeUpdate');
-      socket.disconnect();
     };
-  }, [id, navigate]);
+  }, [id, navigate, socket]);
 
   useEffect(() => {
     if (timer === 0) {
@@ -128,27 +104,42 @@ function Quiz() {
       <h1>Quiz Time!</h1>
       {!finished ? (
         <>
-          {currentQuestion.question && (
+          {!currentQuestion.question ? (
             <>
-              <div className="progress-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${progressBarWidth}%` }}
-                ></div>
-              </div>
-              <p>Time left: {timer} seconds</p>
+              <h2>Participants:</h2>
+              <ul>
+                {participants.map((participant) => (
+                  <li key={participant.id}>{participant.id}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <>
+              {currentQuestion.question && (
+                <>
+                  <div className="progress-container">
+                    <div
+                      className="progress-bar"
+                      style={{ width: `${progressBarWidth}%` }}
+                    ></div>
+                  </div>
+                  <p>Time left: {timer} seconds</p>
+                </>
+              )}
+              <p>{currentQuestion.question}</p>
+              {renderQuestionInput(currentQuestion)}
+              {showAnswer && (
+                <p>The correct answer is: {currentQuestion.answer}</p>
+              )}
+              {showAnswer &&
+                isCorrect !== null &&
+                (isCorrect ? (
+                  <p>Your answer is correct!</p>
+                ) : (
+                  <p>Your answer is incorrect.</p>
+                ))}
             </>
           )}
-          <p>{currentQuestion.question}</p>
-          {renderQuestionInput(currentQuestion)}
-          {showAnswer && <p>The correct answer is: {currentQuestion.answer}</p>}
-          {showAnswer &&
-            isCorrect !== null &&
-            (isCorrect ? (
-              <p>Your answer is correct!</p>
-            ) : (
-              <p>Your answer is incorrect.</p>
-            ))}
         </>
       ) : (
         <Leaderboard results={results} />

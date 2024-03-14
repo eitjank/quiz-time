@@ -85,9 +85,9 @@ function socketSetup(server) {
           id: socket.id,
           score: 0,
         };
-        // Notify the host that a participant has joined
-        io.to(quizSessionId).emit('participantJoined', {
-          participantId: socket.id,
+        // Notify the all in the romm that a participant has joined
+        io.to(quizSessionId).emit('participantList', {
+          participants: Object.values(quizSessions[quizSessionId].participants),
         });
       } else {
         socket.emit('joinedQuiz', {
@@ -158,12 +158,15 @@ function socketSetup(server) {
     socket.on('disconnect', () => {
       console.log(`Client disconnected with ID: ${socket.id}`);
       for (const quizSessionId in quizSessions) {
-        const quiz = quizSessions[quizSessionId];
-        const hostIndex = quiz.host === socket.id;
-        if (hostIndex) {
+        if (quizSessions[quizSessionId].host === socket.id) {
+          console.log(`Host ${socket.id} disconnected`);
           delete quizSessions[quizSessionId];
-          console.log(`Host ${socket.id} left quiz ${quizSessionId}`);
-          console.log(`Quiz ${quizSessionId} has been deleted`);
+        } else if (quizSessions[quizSessionId].participants[socket.id]) {
+          console.log(`Participant ${socket.id} disconnected`);
+          delete quizSessions[quizSessionId].participants[socket.id];
+          io.to(quizSessionId).emit('participantLeft', {
+            participantId: socket.id,
+          });
         }
       }
     });

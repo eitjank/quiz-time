@@ -1,34 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import socketIOClient from 'socket.io-client';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
-
-const ENDPOINT = 'http://localhost:3001';
+import { useQuizSession } from '../hooks/useQuizSession';
 
 const QuizHostSession = () => {
   const [showAnswer, setShowAnswer] = useState(false);
-  const [participants, setParticipants] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState({});
-  const [timer, setTimer] = useState(null);
-  const [socket, setSocket] = useState(null);
   const [started, setStarted] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const [results, setResults] = useState([]);
   const { id } = useParams();
+  const { currentQuestion, timer, socket, results, finished, participants } =
+    useQuizSession(id);
 
   useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    setSocket(socket);
-
-    socket.on('receiveQuestion', (question) => {
-      setCurrentQuestion(question);
-      setTimer(question.timeLimit);
-    });
-
-    socket.on('timeUpdate', (timeRemaining) => {
-      setTimer(timeRemaining);
-    });
-
+    if (!socket) return;
     socket.on('joinedQuiz', (data) => {
       if (data.success) {
         console.log('Joined quiz');
@@ -37,29 +20,13 @@ const QuizHostSession = () => {
       }
     });
 
-    socket.on('participantJoined', (data) => {
-      console.log(`Participant ${data.participantId} joined the quiz`);
-      setParticipants((prevParticipants) => [
-        ...prevParticipants,
-        { id: data.participantId, name: data.participantId },
-      ]);
-    });
-
-    socket.on('quizFinished', (data) => {
-      setFinished(true);
-      setResults(data.participants);
-    });
-
     socket.emit('hostJoinQuiz', { quizSessionId: id });
 
     return () => {
       // Clean up the socket connection
-      socket.off('receiveQuestion');
       socket.off('joinedQuiz');
-      socket.off('timeUpdate');
-      socket.disconnect();
     };
-  }, [id]);
+  }, [id, socket]);
 
   useEffect(() => {
     if (timer === 0) {
@@ -111,7 +78,7 @@ const QuizHostSession = () => {
               <h2>Participants:</h2>
               <ul>
                 {participants.map((participant) => (
-                  <li key={participant.id}>{participant.name}</li>
+                  <li key={participant.id}>{participant.id}</li>
                 ))}
               </ul>
             </>
