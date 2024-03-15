@@ -4,11 +4,13 @@ import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
 
 const QuizHostSession = () => {
+  const [currentQuestion, setCurrentQuestion] = useState({});
+  const [timer, setTimer] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [started, setStarted] = useState(false);
   const { id } = useParams();
-  const { currentQuestion, timer, socket, results, finished, participants } =
-    useQuizSession(id);
+  const { socket, results, finished, participants } = useQuizSession();
+  const [isManualControl, setIsManualControl] = useState(false);
 
   useEffect(() => {
     if (!socket) return;
@@ -18,6 +20,15 @@ const QuizHostSession = () => {
       } else {
         alert(data.message);
       }
+    });
+
+    socket.on('receiveQuestion', (question) => {
+      setCurrentQuestion(question);
+      setTimer(question.timeLimit);
+    });
+
+    socket.on('timeUpdate', (timeRemaining) => {
+      setTimer(timeRemaining);
     });
 
     socket.emit('hostJoinQuiz', { quizSessionId: id });
@@ -38,7 +49,7 @@ const QuizHostSession = () => {
   }, [timer]);
 
   const startQuiz = () => {
-    socket.emit('startQuiz', { quizSessionId: id });
+    socket.emit('startQuiz', { quizSessionId: id, isManualControl });
     setStarted(true);
   };
 
@@ -74,6 +85,14 @@ const QuizHostSession = () => {
         <>
           {!started ? (
             <>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isManualControl}
+                  onChange={() => setIsManualControl(!isManualControl)}
+                />
+                Manual Control
+              </label>
               <button onClick={startQuiz}>Start Quiz</button>
               <h2>Participants:</h2>
               <ul>
@@ -92,6 +111,16 @@ const QuizHostSession = () => {
                 ></div>
               </div>
               <p>Time left: {timer} seconds</p>
+              {isManualControl && (
+                <button
+                  onClick={() => {
+                    socket.emit('nextQuestion', { quizSessionId: id });
+                    setShowAnswer(false);
+                  }}
+                >
+                  Next Question
+                </button>
+              )}
               <p>{currentQuestion.question}</p>
               {renderQuestionInput(currentQuestion)}
               {showAnswer && (

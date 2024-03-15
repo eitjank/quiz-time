@@ -4,14 +4,15 @@ import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
 
 function Quiz() {
+  const [currentQuestion, setCurrentQuestion] = useState({});
+  const [timer, setTimer] = useState(null);
   const [answer, setAnswer] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
   const [joined, setJoined] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentQuestion, timer, socket, results, finished, participants } =
-    useQuizSession(id);
+  const { socket, results, finished, participants } = useQuizSession(id);
 
   const progressBarWidth =
     currentQuestion.timeLimit !== 0
@@ -21,6 +22,16 @@ function Quiz() {
   useEffect(() => {
     if (!socket) return;
     socket.emit('joinQuiz', { quizSessionId: id });
+
+    socket.on('receiveQuestion', (question) => {
+      setCurrentQuestion(question);
+      setTimer(question.timeLimit);
+      setAnswer('');
+    });
+
+    socket.on('timeUpdate', (timeRemaining) => {
+      setTimer(timeRemaining);
+    });
 
     socket.on('joinedQuiz', (data) => {
       if (data.success) {
@@ -44,7 +55,6 @@ function Quiz() {
       setShowAnswer(true);
       setIsCorrect(answer === currentQuestion.answer);
       socket.emit('submitAnswer', { quizSessionId: id, answer });
-      setAnswer('');
     } else {
       setShowAnswer(false);
       setIsCorrect(null);
@@ -63,6 +73,7 @@ function Quiz() {
               name="quizOption"
               value={option}
               checked={answer === option}
+              disabled={showAnswer}
               onChange={(e) => setAnswer(e.target.value)}
             />
             <label htmlFor={`option-${index}`}>{option}</label>
@@ -73,6 +84,7 @@ function Quiz() {
           <input
             type="text"
             value={answer}
+            disabled={showAnswer}
             onChange={(e) => setAnswer(e.target.value)}
           />
         );
@@ -85,6 +97,7 @@ function Quiz() {
               name="trueFalseOption"
               value={option}
               checked={answer.toLowerCase() === option.toLowerCase()}
+              disabled={showAnswer}
               onChange={(e) => setAnswer(e.target.value)}
             />
             <label htmlFor={`trueFalse-${index}`}>{option}</label>

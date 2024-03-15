@@ -62,13 +62,13 @@ function socketSetup(server) {
     });
 
     socket.on('joinQuiz', async ({ quizSessionId }) => {
-      const quizSession = await QuizSession.findById(quizSessionId);
-      quizSession.participants[socket.id] = {
-        id: socket.id,
-        score: 0,
-      };
-      await quizSession.save();
-      const quiz = await Quiz.findById(quizSession.quiz); // get quiz from quizSession
+      // const quizSession = await QuizSession.findById(quizSessionId);
+      // quizSession.participants[socket.id] = {
+      //   id: socket.id,
+      //   score: 0,
+      // };
+      // await quizSession.save();
+      // const quiz = await Quiz.findById(quizSession.quiz); // get quiz from quizSession
 
       if (quizSessions[quizSessionId]) {
         socket.join(quizSessionId);
@@ -84,6 +84,7 @@ function socketSetup(server) {
           // name: participantName, // for future use
           id: socket.id,
           score: 0,
+          answers: [],
         };
         // Notify the all in the romm that a participant has joined
         io.to(quizSessionId).emit('participantList', {
@@ -97,7 +98,8 @@ function socketSetup(server) {
       }
     });
 
-    socket.on('startQuiz', ({ quizSessionId }) => {
+    socket.on('startQuiz', ({ quizSessionId, isManualControl }) => {
+      quizSessions[quizSessionId].isManualControl = isManualControl;
       io.to(quizSessionId).emit(
         'receiveQuestion',
         quizSessions[quizSessionId].questions[
@@ -106,9 +108,12 @@ function socketSetup(server) {
       );
       quizSessions[quizSessionId].currentQuestionStartTime = Date.now();
       console.log(
-        `participant length: ${quizSessions[quizSessionId].participants.length}`
+        `Quiz ${quizSessionId} started with participant list: ${Object.keys(
+          quizSessions[quizSessionId].participants
+        ).join(', ')}`
       );
-      setInterval(() => {
+      const interval = setInterval(() => {
+        console.log(`Timer is running`);
         if (
           quizSessions[quizSessionId] &&
           quizSessions[quizSessionId].currentQuestionStartTime
@@ -126,8 +131,15 @@ function socketSetup(server) {
           } else {
             // Time's up, move to next question or show results
             quiz.currentQuestionStartTime = null;
-            if (++quiz.currentQuestionIndex < allQuestions.length) {
-              startQuestionTimer(quizSessionId);
+            if (quiz.currentQuestionIndex + 1 < allQuestions.length) {
+              if (isManualControl) {
+                console.log(
+                  `Manual control is enabled for quiz ${quizSessionId}`
+                );
+              } else {
+                quiz.currentQuestionIndex++;
+                startQuestionTimer(quizSessionId);
+              }
             } else {
               const participantsArray = Object.values(quiz.participants); // convert object to array
               io.to(quizSessionId).emit('quizFinished', {
@@ -135,6 +147,21 @@ function socketSetup(server) {
                 participants: participantsArray,
               });
               console.log(`Quiz ${quizSessionId} has finished`);
+              // save the results to the database
+              QuizSession.findByIdAndUpdate(
+                quizSessionId,
+                {
+                  participants: participantsArray,
+                  isFinished: true,
+                },
+                { new: true }
+              ).then((updatedQuizSession) => {
+                console.log('Updated quiz session:', updatedQuizSession);
+              });
+
+              // stop the timer
+              clearInterval(interval);
+
               // start over the quiz // for testing purposes
               // quiz.currentQuestionIndex = 0;
               // startQuestionTimer(quizSessionId);
@@ -144,9 +171,29 @@ function socketSetup(server) {
       }, 1000); // Update every second
     });
 
+    socket.on('nextQuestion', ({ quizSessionId }) => {
+      console.log(`Moving to next question in quiz ${quizSessionId}`);
+      const quiz = quizSessions[quizSessionId];
+      console.log('Current:', quiz);
+      if (quiz.currentQuestionIndex < quiz.questions.length - 1) {
+        quiz.currentQuestionIndex++;
+        startQuestionTimer(quizSessionId);
+      } else {
+        console.log(`Quiz ${quizSessionId} has finished`);
+        io.to(quizSessionId).emit('quizFinished', {
+          message: 'Quiz has finished.',
+          participants: quiz.participants,
+        });
+      }
+    });
+
     socket.on('submitAnswer', (data) => {
       const quiz = quizSessions[data.quizSessionId];
       const question = quiz.questions[quiz.currentQuestionIndex];
+      quiz.participants[socket.id].answers.push({
+        questionId: question._id,
+        answer: data.answer,
+      });
       if (data.answer === question.answer) {
         console.log(`User ${socket.id} answered correctly`);
         quiz.participants[socket.id].score++;

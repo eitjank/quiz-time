@@ -3,10 +3,8 @@ import socketIOClient from 'socket.io-client';
 
 const ENDPOINT = 'http://localhost:3001';
 
-export function useQuizSession(id) {
+export function useQuizSession() {
   const [participants, setParticipants] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState({});
-  const [timer, setTimer] = useState(null);
   const [socket, setSocket] = useState(null);
   const [results, setResults] = useState([]);
   const [finished, setFinished] = useState(false);
@@ -14,15 +12,6 @@ export function useQuizSession(id) {
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
     setSocket(socket);
-
-    socket.on('receiveQuestion', (question) => {
-      setCurrentQuestion(question);
-      setTimer(question.timeLimit);
-    });
-
-    socket.on('timeUpdate', (timeRemaining) => {
-      setTimer(timeRemaining);
-    });
 
     socket.on('participantList', (data) => {
       console.log('Participant list:', data.participants);
@@ -50,11 +39,9 @@ export function useQuizSession(id) {
       socket.off('quizFinished');
       socket.disconnect();
     };
-  }, [id]);
+  }, []);
 
   return {
-    currentQuestion,
-    timer,
     socket,
     results,
     finished,

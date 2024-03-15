@@ -6,7 +6,19 @@ const QuizSessionSchema = new mongoose.Schema({
     ref: 'Quiz',
     required: true,
   },
-  participants: [],
+  participants: [
+    {
+      id: String,
+      name: String,
+      score: Number,
+      answers: [
+        {
+          questionId: mongoose.Schema.Types.ObjectId,
+          answer: String,
+        },
+      ],
+    },
+  ],
   // ... any other necessary fields ...
 });
 
