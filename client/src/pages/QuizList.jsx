@@ -56,7 +56,7 @@ function QuizList() {
           quizzes.map((quiz, index) => (
             <li key={index}>
               <h2>{quiz.name}</h2>
-              <p>Quiz id: {quiz._id}</p>
+              <p>{quiz.description}</p>
               <button onClick={() => handleHost(quiz._id)}>Host</button>
               <button onClick={() => handleView(quiz)}>View</button>
               <button onClick={() => handleEdit(quiz)}>Edit</button>

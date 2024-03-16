@@ -11,6 +11,20 @@ const QuizHostSession = () => {
   const { id } = useParams();
   const { socket, results, finished, participants } = useQuizSession();
   const [isManualControl, setIsManualControl] = useState(false);
+  const [progressBarWidth, setProgressBarWidth] = useState(100);
+
+  useEffect(() => {
+    if (currentQuestion.timeLimit !== 0) {
+      setProgressBarWidth(
+        ((timer - 1) / (currentQuestion.timeLimit - 1)) * 100
+      );
+    } else {
+      setProgressBarWidth(0);
+    }
+    if (timer === 0) {
+      setProgressBarWidth(0);
+    }
+  }, [timer, currentQuestion.timeLimit]);
 
   useEffect(() => {
     if (!socket) return;
@@ -36,6 +50,8 @@ const QuizHostSession = () => {
     return () => {
       // Clean up the socket connection
       socket.off('joinedQuiz');
+      socket.off('receiveQuestion');
+      socket.off('timeUpdate');
     };
   }, [id, socket]);
 
@@ -52,11 +68,6 @@ const QuizHostSession = () => {
     socket.emit('startQuiz', { quizSessionId: id, isManualControl });
     setStarted(true);
   };
-
-  const progressBarWidth =
-    currentQuestion.timeLimit !== 0
-      ? ((timer - 1) / (currentQuestion.timeLimit - 1)) * 100
-      : 0;
 
   const renderQuestionInput = (question) => {
     switch (question.type) {
@@ -112,14 +123,26 @@ const QuizHostSession = () => {
               </div>
               <p>Time left: {timer} seconds</p>
               {isManualControl && (
-                <button
-                  onClick={() => {
-                    socket.emit('nextQuestion', { quizSessionId: id });
-                    setShowAnswer(false);
-                  }}
-                >
-                  Next Question
-                </button>
+                <>
+                  {showAnswer ? (
+                    <button
+                      onClick={() => {
+                        socket.emit('nextQuestion', { quizSessionId: id });
+                        setShowAnswer(false);
+                      }}
+                    >
+                      Next Question
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        socket.emit('skipQuestion', { quizSessionId: id })
+                      }
+                    >
+                      Skip Question
+                    </button>
+                  )}
+                </>
               )}
               <p>{currentQuestion.question}</p>
               {renderQuestionInput(currentQuestion)}

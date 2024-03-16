@@ -13,11 +13,20 @@ function Quiz() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { socket, results, finished, participants } = useQuizSession(id);
+  const [progressBarWidth, setProgressBarWidth] = useState(100);
 
-  const progressBarWidth =
-    currentQuestion.timeLimit !== 0
-      ? ((timer - 1) / (currentQuestion.timeLimit - 1)) * 100
-      : 0;
+  useEffect(() => {
+    if (currentQuestion.timeLimit !== 0) {
+      setProgressBarWidth(
+        ((timer - 1) / (currentQuestion.timeLimit - 1)) * 100
+      );
+    } else {
+      setProgressBarWidth(0);
+    }
+    if (timer === 0) {
+      setProgressBarWidth(0);
+    }
+  }, [timer, currentQuestion.timeLimit]);
 
   useEffect(() => {
     if (!socket) return;
@@ -47,6 +56,8 @@ function Quiz() {
     return () => {
       // Clean up the socket connection
       socket.off('joinedQuiz');
+      socket.off('receiveQuestion');
+      socket.off('timeUpdate');
     };
   }, [id, navigate, socket]);
 

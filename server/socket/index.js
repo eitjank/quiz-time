@@ -112,7 +112,7 @@ function socketSetup(server) {
           quizSessions[quizSessionId].participants
         ).join(', ')}`
       );
-      const interval = setInterval(() => {
+      quizSessions[quizSessionId].interval = setInterval(() => {
         console.log(`Timer is running`);
         if (
           quizSessions[quizSessionId] &&
@@ -147,20 +147,23 @@ function socketSetup(server) {
                 participants: participantsArray,
               });
               console.log(`Quiz ${quizSessionId} has finished`);
-              // save the results to the database
-              QuizSession.findByIdAndUpdate(
-                quizSessionId,
-                {
-                  participants: participantsArray,
-                  isFinished: true,
-                },
-                { new: true }
-              ).then((updatedQuizSession) => {
-                console.log('Updated quiz session:', updatedQuizSession);
-              });
-
               // stop the timer
-              clearInterval(interval);
+              clearInterval(quizSessions[quizSessionId].interval);
+              // save the results to the database
+              try {
+                QuizSession.findByIdAndUpdate(
+                  quizSessionId,
+                  {
+                    participants: participantsArray,
+                    isFinished: true,
+                  },
+                  { new: true }
+                ).then((updatedQuizSession) => {
+                  console.log('Updated quiz session:', updatedQuizSession);
+                });
+              } catch (error) {
+                console.error('Error updating quiz session:', error);
+              }
 
               // start over the quiz // for testing purposes
               // quiz.currentQuestionIndex = 0;
@@ -174,7 +177,6 @@ function socketSetup(server) {
     socket.on('nextQuestion', ({ quizSessionId }) => {
       console.log(`Moving to next question in quiz ${quizSessionId}`);
       const quiz = quizSessions[quizSessionId];
-      console.log('Current:', quiz);
       if (quiz.currentQuestionIndex < quiz.questions.length - 1) {
         quiz.currentQuestionIndex++;
         startQuestionTimer(quizSessionId);
@@ -185,6 +187,11 @@ function socketSetup(server) {
           participants: quiz.participants,
         });
       }
+    });
+
+    socket.on('skipQuestion', ({ quizSessionId }) => {
+      quizSessions[quizSessionId].currentQuestionStartTime = null;
+      io.to(quizSessionId).emit('timeUpdate', 0);
     });
 
     socket.on('submitAnswer', (data) => {
@@ -207,6 +214,7 @@ function socketSetup(server) {
       for (const quizSessionId in quizSessions) {
         if (quizSessions[quizSessionId].host === socket.id) {
           console.log(`Host ${socket.id} disconnected`);
+          clearInterval(quizSessions[quizSessionId].interval);
           delete quizSessions[quizSessionId];
         } else if (quizSessions[quizSessionId].participants[socket.id]) {
           console.log(`Participant ${socket.id} disconnected`);
