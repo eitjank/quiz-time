@@ -62,14 +62,6 @@ function socketSetup(server) {
     });
 
     socket.on('joinQuiz', async ({ quizSessionId }) => {
-      // const quizSession = await QuizSession.findById(quizSessionId);
-      // quizSession.participants[socket.id] = {
-      //   id: socket.id,
-      //   score: 0,
-      // };
-      // await quizSession.save();
-      // const quiz = await Quiz.findById(quizSession.quiz); // get quiz from quizSession
-
       if (quizSessions[quizSessionId]) {
         socket.join(quizSessionId);
         console.log(`User ${socket.id} joined quiz ${quizSessionId}`);

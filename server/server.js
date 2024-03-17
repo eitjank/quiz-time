@@ -1,17 +1,21 @@
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./db/connection');
 const socketSetup = require('./socket');
 const quizzesRoutes = require('./routes/quizzes');
 const quizSessionsRoutes = require('./routes/quizsessions');
+const authRoutes = require('./routes/auth');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use('/api', quizzesRoutes);
 app.use('/api/quizSessions', quizSessionsRoutes);
+app.use('/api/auth', authRoutes);
 const server = http.createServer(app);
 
 connectDB();
