@@ -10,7 +10,10 @@ const authRoutes = require('./routes/auth');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true // Allow cookies for signup
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use('/api', quizzesRoutes);

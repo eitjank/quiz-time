@@ -46,7 +46,6 @@ function Quiz() {
       if (data.success) {
         setJoined(true);
       } else {
-        console.log(data.message);
         setJoined(false);
         alert(data.message);
         navigate('/join');

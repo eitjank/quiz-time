@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { QUIZZES_ENDPOINT } from '../api/endpoints';
 
 function QuizView() {
   const { id } = useParams();
   const [quiz, setQuiz] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/quizzes/${id}`)
+    fetch(`${QUIZZES_ENDPOINT}/${id}`)
       .then((res) => res.json())
       .then((data) => setQuiz(data))
       .catch((err) => console.error(err));

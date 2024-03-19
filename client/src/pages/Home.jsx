@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { QUIZZES_ENDPOINT } from '../api/endpoints';
 
-function QuizList() {
+function Home() { // QuizList
   const [quizzes, setQuizzes] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/quizzes')
+    fetch(QUIZZES_ENDPOINT)
       .then((res) => res.json())
       .then((data) => setQuizzes(data))
       .catch((err) => console.error(err));
@@ -22,7 +23,7 @@ function QuizList() {
 
   const handleDelete = async (quiz) => {
     try {
-      await fetch(`http://localhost:3001/api/quizzes/${quiz._id}`, {
+      await fetch(`${QUIZZES_ENDPOINT}/${quiz._id}`, {
         method: 'DELETE',
       });
       setQuizzes(quizzes.filter((q) => q._id !== quiz._id));
@@ -68,4 +69,4 @@ function QuizList() {
   );
 }
 
-export default QuizList;
+export default Home;

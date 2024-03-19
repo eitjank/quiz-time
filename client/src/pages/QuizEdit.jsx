@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import QuizForm from '../components/QuizForm';
+import { QUIZZES_ENDPOINT } from '../api/endpoints';
 
 function QuizEdit() {
   const [name, setName] = useState('');
@@ -10,7 +11,7 @@ function QuizEdit() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/quizzes/${id}`)
+    fetch(`${QUIZZES_ENDPOINT}/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setName(data.name);
@@ -22,7 +23,7 @@ function QuizEdit() {
 
   const updateQuiz = async (e) => {
     try {
-      await fetch(`http://localhost:3001/api/quizzes/${id}`, {
+      await fetch(`${QUIZZES_ENDPOINT}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description, questions }),

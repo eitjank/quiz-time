@@ -14,7 +14,6 @@ export function useQuizSession() {
     setSocket(socket);
 
     socket.on('participantList', (data) => {
-      console.log('Participant list:', data.participants);
       setParticipants(data.participants);
     });
 
