@@ -11,10 +11,12 @@ import QuizHostSession from './pages/QuizHostSession';
 import Navbar from './components/Navbar/Navbar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
     <div className="App">
+      <ToastContainer />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />

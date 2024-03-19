@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { SIGNUP_ENDPOINT } from '../api/endpoints';
+import { toast } from 'react-toastify';
+import AuthContext from '../contexts/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -11,7 +10,10 @@ const Signup = () => {
     password: '',
     username: '',
   });
+  const { signup } = useContext(AuthContext);
+
   const { email, password, username } = inputValue;
+
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({
@@ -24,35 +26,25 @@ const Signup = () => {
     toast.error(err, {
       position: 'bottom-left',
     });
+
   const handleSuccess = (msg) =>
-    toast.success(msg, {
+    toast(msg, {
       position: 'bottom-right',
     });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch(SIGNUP_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inputValue),
-        credentials: 'include',
-      });
-      const data = await res.json();
-      const { success, message } = data;
-      if (success) {
-        handleSuccess(message);
-        setTimeout(() => {
-          navigate('/');
-        }, 1000);
-      } else {
-        handleError(message);
-      }
-    } catch (error) {
-      console.log(error);
+
+    const { success, message } = await signup(inputValue);
+    if (success) {
+      handleSuccess(message);
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    } else {
+      handleError(message);
     }
+
     setInputValue({
       ...inputValue,
       email: '',
@@ -100,7 +92,6 @@ const Signup = () => {
           Already have an account? <Link to={'/login'}>Login</Link>
         </span>
       </form>
-      <ToastContainer />
     </div>
   );
 };

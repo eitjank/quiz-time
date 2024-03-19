@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { QUIZZES_ENDPOINT, QUIZ_SESSIONS_START_ENDPOINT } from '../api/endpoints';
 
-function Home() { // QuizList
+function Home() {
+  // QuizList
   const [quizzes, setQuizzes] = useState([]);
   const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ function Home() { // QuizList
 
   const handleHost = async (quizId) => {
     try {
-      const res = await fetch(`http://localhost:3001/api/quizSessions/start`, {
+      const res = await fetch(QUIZ_SESSIONS_START_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

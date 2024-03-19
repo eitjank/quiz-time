@@ -15,7 +15,7 @@ router.post('/signup', async (req, res) => {
     const token = createSecretToken(user._id);
     res.cookie('token', token, {
       withCredentials: true,
-      httpOnly: false,
+      httpOnly: true,
     });
     res
       .status(201)
@@ -43,7 +43,7 @@ router.post('/login', async (req, res) => {
     const token = createSecretToken(user._id);
     res.cookie('token', token, {
       withCredentials: true,
-      httpOnly: false,
+      httpOnly: true,
     });
     res
       .status(201)
@@ -52,6 +52,11 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: error.message });
     console.error(error);
   }
+});
+
+router.post('/logout', (req, res) => {
+  res.cookie('token', '', { expires: new Date(0), httpOnly: true });
+  res.status(200).json({ message: 'Logged out' });
 });
 
 // userVerification

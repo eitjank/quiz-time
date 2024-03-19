@@ -1,40 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
-import { useCookies } from 'react-cookie';
-import { AUTH_ENDPOINT } from '../../api/endpoints';
+import AuthContext from '../../contexts/AuthContext';
 
 const Navbar = () => {
-  const [cookies, , removeCookie] = useCookies(['token']);
-  const [username, setUsername] = useState('');
-
-  const Logout = async () => {
-    removeCookie('token');
-    console.log(username);
-    setUsername('');
-  };
-
-  useEffect(() => {
-    if (!cookies.token) return;
-    console.log(cookies.token);
-    const verifyCookie = async () => {
-      const response = await fetch(AUTH_ENDPOINT, {
-        method: 'POST',
-        credentials: 'include', // Include cookies in the request
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.status) {
-        setUsername(data.user);
-      } else {
-        removeCookie('token');
-        setUsername('');
-      }
-    };
-    verifyCookie();
-  }, [cookies, removeCookie]);
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
   return (
     <nav className="navbar">
@@ -44,9 +14,9 @@ const Navbar = () => {
       <Link className="navbar-item" to="/join">
         Join Quiz
       </Link>
-      {cookies.token ? ( // If the user is logged in
+      {isAuthenticated ? (
         <>
-          <Link className="navbar-item" onClick={Logout} to="/">
+          <Link className="navbar-item" onClick={logout} to="/">
             Logout
           </Link>
         </>

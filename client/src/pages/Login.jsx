@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { LOGIN_ENDPOINT } from '../api/endpoints';
+import { toast } from 'react-toastify';
+import AuthContext from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,7 +9,10 @@ const Login = () => {
     email: '',
     password: '',
   });
+  const { login } = useContext(AuthContext);
+  
   const { email, password } = inputValue;
+
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({
@@ -33,28 +35,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch(LOGIN_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inputValue),
-        credentials: 'include',
-      });
-      const data = await res.json();
-      const { success, message } = data;
-      if (success) {
-        handleSuccess(message);
-        setTimeout(() => {
-          navigate('/');
-        }, 1000);
-      } else {
-        handleError(message);
-      }
-    } catch (error) {
-      console.log(error);
+
+    const { success, message } = await login(inputValue);
+    if (success) {
+      handleSuccess(message);
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    } else {
+      handleError(message);
     }
+
     setInputValue({
       ...inputValue,
       email: '',
@@ -91,7 +82,6 @@ const Login = () => {
           Don't have an account? <Link to={'/signup'}>Signup</Link>
         </span>
       </form>
-      <ToastContainer />
     </div>
   );
 };
