@@ -18,9 +18,9 @@ function Leaderboard({ results }) {
             .sort((a, b) => b.score - a.score)
             .map((participant, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{participant.id}</td>
-                <td>{participant.score}</td>
+                <td data-testid="rank-cell">{index + 1}</td>
+                <td data-testid="participant-id">{participant.id}</td>
+                <td data-testid="score">{participant.score}</td>
               </tr>
             ))}
         </tbody>

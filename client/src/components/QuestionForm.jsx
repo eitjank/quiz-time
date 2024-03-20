@@ -5,6 +5,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
     <li key={index}>
       <p>Type:</p>
       <select
+        data-testid="question-type-select"
         value={question.type}
         onChange={(e) => {
           const newQuestions = [...questions];
@@ -18,6 +19,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
       </select>
       <p>Question:</p>
       <input
+        data-testid="question-input"
         type="text"
         value={questions[index].question}
         onChange={(e) => {
@@ -32,6 +34,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
           {question.options.map((option, optionIndex) => (
             <div key={optionIndex}>
               <input
+                data-testid="option-multiple-choice-input"
                 type="text"
                 value={option}
                 onChange={(e) => {
@@ -39,7 +42,6 @@ function QuestionForm({ question, index, questions, setQuestions }) {
                   newQuestions[index].options[optionIndex] = e.target.value;
                   setQuestions(newQuestions);
                 }}
-                placeholder={option}
               />
               <button
                 onClick={(e) => {
@@ -67,6 +69,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
       )}
       <p>Answer:</p>
       <input
+        data-testid="answer-input"
         type="text"
         value={question.answer}
         onChange={(e) => {
@@ -74,7 +77,6 @@ function QuestionForm({ question, index, questions, setQuestions }) {
           newQuestions[index].answer = e.target.value;
           setQuestions(newQuestions);
         }}
-        placeholder={questions[index].answer}
       />
       <p>timeLimit (seconds):</p>
       <input
@@ -85,7 +87,6 @@ function QuestionForm({ question, index, questions, setQuestions }) {
           newQuestions[index].timeLimit = e.target.value;
           setQuestions(newQuestions);
         }}
-        placeholder={questions[index].timeLimit}
       />
       <br />
       <br />

@@ -13,6 +13,7 @@ describe('Quizzes API', () => {
     // Close the server
     await new Promise((resolve) => app.close(resolve));
 
+    // Close the MongoDB connection
     await mongoose.connection.close();
   });
 

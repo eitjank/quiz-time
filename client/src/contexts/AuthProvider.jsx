@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AuthContext from './AuthContext';
 import {
   AUTH_ENDPOINT,
@@ -10,6 +10,10 @@ import { toast } from 'react-toastify';
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
 
   const checkAuthentication = async () => {
     const response = await fetch(AUTH_ENDPOINT, {
