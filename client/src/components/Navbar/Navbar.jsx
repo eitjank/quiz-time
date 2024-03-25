@@ -16,6 +16,9 @@ const Navbar = () => {
       </Link>
       {isAuthenticated ? (
         <>
+          <Link className="navbar-item" to="/myQuizzes">
+            My Quizzes
+          </Link>
           <Link className="navbar-item" onClick={logout} to="/">
             Logout
           </Link>

@@ -1,0 +1,77 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  QUIZZES_ENDPOINT,
+  QUIZ_SESSIONS_START_ENDPOINT,
+} from '../api/endpoints';
+
+const QuizList = ({ endpoint }) => {
+  const [quizzes, setQuizzes] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch(endpoint, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => setQuizzes(data))
+      .catch((err) => console.error(err));
+  }, [endpoint]);
+
+  const handleView = (quiz) => {
+    navigate(`/quizzes/${quiz._id}/view`);
+  };
+
+  const handleEdit = (quiz) => {
+    navigate(`/quizzes/${quiz._id}/edit`);
+  };
+
+  const handleDelete = async (quiz) => {
+    try {
+      await fetch(`${QUIZZES_ENDPOINT}/${quiz._id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      setQuizzes(quizzes.filter((q) => q._id !== quiz._id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleHost = async (quizId) => {
+    try {
+      const res = await fetch(QUIZ_SESSIONS_START_ENDPOINT, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quizId }),
+      });
+      const data = await res.json();
+      navigate(`/quizSessions/${data.quizSessionId}`);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Quizzes</h1>
+      <button onClick={() => navigate('/quizzes/create')}>Create Quiz</button>
+      <ul>
+        {quizzes &&
+          quizzes.map((quiz, index) => (
+            <li key={index}>
+              <h2>{quiz.name}</h2>
+              <p>{quiz.description}</p>
+              <button onClick={() => handleHost(quiz._id)}>Host</button>
+              <button onClick={() => handleView(quiz)}>View</button>
+              <button onClick={() => handleEdit(quiz)}>Edit</button>
+              <button onClick={() => handleDelete(quiz)}>Delete</button>
+            </li>
+          ))}
+      </ul>
+    </div>
+  );
+};
+
+export default QuizList;

@@ -7,7 +7,7 @@ function QuizView() {
   const [quiz, setQuiz] = useState(null);
 
   useEffect(() => {
-    fetch(`${QUIZZES_ENDPOINT}/${id}`)
+    fetch(`${QUIZZES_ENDPOINT}/${id}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => setQuiz(data))
       .catch((err) => console.error(err));

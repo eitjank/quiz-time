@@ -12,6 +12,7 @@ import Navbar from './components/Navbar/Navbar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import { ToastContainer } from 'react-toastify';
+import MyQuizzes from './pages/MyQuizzes';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/myQuizzes" element={<MyQuizzes />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/quizzes/:id" element={<Quiz />} />

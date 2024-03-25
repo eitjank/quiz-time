@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Quiz = require('./db/models/Quiz');
+const User = require('./db/models/User');
 
 const db = 'mongodb://127.0.0.1:27017/quizApp';
 
@@ -96,12 +97,22 @@ const questions2 = [
   },
 ];
 
-const addQuestionsToDB = async () => {
+const addInitialDataToDB = async () => {
   try {
+    const user = new User({
+      email: 'test@test',
+      password: 'test',
+      username: 'test',
+    });
+
+    await user.save();
+
     const quiz = new Quiz({
       name: 'My Quiz',
       description: 'A quiz about various topics',
       questions: questions1,
+      visibility: 'public',
+      owner: user._id,
     });
 
     await quiz.save();
@@ -110,6 +121,8 @@ const addQuestionsToDB = async () => {
       name: 'Another Quiz',
       description: 'Another quiz about various topics',
       questions: questions2,
+      visibility: 'private',
+      owner: user._id,
     });
 
     await quiz2.save();
@@ -122,4 +135,4 @@ const addQuestionsToDB = async () => {
   }
 };
 
-addQuestionsToDB();
+addInitialDataToDB();

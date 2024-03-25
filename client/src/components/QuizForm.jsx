@@ -11,18 +11,22 @@ function QuizForm({ initialQuiz, onSubmit }) {
       ? initialQuiz.questions
       : [{ type: 'multipleChoice', question: '', options: [''] }]
   );
+  const [visibility, setVisibility] = useState(
+    initialQuiz ? initialQuiz.visibility : 'public'
+  );
 
   useEffect(() => {
     if (initialQuiz) {
       setName(initialQuiz.name);
       setDescription(initialQuiz.description);
       setQuestions(initialQuiz.questions);
+      setVisibility(initialQuiz.visibility);
     }
   }, [initialQuiz]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ name, description, questions });
+    onSubmit({ name, description, visibility, questions });
   };
 
   const handleQuestionChange = useCallback((index, newQuestion) => {
@@ -49,6 +53,16 @@ function QuizForm({ initialQuiz, onSubmit }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+        </label>
+        <label>
+          Visibility:
+          <select
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value)}
+          >
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+          </select>
         </label>
         <label>
           Questions:

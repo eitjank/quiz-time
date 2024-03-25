@@ -7,26 +7,28 @@ function QuizEdit() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [questions, setQuestions] = useState([]);
+  const [visibility, setVisibility] = useState('public');
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${QUIZZES_ENDPOINT}/${id}`)
+    fetch(`${QUIZZES_ENDPOINT}/${id}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         setName(data.name);
         setDescription(data.description);
         setQuestions(data.questions);
+        setVisibility(data.visibility);
       })
       .catch((err) => console.error(err));
   }, [id]);
 
-  const updateQuiz = async (e) => {
+  const updateQuiz = async (quiz) => {
     try {
       await fetch(`${QUIZZES_ENDPOINT}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, questions }),
+        body: JSON.stringify(quiz),
       });
       navigate('/');
     } catch (err) {
@@ -38,7 +40,7 @@ function QuizEdit() {
 
   return (
     <QuizForm
-      initialQuiz={{ name, description, questions }}
+      initialQuiz={{ name, description, questions, visibility }}
       onSubmit={updateQuiz}
     />
   );
