@@ -12,6 +12,8 @@ describe('Quiz Sessions API', () => {
   });
 
   afterAll(async () => {
+    await QuizSession.deleteMany();
+    await Quiz.deleteMany();
     // Close the server
     await new Promise((resolve) => app.close(resolve));
 

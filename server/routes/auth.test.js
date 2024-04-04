@@ -12,6 +12,7 @@ describe('Authentication API', () => {
   });
 
   afterAll(async () => {
+    await User.deleteMany();
     // Close the server
     await new Promise((resolve) => app.close(resolve));
 

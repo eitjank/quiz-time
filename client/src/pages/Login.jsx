@@ -39,9 +39,7 @@ const Login = () => {
     const { success, message } = await login(inputValue);
     if (success) {
       handleSuccess(message);
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      navigate('/');
     } else {
       handleError(message);
     }

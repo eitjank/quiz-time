@@ -7,6 +7,7 @@ const socketSetup = require('./socket');
 const quizzesRoutes = require('./routes/quizzes');
 const quizSessionsRoutes = require('./routes/quizsessions');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 require('dotenv').config();
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api', quizzesRoutes);
 app.use('/api/quizSessions', quizSessionsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 const server = http.createServer(app);
 
 connectDB();

@@ -11,6 +11,7 @@ import QuizHostSession from './pages/QuizHostSession';
 import Navbar from './components/Navbar/Navbar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
 import { ToastContainer } from 'react-toastify';
 import MyQuizzes from './pages/MyQuizzes';
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/myQuizzes" element={<MyQuizzes />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/quizzes/:id" element={<Quiz />} />
         <Route path="/quizzes/:id/edit" element={<QuizEdit />} />
         <Route path="/quizzes/:id/view" element={<QuizView />} />

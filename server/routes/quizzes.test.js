@@ -10,6 +10,7 @@ describe('Quizzes API', () => {
   });
 
   afterAll(async () => {
+    await Quiz.deleteMany({});
     // Close the server
     await new Promise((resolve) => app.close(resolve));
 

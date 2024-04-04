@@ -19,6 +19,9 @@ const Navbar = () => {
           <Link className="navbar-item" to="/myQuizzes">
             My Quizzes
           </Link>
+          <Link className="navbar-item" to="/profile">
+            Profile
+          </Link>
           <Link className="navbar-item" onClick={logout} to="/">
             Logout
           </Link>
