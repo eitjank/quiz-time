@@ -4,6 +4,7 @@ import {
   QUIZZES_ENDPOINT,
   QUIZ_SESSIONS_START_ENDPOINT,
 } from '../api/endpoints';
+import { toast } from 'react-toastify';
 
 const QuizList = ({ endpoint }) => {
   const [quizzes, setQuizzes] = useState([]);
@@ -26,11 +27,15 @@ const QuizList = ({ endpoint }) => {
 
   const handleDelete = async (quiz) => {
     try {
-      await fetch(`${QUIZZES_ENDPOINT}/${quiz._id}`, {
+      const response = await fetch(`${QUIZZES_ENDPOINT}/${quiz._id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
-      setQuizzes(quizzes.filter((q) => q._id !== quiz._id));
+      if (response.ok) {
+        setQuizzes(quizzes.filter((q) => q._id !== quiz._id));
+      } else {
+        toast.error('Failed to delete quiz');
+      }
     } catch (err) {
       console.error(err);
     }

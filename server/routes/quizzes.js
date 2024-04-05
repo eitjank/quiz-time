@@ -2,6 +2,7 @@ const express = require('express');
 const Quiz = require('../db/models/Quiz');
 const mongoose = require('mongoose');
 const authenticateUser = require('../middleware/authMiddleware');
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -98,14 +99,31 @@ router.delete('/quizzes/:id', async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: 'Quiz not found' });
   }
-
   try {
-    const result = await Quiz.findByIdAndDelete(req.params.id);
-    if (result) {
-      res.json({ message: 'Deleted Quiz' });
-    } else {
-      res.status(404).json({ message: 'Quiz not found' });
+    // Find the quiz
+    const quiz = await Quiz.findById(req.params.id);
+
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found' });
     }
+
+    // Delete the image files
+    quiz.questions.forEach((question) => {
+      if (question.image) {
+        // check if file exists and starts with 'uploads/'
+        const filePath = question.image;
+        console.log(filePath);
+        if (!filePath.startsWith('uploads\\')) return;
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+      }
+    });
+    // Delete the quiz
+    await Quiz.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Quiz deleted successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });

@@ -11,10 +11,10 @@ describe('Upload Routes', () => {
     await mongoose.connection.close();
   });
 
-  describe('POST /upload', () => {
+  describe('POST /uploads', () => {
     it('should upload a file successfully', async () => {
       const response = await request(app)
-        .post('/api/upload')
+        .post('/api/uploads')
         .attach('file', 'uploads/cloudy1.jpg'); // Replace 'path/to/file.jpg' with the actual file path
 
       expect(response.status).toBe(201);
@@ -22,7 +22,7 @@ describe('Upload Routes', () => {
     });
 
     it('should return an error if no file is uploaded', async () => {
-      const response = await request(app).post('/api/upload');
+      const response = await request(app).post('/api/uploads');
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('No file uploaded');

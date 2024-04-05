@@ -142,7 +142,7 @@ describe('Quizzes API', () => {
 
       expect(response.status).toBe(200);
 
-      expect(response.body.message).toBe('Deleted Quiz');
+      expect(response.body.message).toBe('Quiz deleted successfully');
     });
 
     it('should return 404 if quiz is not found', async () => {

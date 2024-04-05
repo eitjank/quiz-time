@@ -7,6 +7,15 @@ function QuestionForm({ question, index, questions, setQuestions }) {
     const formData = new FormData();
     formData.append('file', file);
 
+    // If there's an old image, delete it
+    console.log(questions[index].image);
+    if (questions[index].image) {
+      await fetch(`${BASE_URL}/uploads/${questions[index].image}`, {
+        method: 'DELETE',
+      });
+    }
+
+    // Upload the new image
     try {
       const response = await fetch(FILE_UPLOAD_ENDPOINT, {
         method: 'POST',

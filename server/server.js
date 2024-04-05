@@ -8,7 +8,7 @@ const quizzesRoutes = require('./routes/quizzes');
 const quizSessionsRoutes = require('./routes/quizsessions');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
-const uploadRoutes = require('./routes/upload');
+const uploadRoutes = require('./routes/uploads');
 require('dotenv').config();
 
 const app = express();
@@ -24,7 +24,7 @@ app.use('/api', quizzesRoutes);
 app.use('/api/quizSessions', quizSessionsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/upload', uploadRoutes);
+app.use('/api/uploads', uploadRoutes);
 app.use('/api/uploads', express.static('uploads'));
 const server = http.createServer(app);
 
