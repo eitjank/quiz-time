@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
+import { BASE_URL } from '../api/endpoints';
 
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -150,6 +151,12 @@ function Quiz() {
                 </>
               )}
               <p>{currentQuestion.question}</p>
+              {currentQuestion.image && (
+                <img
+                  src={`${BASE_URL}/${currentQuestion.image}`}
+                  alt="Question"
+                />
+              )}
               {renderQuestionInput(currentQuestion)}
               {showAnswer && (
                 <p>The correct answer is: {currentQuestion.answer}</p>

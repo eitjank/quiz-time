@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { BASE_URL, QUIZZES_ENDPOINT } from '../api/endpoints';
 
 function QuizView() {
   const { id } = useParams();
@@ -25,6 +25,9 @@ function QuizView() {
       {quiz.questions.map((question, index) => (
         <div key={index}>
           <h3>{question.question}</h3>
+          {question.image && (
+            <img src={`${BASE_URL}/${question.image}`} alt="Question" />
+          )}
           <h4>Type: {question.type}</h4>
           {question.type === 'multipleChoice' && <h4>Options</h4>}
           <ul>

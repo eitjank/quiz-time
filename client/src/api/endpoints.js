@@ -9,3 +9,5 @@ export const QUIZZES_ENDPOINT = `${BASE_URL}/quizzes`;
 export const PRIVATE_QUIZZES_ENDPOINT = `${BASE_URL}/quizzes/private`;
 
 export const QUIZ_SESSIONS_START_ENDPOINT = `${BASE_URL}/quizSessions/start`;
+
+export const FILE_UPLOAD_ENDPOINT = `${BASE_URL}/upload`;

@@ -1,6 +1,26 @@
 import React from 'react';
+import { BASE_URL, FILE_UPLOAD_ENDPOINT } from '../api/endpoints';
 
 function QuestionForm({ question, index, questions, setQuestions }) {
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(FILE_UPLOAD_ENDPOINT, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+
+      const newQuestions = [...questions];
+      newQuestions[index].image = data.filePath;
+      setQuestions(newQuestions);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <li key={index}>
       <p>Type:</p>
@@ -28,6 +48,15 @@ function QuestionForm({ question, index, questions, setQuestions }) {
           setQuestions(newQuestions);
         }}
       />
+      <br />
+      <label>
+        Image:
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+      </label>
+      <br />
+      {question.image && (
+        <img src={`${BASE_URL}/${question.image}`} alt="Question" />
+      )}
       {question.type === 'multipleChoice' && (
         <>
           <p>Options:</p>
