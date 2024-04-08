@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema({
-  type: String,
-  question: String,
+  type: { type: String, required: true},
+  question: { type: String, required: true },
   options: [String],
-  answer: String,
+  answer: { type: String, required: true },
   timeLimit: Number,
   image: String,
 });

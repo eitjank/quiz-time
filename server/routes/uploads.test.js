@@ -15,7 +15,7 @@ describe('Upload Routes', () => {
     it('should upload a file successfully', async () => {
       const response = await request(app)
         .post('/api/uploads')
-        .attach('file', 'uploads/cloudy1.jpg'); // Replace 'path/to/file.jpg' with the actual file path
+        .attach('file', 'uploads/rain1.jpg'); // Replace with the actual file path
 
       expect(response.status).toBe(201);
       expect(response.body.message).toBe('File uploaded successfully');

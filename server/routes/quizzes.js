@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const router = express.Router();
 
-router.get('/quizzes', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const quizzes = await Quiz.find({ visibility: 'public' });
     res.json(quizzes);
@@ -15,7 +15,7 @@ router.get('/quizzes', async (req, res) => {
   }
 });
 
-router.get('/quizzes/private', authenticateUser, async (req, res) => {
+router.get('/private', authenticateUser, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(403).json({ message: 'Forbidden' });
@@ -30,7 +30,7 @@ router.get('/quizzes/private', authenticateUser, async (req, res) => {
   }
 });
 
-router.get('/quizzes/:id', authenticateUser, async (req, res) => {
+router.get('/:id', authenticateUser, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: 'Quiz not found' });
   }
@@ -55,7 +55,7 @@ router.get('/quizzes/:id', authenticateUser, async (req, res) => {
 });
 
 // TODO: Add authentication
-router.post('/quizzes', async (req, res) => {
+router.post('/', authenticateUser, async (req, res) => {
   const quiz = new Quiz({
     name: req.body.name,
     description: req.body.description,
@@ -71,7 +71,7 @@ router.post('/quizzes', async (req, res) => {
 });
 
 // TODO: Add authentication
-router.put('/quizzes/:id', async (req, res) => {
+router.put('/:id', authenticateUser, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: 'Quiz not found' });
   }
@@ -79,6 +79,9 @@ router.put('/quizzes/:id', async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (quiz) {
+      if (!req.user || quiz.owner.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
       quiz.name = req.body.name;
       quiz.description = req.body.description;
       quiz.questions = req.body.questions;
@@ -89,24 +92,24 @@ router.put('/quizzes/:id', async (req, res) => {
       res.status(404).json({ message: 'Quiz not found' });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
 
 // TODO: Add authentication
-router.delete('/quizzes/:id', async (req, res) => {
+router.delete('/:id', authenticateUser, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: 'Quiz not found' });
   }
   try {
     // Find the quiz
     const quiz = await Quiz.findById(req.params.id);
-
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found' });
     }
-
+    if (!req.user || quiz.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
     // Delete the image files
     quiz.questions.forEach((question) => {
       if (question.image) {
@@ -127,6 +130,35 @@ router.delete('/quizzes/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/:id/export', async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id).select(
+      '-_id -__v -owner -visibility -questions._id -questions.image'
+    );
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found' });
+    }
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename=quiz.json');
+    res.send(JSON.stringify(quiz));
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+router.post('/import', authenticateUser, async (req, res) => {
+  try {
+    if(!req.user) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const quiz = new Quiz(req.body);
+    await quiz.save();
+    res.json({ message: 'Quiz imported successfully' });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 

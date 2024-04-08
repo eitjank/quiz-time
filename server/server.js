@@ -20,7 +20,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
-app.use('/api', quizzesRoutes);
+app.use('/api/quizzes', quizzesRoutes);
 app.use('/api/quizSessions', quizSessionsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);

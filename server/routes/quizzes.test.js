@@ -1,9 +1,30 @@
 const request = require('supertest');
 const app = require('../server');
 const Quiz = require('../db/models/Quiz');
+const User = require('../db/models/User');
 const mongoose = require('mongoose');
 
 describe('Quizzes API', () => {
+  let cookie;
+  let savedUser;
+
+  beforeAll(async () => {
+    await User.deleteMany();
+
+    const user = new User({
+      email: 'test@example.com',
+      username: 'testuser',
+      password: 'testpassword',
+    });
+    savedUser = await user.save();
+
+    // Authenticate the test user and get the token
+    const response = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'test@example.com', password: 'testpassword' });
+    cookie = response.headers['set-cookie'];
+  });
+
   beforeEach(async () => {
     // Clear the database before each test
     await Quiz.deleteMany();
@@ -11,6 +32,7 @@ describe('Quizzes API', () => {
 
   afterAll(async () => {
     await Quiz.deleteMany({});
+    await User.deleteMany({});
     // Close the server
     await new Promise((resolve) => app.close(resolve));
 
@@ -32,7 +54,6 @@ describe('Quizzes API', () => {
         questions: [],
       });
 
-      // Make a GET request to /quizzes
       const response = await request(app).get('/api/quizzes');
 
       expect(response.status).toBe(200);
@@ -97,10 +118,12 @@ describe('Quizzes API', () => {
         name: 'Quiz 1',
         description: 'Description 1',
         questions: [],
+        owner: savedUser._id,
       });
 
       const response = await request(app)
         .put(`/api/quizzes/${createdQuiz._id}`)
+        .set('Cookie', cookie)
         .send({
           name: 'Updated Quiz',
           description: 'Updated Description',
@@ -114,15 +137,17 @@ describe('Quizzes API', () => {
     });
 
     it('should return 404 if quiz is not found', async () => {
-      const response = await request(app).put(
-        '/api/quizzes/65eb92aa68c7c390ecc5be2a'
-      );
+      const response = await request(app)
+        .put('/api/quizzes/65eb92aa68c7c390ecc5be2a')
+        .set('Cookie', cookie);
 
       expect(response.status).toBe(404);
     });
 
     it('should return 404 if quiz ID is invalid', async () => {
-      const response = await request(app).put('/api/quizzes/abcd1234');
+      const response = await request(app)
+        .put('/api/quizzes/abcd1234')
+        .set('Cookie', cookie);
 
       expect(response.status).toBe(404);
     });
@@ -134,11 +159,12 @@ describe('Quizzes API', () => {
         name: 'Quiz 1',
         description: 'Description 1',
         questions: [],
+        owner: savedUser._id,
       });
 
-      const response = await request(app).delete(
-        `/api/quizzes/${createdQuiz._id}`
-      );
+      const response = await request(app)
+        .delete(`/api/quizzes/${createdQuiz._id}`)
+        .set('Cookie', cookie);
 
       expect(response.status).toBe(200);
 
@@ -146,15 +172,45 @@ describe('Quizzes API', () => {
     });
 
     it('should return 404 if quiz is not found', async () => {
-      const response = await request(app).delete(
-        '/api/quizzes/65eb92aa68c7c390ecc5be2a'
-      );
+      const response = await request(app)
+        .delete('/api/quizzes/65eb92aa68c7c390ecc5be2a')
+        .set('Cookie', cookie);
 
       expect(response.status).toBe(404);
     });
 
     it('should return 404 if quiz ID is invalid', async () => {
-      const response = await request(app).delete('/api/quizzes/abcd1234');
+      const response = await request(app)
+        .delete('/api/quizzes/abcd1234')
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe('GET /quizzes/:id/export', () => {
+    it('should export a quiz', async () => {
+      const createdQuiz = await Quiz.create({
+        name: 'Quiz 1',
+        description: 'Description 1',
+        questions: [],
+        owner: savedUser._id,
+      });
+
+      const response = await request(app)
+        .get(`/api/quizzes/${createdQuiz._id}/export`)
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
+      expect(response.headers['content-disposition']).toBe(
+        'attachment; filename=quiz.json'
+      );
+    });
+    it('should return 404 if quiz is not found', async () => {
+      const response = await request(app)
+        .get('/api/quizzes/65eb92aa68c7c390ecc5be2a/export')
+        .set('Cookie', cookie);
 
       expect(response.status).toBe(404);
     });
