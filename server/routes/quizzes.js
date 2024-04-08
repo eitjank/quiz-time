@@ -115,7 +115,6 @@ router.delete('/:id', authenticateUser, async (req, res) => {
       if (question.image) {
         // check if file exists and starts with 'uploads/'
         const filePath = question.image;
-        console.log(filePath);
         if (!filePath.startsWith('uploads\\')) return;
         fs.unlink(filePath, (err) => {
           if (err) {
@@ -151,12 +150,15 @@ router.get('/:id/export', async (req, res) => {
 
 router.post('/import', authenticateUser, async (req, res) => {
   try {
-    if(!req.user) {
+    if (!req.user) {
       return res.status(403).json({ message: 'Forbidden' });
     }
     const quiz = new Quiz(req.body);
-    await quiz.save();
-    res.json({ message: 'Quiz imported successfully' });
+    const importedQuiz = await quiz.save();
+    res.json({
+      message: 'Quiz imported successfully',
+      quizId: importedQuiz._id,
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

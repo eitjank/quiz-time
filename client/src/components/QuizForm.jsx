@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QuestionForm from './QuestionForm';
+import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 function QuizForm({ initialQuiz, onSubmit }) {
   const [name, setName] = useState(initialQuiz ? initialQuiz.name : '');
@@ -14,6 +17,7 @@ function QuizForm({ initialQuiz, onSubmit }) {
   const [visibility, setVisibility] = useState(
     initialQuiz ? initialQuiz.visibility : 'public'
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (initialQuiz) {
@@ -29,6 +33,56 @@ function QuizForm({ initialQuiz, onSubmit }) {
     onSubmit({ name, description, visibility, questions });
   };
 
+  const handleExport = async () => {
+    try {
+      const res = await fetch(`${QUIZZES_ENDPOINT}/${initialQuiz.id}/export`);
+      console.log(res);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'quiz.json');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const readFile = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = (e) => reject(e.target.error);
+      reader.readAsText(file);
+    });
+
+  const handleImport = async (e) => {
+    try {
+      const file = e.target.files[0];
+      const content = await readFile(file);
+      const json = JSON.parse(content);
+      const response = await fetch(`${QUIZZES_ENDPOINT}/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(json),
+      });
+      // navigate to the imported quiz
+      const data = await response.json();
+      navigate(`/quizzes/${data.quizId}/edit`);
+
+      toast.success('Quiz imported successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to import quiz');
+    }
+  };
+
   const handleQuestionChange = useCallback((index, newQuestion) => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((question, i) => (i === index ? newQuestion : question))
@@ -38,6 +92,14 @@ function QuizForm({ initialQuiz, onSubmit }) {
   return (
     <div>
       <h1>{initialQuiz ? 'Edit Quiz' : 'Create Quiz'}</h1>
+      <button type="button" onClick={handleExport}>
+        Export Quiz
+      </button>
+      <br />
+      <label htmlFor="import">
+        Import Quiz
+        <input type="file" onChange={handleImport} />
+      </label>
       <form onSubmit={handleSubmit}>
         <label>
           Name:

@@ -40,7 +40,7 @@ function QuizEdit() {
 
   return (
     <QuizForm
-      initialQuiz={{ name, description, questions, visibility }}
+      initialQuiz={{ id, name, description, questions, visibility }}
       onSubmit={updateQuiz}
     />
   );
