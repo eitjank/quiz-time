@@ -1,20 +1,12 @@
 const mongoose = require('mongoose');
-
-const QuestionSchema = new mongoose.Schema({
-  type: { type: String, required: true},
-  question: { type: String, required: true },
-  options: [String],
-  answer: { type: String, required: true },
-  timeLimit: Number,
-  image: String,
-});
+const Question = require('./Question');
 
 const QuizSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, required: true },
   description: String,
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   visibility: { type: String, enum: ['public', 'private'], default: 'public' },
-  questions: [QuestionSchema],
+  questions: [Question.schema],
 });
 
 module.exports = mongoose.model('Quiz', QuizSchema);

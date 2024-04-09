@@ -19,7 +19,6 @@ const QuizSessionSchema = new mongoose.Schema({
       ],
     },
   ],
-  // ... any other necessary fields ...
 });
 
 module.exports = mongoose.model('QuizSession', QuizSessionSchema);
