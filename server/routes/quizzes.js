@@ -2,7 +2,6 @@ const express = require('express');
 const Quiz = require('../db/models/Quiz');
 const mongoose = require('mongoose');
 const authenticateUser = require('../middleware/authMiddleware');
-const fs = require('fs');
 
 const router = express.Router();
 
@@ -70,7 +69,6 @@ router.post('/', authenticateUser, async (req, res) => {
   }
 });
 
-// TODO: Add authentication
 router.put('/:id', authenticateUser, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: 'Quiz not found' });
@@ -96,7 +94,6 @@ router.put('/:id', authenticateUser, async (req, res) => {
   }
 });
 
-// TODO: Add authentication
 router.delete('/:id', authenticateUser, async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).json({ message: 'Quiz not found' });
@@ -110,19 +107,6 @@ router.delete('/:id', authenticateUser, async (req, res) => {
     if (!req.user || quiz.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Forbidden' });
     }
-    // Delete the image files
-    quiz.questions.forEach((question) => {
-      if (question.image) {
-        // check if file exists and starts with 'uploads/'
-        const filePath = question.image;
-        if (!filePath.startsWith('uploads\\')) return;
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.error(err);
-          }
-        });
-      }
-    });
     // Delete the quiz
     await Quiz.findByIdAndDelete(req.params.id);
     res.json({ message: 'Quiz deleted successfully' });

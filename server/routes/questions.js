@@ -15,7 +15,7 @@ router.get('/:id', async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
     if (!question) {
-      res.status(404).json({ message: 'Question not found' });
+      return res.status(404).json({ message: 'Question not found' });
     }
     res.json(question);
   } catch (error) {
@@ -49,7 +49,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const question = await Question.findByIdAndDelete(req.params.id);
+    const question = await Question.findById(req.params.id);
     if (!question) {
       return res.status(404).json({ message: 'Cannot find question' });
     }

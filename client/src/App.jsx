@@ -14,6 +14,7 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import { ToastContainer } from 'react-toastify';
 import MyQuizzes from './pages/MyQuizzes';
+import QuestionBank from './pages/QuestionBank';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/myQuizzes" element={<MyQuizzes />} />
+        <Route path="/questionBank" element={<QuestionBank />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
