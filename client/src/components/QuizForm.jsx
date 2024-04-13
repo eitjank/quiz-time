@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import QuestionForm from './QuestionForm';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import QuestionBankSelector from './QuestionBankSelector';
 
 function QuizForm({ initialQuiz, onSubmit }) {
   const [name, setName] = useState(initialQuiz ? initialQuiz.name : '');
@@ -18,6 +19,7 @@ function QuizForm({ initialQuiz, onSubmit }) {
     initialQuiz ? initialQuiz.visibility : 'public'
   );
   const navigate = useNavigate();
+  const [showQuestionBank, setShowQuestionBank] = useState(false);
 
   useEffect(() => {
     if (initialQuiz) {
@@ -83,11 +85,10 @@ function QuizForm({ initialQuiz, onSubmit }) {
     }
   };
 
-  const handleQuestionChange = useCallback((index, newQuestion) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question, i) => (i === index ? newQuestion : question))
-    );
-  }, []);
+  const addQuestionToQuizFromQuestionBank = (question) => {
+    setQuestions(prevQuestions => [...prevQuestions, question]);
+    setShowQuestionBank(false);
+  };
 
   return (
     <div>
@@ -131,10 +132,9 @@ function QuizForm({ initialQuiz, onSubmit }) {
           <ul>
             {questions.map((question, index) => (
               <QuestionForm
-                question={question}
                 index={index}
                 questions={questions}
-                setQuestions={handleQuestionChange}
+                setQuestions={setQuestions}
               />
             ))}
             <button
@@ -147,13 +147,22 @@ function QuizForm({ initialQuiz, onSubmit }) {
                     question: '',
                     options: [''],
                     answer: '',
-                    timeLimit: 0,
+                    timeLimit: 10,
                   },
                 ]);
               }}
             >
               Add Question
             </button>
+            <button onClick={
+              (e) => {
+                e.preventDefault();
+                setShowQuestionBank(true)
+              }
+            }>
+              Add Question from Question Bank
+            </button>
+            {showQuestionBank && <QuestionBankSelector addQuestionToQuiz={addQuestionToQuizFromQuestionBank} />}
           </ul>
         </label>
         <button type="submit">

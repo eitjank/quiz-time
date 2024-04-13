@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Quiz = require('./db/models/Quiz');
 const User = require('./db/models/User');
+const Question = require('./db/models/Question');
 
 const db = 'mongodb://127.0.0.1:27017/quizApp';
 
@@ -99,6 +100,10 @@ const questions2 = [
 
 const addInitialDataToDB = async () => {
   try {
+    Quiz.collection.drop();
+    Question.collection.drop();
+    User.collection.drop();
+
     const user = new User({
       email: 'test@test',
       password: 'test',
@@ -127,7 +132,17 @@ const addInitialDataToDB = async () => {
 
     await quiz2.save();
 
-    console.log('Quizzes have been created.');
+    const question1 = new Question({
+      type: 'multipleChoice',
+      question: 'What is the capital of Japan?',
+      options: ['Tokyo', 'Kyoto', 'Osaka', 'Hiroshima'],
+      answer: 'Tokyo',
+      timeLimit: 10,
+    });
+
+    await question1.save();
+
+    console.log('Questions and quizzes have been created.');
   } catch (err) {
     console.error('Failed to add questions and quizzes to the database:', err);
   } finally {

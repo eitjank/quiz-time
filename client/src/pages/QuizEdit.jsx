@@ -28,6 +28,7 @@ function QuizEdit() {
       await fetch(`${QUIZZES_ENDPOINT}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',        
         body: JSON.stringify(quiz),
       });
       navigate('/');

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Question = require('../db/models/Question');
+const mongoose = require('mongoose');
 
 router.get('/', async (req, res) => {
   try {
@@ -13,6 +14,9 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
     const question = await Question.findById(req.params.id);
     if (!question) {
       return res.status(404).json({ message: 'Question not found' });
@@ -35,9 +39,12 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
     const question = await Question.findById(req.params.id);
     if (!question) {
-      return res.status(404).json({ message: 'Cannot find question' });
+      return res.status(404).json({ message: 'Question not found' });
     }
     Object.assign(question, req.body);
     const updatedQuestion = await question.save();
@@ -49,7 +56,10 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const question = await Question.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+    const question = await Question.findByIdAndDelete(req.params.id);
     if (!question) {
       return res.status(404).json({ message: 'Cannot find question' });
     }

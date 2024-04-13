@@ -1,14 +1,13 @@
 import React from 'react';
 import { BASE_URL, FILE_UPLOAD_ENDPOINT } from '../api/endpoints';
 
-function QuestionForm({ question, index, questions, setQuestions }) {
+function QuestionForm({ index, questions, setQuestions }) {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
 
     // If there's an old image, delete it
-    console.log(questions[index].image);
     if (questions[index].image) {
       await fetch(`${BASE_URL}/uploads/${questions[index].image}`, {
         method: 'DELETE',
@@ -35,7 +34,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
       <p>Type:</p>
       <select
         data-testid="question-type-select"
-        value={question.type}
+        value={questions[index].type}
         onChange={(e) => {
           const newQuestions = [...questions];
           newQuestions[index].type = e.target.value;
@@ -63,13 +62,13 @@ function QuestionForm({ question, index, questions, setQuestions }) {
         <input type="file" accept="image/*" onChange={handleImageUpload} />
       </label>
       <br />
-      {question.image && (
-        <img src={`${BASE_URL}/${question.image}`} alt="Question" />
+      {questions[index].image && (
+        <img src={`${BASE_URL}/${questions[index].image}`} alt="Question" />
       )}
-      {question.type === 'multipleChoice' && (
+      {questions[index].type === 'multipleChoice' && (
         <>
           <p>Options:</p>
-          {question.options.map((option, optionIndex) => (
+          {questions[index].options.map((option, optionIndex) => (
             <div key={optionIndex}>
               <input
                 data-testid="option-multiple-choice-input"
@@ -109,7 +108,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
       <input
         data-testid="answer-input"
         type="text"
-        value={question.answer}
+        value={questions[index].answer}
         onChange={(e) => {
           const newQuestions = [...questions];
           newQuestions[index].answer = e.target.value;
@@ -119,7 +118,7 @@ function QuestionForm({ question, index, questions, setQuestions }) {
       <p>timeLimit (seconds):</p>
       <input
         type="number"
-        value={question.timeLimit}
+        value={questions[index].timeLimit}
         onChange={(e) => {
           const newQuestions = [...questions];
           newQuestions[index].timeLimit = e.target.value;

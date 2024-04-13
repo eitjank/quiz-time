@@ -11,6 +11,7 @@ function QuizCreate() {
       await fetch(QUIZZES_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(quiz),
       });
       navigate('/');
