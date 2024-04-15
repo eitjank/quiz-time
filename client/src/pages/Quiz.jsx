@@ -3,6 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
 import { BASE_URL } from '../api/endpoints';
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  animals,
+} from 'unique-names-generator';
+import { useDisclosure } from '@mantine/hooks';
+import NameModal from '../components/NameModal';
 
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -15,6 +22,8 @@ function Quiz() {
   const navigate = useNavigate();
   const { socket, results, finished, participants } = useQuizSession(id);
   const [progressBarWidth, setProgressBarWidth] = useState(100);
+  const [name, setName] = useState('');
+  const [opened, { open, close }] = useDisclosure(false);
 
   useEffect(() => {
     if (currentQuestion.timeLimit !== 0) {
@@ -31,7 +40,9 @@ function Quiz() {
 
   useEffect(() => {
     if (!socket) return;
-    socket.emit('joinQuiz', { quizSessionId: id });
+    const generatedName = generateRandomName();
+    setName(generatedName);
+    socket.emit('joinQuiz', { quizSessionId: id, name: generatedName });
 
     socket.on('receiveQuestion', (question) => {
       setCurrentQuestion(question);
@@ -62,6 +73,11 @@ function Quiz() {
   }, [id, navigate, socket]);
 
   useEffect(() => {
+    if (!socket || !name || !joined) return;
+    open();
+  }, [id, name, socket, joined, open]);
+
+  useEffect(() => {
     if (timer === 0) {
       setShowAnswer(true);
       setIsCorrect(answer === currentQuestion.answer);
@@ -72,6 +88,20 @@ function Quiz() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer]);
+
+  const generateRandomName = () => {
+    return uniqueNamesGenerator({
+      dictionaries: [adjectives, animals],
+      style: 'capital',
+      separator: ' ',
+    });
+  };
+
+  const handleNameSubmit = (event) => {
+    event.preventDefault();
+    if (socket) socket.emit('changeName', { quizSessionId: id, name });
+    close();
+  };
 
   const renderQuestionInput = (question) => {
     switch (question.type) {
@@ -125,6 +155,16 @@ function Quiz() {
 
   return (
     <>
+      <NameModal
+        {...{
+          opened,
+          close,
+          name,
+          setName,
+          handleNameSubmit,
+          generateRandomName,
+        }}
+      />
       <h1>Quiz Time!</h1>
       {!finished ? (
         <>
@@ -133,7 +173,7 @@ function Quiz() {
               <h2>Participants:</h2>
               <ul>
                 {participants.map((participant) => (
-                  <li key={participant.id}>{participant.id}</li>
+                  <li key={participant.id}>{participant.name}</li>
                 ))}
               </ul>
             </>

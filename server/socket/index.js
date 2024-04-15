@@ -61,7 +61,7 @@ function socketSetup(server) {
       });
     });
 
-    socket.on('joinQuiz', async ({ quizSessionId }) => {
+    socket.on('joinQuiz', async ({ quizSessionId, name }) => {
       if (quizSessions[quizSessionId]) {
         socket.join(quizSessionId);
         console.log(`User ${socket.id} joined quiz ${quizSessionId}`);
@@ -73,7 +73,7 @@ function socketSetup(server) {
 
         // Add participant to the quiz
         quizSessions[quizSessionId].participants[socket.id] = {
-          // name: participantName, // for future use
+          name: name,
           id: socket.id,
           score: 0,
           answers: [],
@@ -88,6 +88,13 @@ function socketSetup(server) {
           message: 'Quiz not found.',
         });
       }
+    });
+
+    socket.on('changeName', ({ quizSessionId, name }) => {
+      quizSessions[quizSessionId].participants[socket.id].name = name;
+      io.to(quizSessionId).emit('participantList', {
+        participants: Object.values(quizSessions[quizSessionId].participants),
+      });
     });
 
     socket.on('startQuiz', ({ quizSessionId, isManualControl }) => {
@@ -210,7 +217,7 @@ function socketSetup(server) {
           delete quizSessions[quizSessionId];
         } else if (quizSessions[quizSessionId].participants[socket.id]) {
           console.log(`Participant ${socket.id} disconnected`);
-          delete quizSessions[quizSessionId].participants[socket.id];
+          quizSessions[quizSessionId].participants[socket.id].active = false;
           io.to(quizSessionId).emit('participantLeft', {
             participantId: socket.id,
           });

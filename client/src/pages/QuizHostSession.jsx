@@ -109,7 +109,7 @@ const QuizHostSession = () => {
               <h2>Participants:</h2>
               <ul>
                 {participants.map((participant) => (
-                  <li key={participant.id}>{participant.id}</li>
+                  <li key={participant.id}>{participant.name}</li>
                 ))}
               </ul>
             </>
