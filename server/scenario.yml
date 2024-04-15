@@ -1,0 +1,24 @@
+# scenario.yml
+config:
+  target: "http://localhost:3001"
+  phases:
+    - duration: 30 # length of the phase in seconds
+      arrivalRate: 40 # number of virtual users (VUs) to be created every second
+  engines:
+   socketio-v3: {}
+
+scenarios:
+  - name: My sample scenario
+    engine: socketio-v3
+    flow:
+      # wait for the WebSocket upgrade (optional)
+      - think: 1
+
+      # join quiz with quizSessionId
+      - emit:
+          channel: "joinQuiz"
+          data: 
+            quizSessionId: "enter-quiz-session-id-here"
+
+      # keep the connection open for 60 seconds
+      - think: 60
