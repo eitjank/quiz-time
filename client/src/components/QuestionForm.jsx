@@ -1,9 +1,17 @@
 import React from 'react';
 import { BASE_URL, FILE_UPLOAD_ENDPOINT } from '../api/endpoints';
+import {
+  Paper,
+  Container,
+  TextInput,
+  Button,
+  FileButton,
+  Group,
+} from '@mantine/core';
+import { IconChevronDown } from '@tabler/icons-react';
 
 function QuestionForm({ index, questions, setQuestions }) {
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -29,117 +37,148 @@ function QuestionForm({ index, questions, setQuestions }) {
       console.error(error);
     }
   };
+
+  const clearFile = () => {
+    fetch(`${BASE_URL}/uploads/${questions[index].image}`, {
+      method: 'DELETE',
+    });
+    const newQuestions = [...questions];
+    newQuestions[index].image = '';
+    setQuestions(newQuestions);
+  };
+
   return (
-    <li key={index}>
-      <p>Type:</p>
-      <select
-        data-testid="question-type-select"
-        value={questions[index].type}
-        onChange={(e) => {
-          const newQuestions = [...questions];
-          newQuestions[index].type = e.target.value;
-          setQuestions(newQuestions);
-        }}
-      >
-        <option value="multipleChoice">Multiple Choice</option>
-        <option value="openEnded">Open Ended</option>
-        <option value="trueFalse">True/False</option>
-      </select>
-      <p>Question:</p>
-      <input
-        data-testid="question-input"
-        type="text"
-        value={questions[index].question}
-        onChange={(e) => {
-          const newQuestions = [...questions];
-          newQuestions[index].question = e.target.value;
-          setQuestions(newQuestions);
-        }}
-      />
-      <br />
-      <label>
-        Image:
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-      </label>
-      <br />
-      {questions[index].image && (
-        <img src={`${BASE_URL}/${questions[index].image}`} alt="Question" />
-      )}
-      {questions[index].type === 'multipleChoice' && (
-        <>
-          <p>Options:</p>
-          {questions[index].options.map((option, optionIndex) => (
-            <div key={optionIndex}>
-              <input
-                data-testid="option-multiple-choice-input"
-                type="text"
-                value={option}
-                onChange={(e) => {
-                  const newQuestions = [...questions];
-                  newQuestions[index].options[optionIndex] = e.target.value;
-                  setQuestions(newQuestions);
-                }}
-              />
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  const newQuestions = [...questions];
-                  newQuestions[index].options.splice(optionIndex, 1);
-                  setQuestions(newQuestions);
-                }}
-              >
-                Remove Option
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
+    <div key={index}>
+      <Paper shadow="md">
+        <Container size="md">
+          <TextInput
+            component="select"
+            label="Type"
+            rightSection={<IconChevronDown size={14} stroke={1.5} />}
+            data-testid="question-type-select"
+            value={questions[index].type}
+            onChange={(e) => {
               const newQuestions = [...questions];
-              newQuestions[index].options.push('');
+              newQuestions[index].type = e.target.value;
               setQuestions(newQuestions);
             }}
           >
-            Add Option
-          </button>
-        </>
-      )}
-      <p>Answer:</p>
-      <input
-        data-testid="answer-input"
-        type="text"
-        value={questions[index].answer}
-        onChange={(e) => {
-          const newQuestions = [...questions];
-          newQuestions[index].answer = e.target.value;
-          setQuestions(newQuestions);
-        }}
-      />
-      <p>timeLimit (seconds):</p>
-      <input
-        type="number"
-        value={questions[index].timeLimit}
-        onChange={(e) => {
-          const newQuestions = [...questions];
-          newQuestions[index].timeLimit = e.target.value;
-          setQuestions(newQuestions);
-        }}
-      />
-      <br />
-      <br />
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          const newQuestions = [...questions];
-          newQuestions.splice(index, 1);
-          setQuestions(newQuestions);
-        }}
-      >
-        Remove Question
-      </button>
-      <br />
-      <br />
-    </li>
+            <option value="multipleChoice">Multiple Choice</option>
+            <option value="openEnded">Open Ended</option>
+            <option value="trueFalse">True False</option>
+          </TextInput>
+          <TextInput
+            label="Question"
+            data-testid="question-input"
+            type="text"
+            value={questions[index].question}
+            onChange={(e) => {
+              const newQuestions = [...questions];
+              newQuestions[index].question = e.target.value;
+              setQuestions(newQuestions);
+            }}
+          />
+          <br />
+          <Group justify="center">
+            <FileButton
+              onChange={handleImageUpload}
+              accept="image/png,image/jpeg"
+            >
+              {(props) => <Button {...props}>Upload image</Button>}
+            </FileButton>
+            <Button
+              disabled={!questions[index].image}
+              color="red"
+              onClick={clearFile}
+            >
+              Remove Image
+            </Button>
+          </Group>
+          <br />
+          {questions[index].image && (
+            <img src={`${BASE_URL}/${questions[index].image}`} alt="Question" />
+          )}
+          {questions[index].type === 'multipleChoice' && (
+            <>
+              <p>Options:</p>
+              {questions[index].options.map((option, optionIndex) => (
+                <div key={optionIndex}>
+                  <Group justify="center">
+                    <TextInput
+                      data-testid="option-multiple-choice-input"
+                      type="text"
+                      value={option}
+                      onChange={(e) => {
+                        const newQuestions = [...questions];
+                        newQuestions[index].options[optionIndex] =
+                          e.target.value;
+                        setQuestions(newQuestions);
+                      }}
+                    />
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const newQuestions = [...questions];
+                        newQuestions[index].options.splice(optionIndex, 1);
+                        setQuestions(newQuestions);
+                      }}
+                    >
+                      Remove Option
+                    </Button>
+                  </Group>
+                </div>
+              ))}
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  const newQuestions = [...questions];
+                  newQuestions[index].options.push('');
+                  setQuestions(newQuestions);
+                }}
+              >
+                Add Option
+              </Button>
+            </>
+          )}
+          <TextInput
+            label="Answer"
+            data-testid="answer-input"
+            type="text"
+            value={questions[index].answer}
+            onChange={(e) => {
+              const newQuestions = [...questions];
+              newQuestions[index].answer = e.target.value;
+              setQuestions(newQuestions);
+            }}
+          />
+          <TextInput
+            label="Time Limit (seconds)"
+            type="number"
+            value={questions[index].timeLimit}
+            onChange={(e) => {
+              const newQuestions = [...questions];
+              newQuestions[index].timeLimit = e.target.value;
+              setQuestions(newQuestions);
+            }}
+            min={1}
+            max={180}
+          />
+          <br />
+          <br />
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              const newQuestions = [...questions];
+              newQuestions.splice(index, 1);
+              setQuestions(newQuestions);
+            }}
+          >
+            Remove Question
+          </Button>
+        </Container>
+        <br />
+      </Paper>
+    </div>
   );
 }
 

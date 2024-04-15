@@ -156,9 +156,8 @@ function socketSetup(server) {
                     participants: participantsArray,
                     isFinished: true,
                   },
-                  { new: true }
-                ).then((updatedQuizSession) => {
-                  console.log('Updated quiz session:', updatedQuizSession);
+                ).then(() => {
+                  console.log('Quiz session updated');
                 });
               } catch (error) {
                 console.error('Error updating quiz session:', error);

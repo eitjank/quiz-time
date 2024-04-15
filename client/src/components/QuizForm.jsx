@@ -4,6 +4,15 @@ import { QUIZZES_ENDPOINT } from '../api/endpoints';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import QuestionBankSelector from './QuestionBankSelector';
+import {
+  Container,
+  TextInput,
+  Button,
+  FileButton,
+  Textarea,
+  Group,
+} from '@mantine/core';
+import { IconChevronDown } from '@tabler/icons-react';
 
 function QuizForm({ initialQuiz, onSubmit }) {
   const [name, setName] = useState(initialQuiz ? initialQuiz.name : '');
@@ -63,9 +72,8 @@ function QuizForm({ initialQuiz, onSubmit }) {
       reader.readAsText(file);
     });
 
-  const handleImport = async (e) => {
+  const handleImport = async (file) => {
     try {
-      const file = e.target.files[0];
       const content = await readFile(file);
       const json = JSON.parse(content);
       const response = await fetch(`${QUIZZES_ENDPOINT}/import`, {
@@ -86,89 +94,96 @@ function QuizForm({ initialQuiz, onSubmit }) {
   };
 
   const addQuestionToQuizFromQuestionBank = (question) => {
-    setQuestions(prevQuestions => [...prevQuestions, question]);
+    setQuestions((prevQuestions) => [...prevQuestions, question]);
     setShowQuestionBank(false);
   };
 
   return (
     <div>
-      <h1>{initialQuiz ? 'Edit Quiz' : 'Create Quiz'}</h1>
-      <button type="button" onClick={handleExport}>
-        Export Quiz
-      </button>
-      <br />
-      <label htmlFor="import">
-        Import Quiz
-        <input type="file" onChange={handleImport} />
-      </label>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input
+      <Container size="xl">
+        <h1>{initialQuiz ? 'Edit Quiz' : 'Create Quiz'}</h1>
+        <Group justify="center">
+          <Button type="button" onClick={handleExport}>
+            Export Quiz
+          </Button>
+          <FileButton onChange={handleImport} accept="application/json">
+            {(props) => <Button {...props}>Import Quiz</Button>}
+          </FileButton>
+        </Group>
+        <form onSubmit={handleSubmit}>
+          <TextInput
+            label="Name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-        </label>
-        <label>
-          Description:
-          <textarea
+          <Textarea
+            label="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-        </label>
-        <label>
-          Visibility:
-          <select
+          <TextInput
+            component="select"
+            label="Visibility"
+            rightSection={<IconChevronDown size={14} stroke={1.5} />}
             value={visibility}
             onChange={(e) => setVisibility(e.target.value)}
           >
             <option value="public">Public</option>
             <option value="private">Private</option>
-          </select>
-        </label>
-        <label>
-          Questions:
-          <ul>
+          </TextInput>
+          <label>
+            <h2>Questions:</h2>
             {questions.map((question, index) => (
-              <QuestionForm
-                index={index}
-                questions={questions}
-                setQuestions={setQuestions}
-              />
+              <>
+                <QuestionForm
+                  key={index}
+                  index={index}
+                  questions={questions}
+                  setQuestions={setQuestions}
+                />
+                <br />
+              </>
             ))}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                setQuestions([
-                  ...questions,
-                  {
-                    type: 'multipleChoice',
-                    question: '',
-                    options: [''],
-                    answer: '',
-                    timeLimit: 10,
-                  },
-                ]);
-              }}
-            >
-              Add Question
-            </button>
-            <button onClick={
-              (e) => {
-                e.preventDefault();
-                setShowQuestionBank(true)
-              }
-            }>
-              Add Question from Question Bank
-            </button>
-            {showQuestionBank && <QuestionBankSelector addQuestionToQuiz={addQuestionToQuizFromQuestionBank} />}
-          </ul>
-        </label>
-        <button type="submit">
-          {initialQuiz ? 'Update Quiz' : 'Create Quiz'}
-        </button>
-      </form>
+            <Group justify="center">
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setQuestions([
+                    ...questions,
+                    {
+                      type: 'multipleChoice',
+                      question: '',
+                      options: [''],
+                      answer: '',
+                      timeLimit: 10,
+                    },
+                  ]);
+                }}
+              >
+                Add Question
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowQuestionBank(true);
+                }}
+              >
+                Add Question from Question Bank
+              </Button>
+            </Group>
+            {showQuestionBank && (
+              <QuestionBankSelector
+                addQuestionToQuiz={addQuestionToQuizFromQuestionBank}
+              />
+            )}
+          </label>
+          <br />
+          <Button type="submit">
+            {initialQuiz ? 'Update Quiz' : 'Create Quiz'}
+          </Button>
+        </form>
+      </Container>
     </div>
   );
 }

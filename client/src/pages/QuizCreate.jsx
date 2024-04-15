@@ -14,7 +14,7 @@ function QuizCreate() {
         credentials: 'include',
         body: JSON.stringify(quiz),
       });
-      navigate('/');
+      navigate(-1);
     } catch (err) {
       console.error(err);
     }

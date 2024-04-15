@@ -33,6 +33,12 @@ function QuestionBank() {
     setIndex(questions.length);
   };
 
+  const handleCancelEditingQuestion = () => {
+    setEditingQuestion(null);
+    setQuestions(questions.filter((q) => q._id));
+    setIndex(null);
+  };
+
   const handleDelete = (question) => {
     fetch(`${QUESTIONS_ENDPOINT}/${question._id}`, {
       method: 'DELETE',
@@ -90,7 +96,7 @@ function QuestionBank() {
             setQuestions={setQuestions}
             index={index}
           />
-          <button onClick={() => setEditingQuestion(null)}>Cancel</button>
+          <button onClick={handleCancelEditingQuestion}>Cancel</button>
           <button type="submit">Save</button>
         </form>
       ) : (
