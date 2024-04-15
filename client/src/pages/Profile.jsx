@@ -4,6 +4,9 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
+import { Button, Container, Paper, Space, TextInput } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 const Profile = () => {
   const { logout } = useContext(AuthContext);
@@ -12,6 +15,7 @@ const Profile = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const navigate = useNavigate();
+  const [opened, { open, close }] = useDisclosure(false);
 
   useEffect(() => {
     fetch(`${USER_ENDPOINT}/currentUser`, { credentials: 'include' })
@@ -94,46 +98,48 @@ const Profile = () => {
   }
 
   return (
-    <div>
-      <h1>{user.username}'s Profile</h1>
-      <p>Email: {user.email}</p>
+    <Container>
+      <Paper shadow="md">
+        <h1>{user.username}'s Profile</h1>
+        <h4>Email: {user.email}</h4>
 
-      <h2>Update Profile</h2>
-      <form onSubmit={handleUsernameUpdate}>
-        <label>
-          Username:
-          <input
-            type="text"
+        <h2>Update Profile</h2>
+        <form onSubmit={handleUsernameUpdate}>
+          <TextInput
+            label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-        </label>
-        <button type="submit">Update Username</button>
-      </form>
+          <Space h="lg" />
+          <Button type="submit">Update Username</Button>
+        </form>
 
-      <h2>Change Password</h2>
-      <form onSubmit={handlePasswordChange}>
-        <label>
-          Current Password:
-          <input
+        <h2>Change Password</h2>
+        <form onSubmit={handlePasswordChange}>
+          <TextInput
             type="password"
+            label="Current Password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
-        </label>
-        <label>
-          New Password:
-          <input
+          <TextInput
             type="password"
+            label="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-        </label>
-        <button type="submit">Change Password</button>
-      </form>
-
-      <button onClick={handleAccountDeletion}>Delete Account</button>
-    </div>
+          <Space h="lg" />
+          <Button type="submit">Change Password</Button>
+        </form>
+        <Space h="xl" />
+        <Button onClick={open}>Delete Account</Button>
+        <DeleteAccountModal
+          opened={opened}
+          close={close}
+          handleAccountDeletion={handleAccountDeletion}
+        />
+      </Paper>
+    </Container>
   );
 };
 

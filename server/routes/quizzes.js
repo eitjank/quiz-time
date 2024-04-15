@@ -53,15 +53,18 @@ router.get('/:id', authenticateUser, async (req, res) => {
   }
 });
 
-// TODO: Add authentication
 router.post('/', authenticateUser, async (req, res) => {
-  const quiz = new Quiz({
-    name: req.body.name,
-    description: req.body.description,
-    questions: req.body.questions,
-  });
-
   try {
+    if (!req.user) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const quiz = new Quiz({
+      name: req.body.name,
+      description: req.body.description,
+      questions: req.body.questions,
+      owner: req.user.id,
+      visibility: req.body.visibility,
+    });
     const newQuiz = await quiz.save();
     res.status(201).json(newQuiz);
   } catch (err) {
@@ -137,7 +140,13 @@ router.post('/import', authenticateUser, async (req, res) => {
     if (!req.user) {
       return res.status(403).json({ message: 'Forbidden' });
     }
-    const quiz = new Quiz(req.body);
+    const quiz = new Quiz({
+      name: req.body.name,
+      description: req.body.description,
+      questions: req.body.questions,
+      owner: req.user.id, 
+      visibility: req.body.visibility,
+    });
     const importedQuiz = await quiz.save();
     res.json({
       message: 'Quiz imported successfully',

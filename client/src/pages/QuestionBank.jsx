@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { QUESTIONS_ENDPOINT } from '../api/endpoints';
 import QuestionForm from '../components/QuestionForm';
 import { toast } from 'react-toastify';
+import { Button, Container, Grid, Paper, Group, Space } from '@mantine/core';
 
 function QuestionBank() {
   const [questions, setQuestions] = useState([]);
@@ -88,7 +89,7 @@ function QuestionBank() {
   };
 
   return (
-    <div>
+    <Container>
       {editingQuestion ? (
         <form onSubmit={handleSubmit}>
           <QuestionForm
@@ -96,23 +97,37 @@ function QuestionBank() {
             setQuestions={setQuestions}
             index={index}
           />
-          <button onClick={handleCancelEditingQuestion}>Cancel</button>
-          <button type="submit">Save</button>
+          <br />
+          <Group justify="center">
+            <Button onClick={handleCancelEditingQuestion}>Cancel</Button>
+            <Button type="submit">Save</Button>
+          </Group>
         </form>
       ) : (
         <>
-          {questions.map((question, index) => (
-            <div key={question._id}>
-              <p>{question.question}</p>
-              <button onClick={() => handleEdit(question, index)}>Edit</button>
-              <button onClick={() => handleDelete(question)}>Delete</button>
-            </div>
-          ))}
+          <Grid gutter="md">
+            {questions.map((question, index) => (
+              <Grid.Col key={question._id}>
+                <Paper shadow='md'>
+                  <p>{question.question}</p>
+                  <Group justify="center">
+                    <Button onClick={() => handleEdit(question, index)}>
+                      Edit
+                    </Button>
+                    <Button onClick={() => handleDelete(question)}>
+                      Delete
+                    </Button>
+                  </Group>
+                  <Space h="lg" />
+                </Paper>
+              </Grid.Col>
+            ))}
+          </Grid>
           <br />
-          <button onClick={() => handleCreateQuestion()}>Add Question</button>
+          <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
         </>
       )}
-    </div>
+    </Container>
   );
 }
 

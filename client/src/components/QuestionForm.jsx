@@ -164,7 +164,6 @@ function QuestionForm({ index, questions, setQuestions }) {
             max={180}
           />
           <br />
-          <br />
           <Button
             onClick={(e) => {
               e.preventDefault();

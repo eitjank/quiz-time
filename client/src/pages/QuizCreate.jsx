@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuizForm from '../components/QuizForm';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { toast } from 'react-toastify';
 
 function QuizCreate() {
   const navigate = useNavigate();
@@ -13,6 +14,11 @@ function QuizCreate() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(quiz),
+      }).then((res) => {
+        if (!res.ok) {
+          toast.error('Failed to create quiz');
+          throw new Error('Failed to create quiz');
+        }
       });
       navigate(-1);
     } catch (err) {

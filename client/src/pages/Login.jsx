@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthContext from '../contexts/AuthContext';
+import { Button, Container, Paper, TextInput } from '@mantine/core';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const Login = () => {
     password: '',
   });
   const { login } = useContext(AuthContext);
-  
+
   const { email, password } = inputValue;
 
   const handleOnChange = (e) => {
@@ -52,35 +53,35 @@ const Login = () => {
   };
 
   return (
-    <div className="form_container">
-      <h2>Login Account</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
+    <Container>
+      <Paper shadow="xs" radius="xs">
+        <h2>Login Account</h2>
+        <form onSubmit={handleSubmit}>
+          <TextInput
             type="email"
+            label="Email"
             name="email"
             value={email}
+            required
             placeholder="Enter your email"
             onChange={handleOnChange}
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
+          <TextInput
             type="password"
+            label="Password"
             name="password"
             value={password}
+            required
             placeholder="Enter your password"
             onChange={handleOnChange}
           />
-        </div>
-        <button type="submit">Submit</button>
-        <span>
-          Don't have an account? <Link to={'/signup'}>Signup</Link>
-        </span>
-      </form>
-    </div>
+          <Button type="submit">Submit</Button>
+          <span>
+            Don't have an account? <Link to={'/signup'}>Signup</Link>
+          </span>
+        </form>
+      </Paper>
+    </Container>
   );
 };
 

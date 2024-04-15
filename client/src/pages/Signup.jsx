@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthContext from '../contexts/AuthContext';
+import { Button, Container, Paper, TextInput } from '@mantine/core';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -54,45 +55,50 @@ const Signup = () => {
   };
 
   return (
-    <div className="form_container">
-      <h2>Signup Account</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={email}
-            placeholder="Enter your email"
-            onChange={handleOnChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Username</label>
-          <input
-            type="text"
-            name="username"
-            value={username}
-            placeholder="Enter your username"
-            onChange={handleOnChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            placeholder="Enter your password"
-            onChange={handleOnChange}
-          />
-        </div>
-        <button type="submit">Submit</button>
-        <span>
-          Already have an account? <Link to={'/login'}>Login</Link>
-        </span>
-      </form>
-    </div>
+    <Container>
+      <Paper shadow="xs" radius="md">
+        <h2>Signup Account</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <TextInput
+              label="Email"
+              type="email"
+              name="email"
+              value={email}
+              required
+              placeholder="Enter your email"
+              onChange={handleOnChange}
+            />
+          </div>
+          <div>
+            <TextInput
+              label="Username"
+              type="text"
+              name="username"
+              value={username}
+              required
+              placeholder="Enter your username"
+              onChange={handleOnChange}
+            />
+          </div>
+          <div>
+            <TextInput
+              label="Password"
+              type="password"
+              name="password"
+              value={password}
+              required
+              placeholder="Enter your password"
+              onChange={handleOnChange}
+            />
+          </div>
+          <Button type="submit">Submit</Button>
+          <span>
+            Already have an account? <Link to={'/login'}>Login</Link>
+          </span>
+        </form>
+      </Paper>
+    </Container>
   );
 };
 

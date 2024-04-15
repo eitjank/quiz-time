@@ -5,6 +5,15 @@ import {
   QUIZ_SESSIONS_START_ENDPOINT,
 } from '../api/endpoints';
 import { toast } from 'react-toastify';
+import {
+  Button,
+  Container,
+  Grid,
+  Paper,
+  Text,
+  Space,
+  Group,
+} from '@mantine/core';
 
 const QuizList = ({ endpoint }) => {
   const [quizzes, setQuizzes] = useState([]);
@@ -60,21 +69,28 @@ const QuizList = ({ endpoint }) => {
 
   return (
     <div>
-      <h1>Quizzes</h1>
-      <button onClick={() => navigate('/quizzes/create')}>Create Quiz</button>
-      <ul>
-        {quizzes &&
-          quizzes.map((quiz, index) => (
-            <li key={index}>
-              <h2>{quiz.name}</h2>
-              <p>{quiz.description}</p>
-              <button onClick={() => handleHost(quiz._id)}>Host</button>
-              <button onClick={() => handleView(quiz)}>View</button>
-              <button onClick={() => handleEdit(quiz)}>Edit</button>
-              <button onClick={() => handleDelete(quiz)}>Delete</button>
-            </li>
-          ))}
-      </ul>
+      <Container size="md">
+        <h1>Quizzes</h1>
+        <Button onClick={() => navigate('/quizzes/create')}>Create Quiz</Button>
+        <Grid gutter="md">
+          {quizzes &&
+            quizzes.map((quiz, index) => (
+              <Grid.Col key={index} span={12} sm={6} md={4}>
+                <Paper shadow="md">
+                  <Text size="xl">{quiz.name}</Text>
+                  <Text size="sm">{quiz.description}</Text>
+                  <Group justify="center">
+                    <Button onClick={() => handleHost(quiz._id)}>Host</Button>
+                    <Button onClick={() => handleView(quiz)}>View</Button>
+                    <Button onClick={() => handleEdit(quiz)}>Edit</Button>
+                    <Button onClick={() => handleDelete(quiz)}>Delete</Button>
+                  </Group>
+                  <Space h="lg" />
+                </Paper>
+              </Grid.Col>
+            ))}
+        </Grid>
+      </Container>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Container, TextInput } from '@mantine/core';
 
 function JoinQuizForm() {
   const [quizSessionId, setQuizSessionId] = useState('');
@@ -7,19 +8,21 @@ function JoinQuizForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(!quizSessionId) return alert('Please enter a quiz ID')
+    if (!quizSessionId) return alert('Please enter a quiz ID');
     navigate(`/quizzes/${quizSessionId}`);
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Enter Join Quiz ID"
-        value={quizSessionId}
-        onChange={(e) => setQuizSessionId(e.target.value)}
-      />
-      <button type="submit">Join Quiz</button>
+      <Container>
+        <TextInput
+          placeholder="Enter Quiz ID"
+          value={quizSessionId}
+          onChange={(e) => setQuizSessionId(e.target.value)}
+        />
+        <br />
+        <Button type="submit">Join Quiz</Button>
+      </Container>
     </form>
   );
 }

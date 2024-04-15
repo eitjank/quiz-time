@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import QuizForm from '../components/QuizForm';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { toast } from 'react-toastify';
 
 function QuizEdit() {
   const [name, setName] = useState('');
@@ -30,6 +31,11 @@ function QuizEdit() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(quiz),
+      }).then((res) => {
+        if (!res.ok) {
+          toast.error('Failed to update quiz');
+          throw new Error('Failed to update quiz');
+        }
       });
       navigate(-1);
     } catch (err) {
