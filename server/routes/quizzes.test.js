@@ -99,11 +99,14 @@ describe('Quizzes API', () => {
 
   describe('POST /quizzes', () => {
     it('should create a new quiz', async () => {
-      const response = await request(app).post('/api/quizzes').send({
-        name: 'New Quiz',
-        description: 'New Description',
-        questions: [],
-      });
+      const response = await request(app)
+        .post('/api/quizzes')
+        .set('Cookie', cookie)
+        .send({
+          name: 'New Quiz',
+          description: 'New Description',
+          questions: [],
+        });
 
       expect(response.status).toBe(201);
 
@@ -202,7 +205,9 @@ describe('Quizzes API', () => {
         .set('Cookie', cookie);
 
       expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
+      expect(response.headers['content-type']).toBe(
+        'application/json; charset=utf-8'
+      );
       expect(response.headers['content-disposition']).toBe(
         'attachment; filename=quiz.json'
       );

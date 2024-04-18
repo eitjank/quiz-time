@@ -55,7 +55,7 @@ const Login = () => {
   return (
     <Container>
       <Paper shadow="xs" radius="xs">
-        <h2>Login Account</h2>
+        <h2>Login</h2>
         <form onSubmit={handleSubmit}>
           <TextInput
             type="email"

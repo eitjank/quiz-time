@@ -138,9 +138,26 @@ const addInitialDataToDB = async () => {
       options: ['Tokyo', 'Kyoto', 'Osaka', 'Hiroshima'],
       answer: 'Tokyo',
       timeLimit: 10,
+      tags: ['geography', 'capitals'],
     });
 
     await question1.save();
+
+    const question2 = new Question({
+      type: 'multipleChoice',
+      question: 'Who directed the movie "Fight Club"?',
+      options: [
+        'David Fincher',
+        'Quentin Tarantino',
+        'Martin Scorsese',
+        'Christopher Nolan',
+      ],
+      answer: 'David Fincher',
+      timeLimit: 10,
+      tags: ['movies', 'directors'],
+    });
+
+    await question2.save();
 
     console.log('Questions and quizzes have been created.');
   } catch (err) {

@@ -1,25 +1,46 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QUESTIONS_ENDPOINT } from '../api/endpoints';
+import { Button, Paper, Container } from '@mantine/core';
+import TagSearch from './TagSearch';
 
 const QuestionBankSelector = ({ addQuestionToQuiz }) => {
-  const [questionBank, setQuestionBank] = React.useState([]);
+  const [questionBank, setQuestionBank] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+
   useEffect(() => {
     fetch(`${QUESTIONS_ENDPOINT}`)
       .then((response) => response.json())
-      .then((data) => setQuestionBank(data));
+      .then((data) => {
+        setQuestionBank(data);
+        const uniqueTags = [...new Set(data.map((q) => q.tags).flat())];
+        setTags(uniqueTags);
+      })
+      .catch((error) => console.error(error));
   }, []);
 
   return (
-    <div>
-      {questionBank.map((question, index) => (
-        <div key={index}>
-          <p>{question.question}</p>
-          <button onClick={() => addQuestionToQuiz(question)}>
-            Add to Quiz
-          </button>
-        </div>
-      ))}
-    </div>
+    <>
+      <TagSearch
+        tags={tags}
+        selectedTags={selectedTags}
+        setSelectedTags={setSelectedTags}
+      />
+      {questionBank
+        .filter((question) =>
+          selectedTags.every((tag) => question.tags.includes(tag))
+        )
+        .map((question, index) => (
+          <Paper shadow="md" key={index}>
+            <Container size="md">
+              <p>{question.question}</p>
+              <Button onClick={() => addQuestionToQuiz(question)}>
+                Add to Quiz
+              </Button>
+            </Container>
+          </Paper>
+        ))}
+    </>
   );
 };
 

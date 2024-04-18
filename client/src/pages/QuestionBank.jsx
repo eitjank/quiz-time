@@ -3,16 +3,23 @@ import { QUESTIONS_ENDPOINT } from '../api/endpoints';
 import QuestionForm from '../components/QuestionForm';
 import { toast } from 'react-toastify';
 import { Button, Container, Grid, Paper, Group, Space } from '@mantine/core';
+import TagSearch from '../components/TagSearch';
 
 function QuestionBank() {
   const [questions, setQuestions] = useState([]);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [index, setIndex] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
 
   useEffect(() => {
     fetch(`${QUESTIONS_ENDPOINT}`)
       .then((response) => response.json())
-      .then((data) => setQuestions(data))
+      .then((data) => {
+        setQuestions(data);
+        const uniqueTags = [...new Set(data.map((q) => q.tags).flat())];
+        setTags(uniqueTags);
+      })
       .catch((error) => console.error(error));
   }, []);
 
@@ -105,23 +112,32 @@ function QuestionBank() {
         </form>
       ) : (
         <>
+          <TagSearch
+            tags={tags}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+          />
           <Grid gutter="md">
-            {questions.map((question, index) => (
-              <Grid.Col key={question._id}>
-                <Paper shadow='md'>
-                  <p>{question.question}</p>
-                  <Group justify="center">
-                    <Button onClick={() => handleEdit(question, index)}>
-                      Edit
-                    </Button>
-                    <Button onClick={() => handleDelete(question)}>
-                      Delete
-                    </Button>
-                  </Group>
-                  <Space h="lg" />
-                </Paper>
-              </Grid.Col>
-            ))}
+            {questions
+              .filter((question) =>
+                selectedTags.every((tag) => question.tags.includes(tag))
+              )
+              .map((question, index) => (
+                <Grid.Col key={question._id}>
+                  <Paper shadow="md">
+                    <p>{question.question}</p>
+                    <Group justify="center">
+                      <Button onClick={() => handleEdit(question, index)}>
+                        Edit
+                      </Button>
+                      <Button onClick={() => handleDelete(question)}>
+                        Delete
+                      </Button>
+                    </Group>
+                    <Space h="lg" />
+                  </Paper>
+                </Grid.Col>
+              ))}
           </Grid>
           <br />
           <Button onClick={() => handleCreateQuestion()}>Add Question</Button>

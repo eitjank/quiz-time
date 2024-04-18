@@ -57,7 +57,7 @@ const Signup = () => {
   return (
     <Container>
       <Paper shadow="xs" radius="md">
-        <h2>Signup Account</h2>
+        <h2>Signup</h2>
         <form onSubmit={handleSubmit}>
           <div>
             <TextInput
