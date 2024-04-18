@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
-import { BASE_URL } from '../api/endpoints';
 import {
   uniqueNamesGenerator,
   adjectives,
@@ -10,6 +9,9 @@ import {
 } from 'unique-names-generator';
 import { useDisclosure } from '@mantine/hooks';
 import NameModal from '../components/NameModal';
+import { Container, Radio, TextInput, Stack, Group } from '@mantine/core';
+import ParticipantList from '../components/ParticipantList';
+import CurrentQuestion from '../components/CurrentQuestion';
 
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -106,23 +108,27 @@ function Quiz() {
   const renderQuestionInput = (question) => {
     switch (question.type) {
       case 'multipleChoice':
-        return question.options.map((option, index) => (
-          <div key={index}>
-            <input
-              type="radio"
-              id={`option-${index}`}
-              name="quizOption"
-              value={option}
-              checked={answer === option}
-              disabled={showAnswer}
-              onChange={(e) => setAnswer(e.target.value)}
-            />
-            <label htmlFor={`option-${index}`}>{option}</label>
-          </div>
-        ));
+        return (
+          <Group justify="center">
+            <Stack gap="sm">
+              {question.options.map((option, index) => (
+                <Radio
+                  key={index}
+                  id={`option-${index}`}
+                  name="quizOption"
+                  value={option}
+                  label={option}
+                  checked={answer === option}
+                  disabled={showAnswer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                />
+              ))}
+            </Stack>
+          </Group>
+        );
       case 'openEnded':
         return (
-          <input
+          <TextInput
             type="text"
             value={answer}
             disabled={showAnswer}
@@ -130,20 +136,24 @@ function Quiz() {
           />
         );
       case 'trueFalse':
-        return ['True', 'False'].map((option, index) => (
-          <div key={index}>
-            <input
-              type="radio"
-              id={`trueFalse-${index}`}
-              name="trueFalseOption"
-              value={option}
-              checked={answer.toLowerCase() === option.toLowerCase()}
-              disabled={showAnswer}
-              onChange={(e) => setAnswer(e.target.value)}
-            />
-            <label htmlFor={`trueFalse-${index}`}>{option}</label>
-          </div>
-        ));
+        return (
+          <Group justify="center">
+            <Stack gap="sm">
+              {['True', 'False'].map((option, index) => (
+                <Radio
+                  key={index}
+                  id={`trueFalse-${index}`}
+                  name="trueFalseOption"
+                  value={option}
+                  label={option}
+                  checked={answer.toLowerCase() === option.toLowerCase()}
+                  disabled={showAnswer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                />
+              ))}
+            </Stack>
+          </Group>
+        );
       default:
         return null;
     }
@@ -171,11 +181,9 @@ function Quiz() {
           {!currentQuestion.question ? (
             <>
               <h2>Participants:</h2>
-              <ul>
-                {participants.map((participant) => (
-                  <li key={participant.id}>{participant.name}</li>
-                ))}
-              </ul>
+              <Container size="lg">
+                <ParticipantList participants={participants} />
+              </Container>
             </>
           ) : (
             <>
@@ -190,24 +198,20 @@ function Quiz() {
                   <p>Time left: {timer} seconds</p>
                 </>
               )}
-              <p>{currentQuestion.question}</p>
-              {currentQuestion.image && (
-                <img
-                  src={`${BASE_URL}/${currentQuestion.image}`}
-                  alt="Question"
+              <Container size="md">
+                <CurrentQuestion
+                  currentQuestion={currentQuestion}
+                  renderQuestionInput={renderQuestionInput}
+                  showAnswer={showAnswer}
                 />
-              )}
-              {renderQuestionInput(currentQuestion)}
-              {showAnswer && (
-                <p>The correct answer is: {currentQuestion.answer}</p>
-              )}
-              {showAnswer &&
-                isCorrect !== null &&
-                (isCorrect ? (
-                  <p>Your answer is correct!</p>
-                ) : (
-                  <p>Your answer is incorrect.</p>
-                ))}
+                {showAnswer &&
+                  isCorrect !== null &&
+                  (isCorrect ? (
+                    <p>Your answer is correct!</p>
+                  ) : (
+                    <p>Your answer is incorrect.</p>
+                  ))}
+              </Container>
             </>
           )}
         </>

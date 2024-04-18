@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
-import { BASE_URL } from '../api/endpoints';
+import { Button, Group, Switch, Space, Container } from '@mantine/core';
+import ParticipantList from '../components/ParticipantList';
+import CurrentQuestion from '../components/CurrentQuestion';
 
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -97,21 +99,19 @@ const QuizHostSession = () => {
         <>
           {!started ? (
             <>
-              <label>
-                <input
-                  type="checkbox"
+              <Group justify="center">
+                <Switch
+                  label="Manual Control"
                   checked={isManualControl}
                   onChange={() => setIsManualControl(!isManualControl)}
                 />
-                Manual Control
-              </label>
-              <button onClick={startQuiz}>Start Quiz</button>
+              </Group>
+              <Space h="lg" />
+              <Button onClick={startQuiz}>Start Quiz</Button>
               <h2>Participants:</h2>
-              <ul>
-                {participants.map((participant) => (
-                  <li key={participant.id}>{participant.name}</li>
-                ))}
-              </ul>
+              <Container size="lg">
+                <ParticipantList participants={participants} />
+              </Container>
             </>
           ) : (
             <div>
@@ -126,36 +126,33 @@ const QuizHostSession = () => {
               {isManualControl && (
                 <>
                   {showAnswer ? (
-                    <button
+                    <Button
                       onClick={() => {
                         socket.emit('nextQuestion', { quizSessionId: id });
                         setShowAnswer(false);
                       }}
                     >
                       Next Question
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
                       onClick={() =>
                         socket.emit('skipQuestion', { quizSessionId: id })
                       }
                     >
                       Skip Question
-                    </button>
+                    </Button>
                   )}
                 </>
               )}
-              <p>{currentQuestion.question}</p>
-              {currentQuestion.image && (
-                <img
-                  src={`${BASE_URL}/${currentQuestion.image}`}
-                  alt="Question"
+              <Space h="lg" />
+              <Container size="md">
+                <CurrentQuestion
+                  currentQuestion={currentQuestion}
+                  renderQuestionInput={renderQuestionInput}
+                  showAnswer={showAnswer}
                 />
-              )}
-              {renderQuestionInput(currentQuestion)}
-              {showAnswer && (
-                <p>The correct answer is: {currentQuestion.answer}</p>
-              )}
+              </Container>
             </div>
           )}
         </>

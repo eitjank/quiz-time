@@ -161,7 +161,7 @@ function QuestionForm({ index, questions, setQuestions }) {
               setQuestions(newQuestions);
             }}
             min={1}
-            max={180}
+            max={600}
           />
           <br />
           <Button
