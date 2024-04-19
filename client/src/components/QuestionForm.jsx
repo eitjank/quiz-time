@@ -7,10 +7,13 @@ import {
   Button,
   FileButton,
   Group,
+  TagsInput,
+  Stack,
+  Space,
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 
-function QuestionForm({ index, questions, setQuestions }) {
+function QuestionForm({ index, questions, setQuestions, isQuestionBank}) {
   const handleImageUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -101,33 +104,36 @@ function QuestionForm({ index, questions, setQuestions }) {
           {questions[index].type === 'multipleChoice' && (
             <>
               <p>Options:</p>
-              {questions[index].options.map((option, optionIndex) => (
-                <div key={optionIndex}>
-                  <Group justify="center">
-                    <TextInput
-                      data-testid="option-multiple-choice-input"
-                      type="text"
-                      value={option}
-                      onChange={(e) => {
-                        const newQuestions = [...questions];
-                        newQuestions[index].options[optionIndex] =
-                          e.target.value;
-                        setQuestions(newQuestions);
-                      }}
-                    />
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const newQuestions = [...questions];
-                        newQuestions[index].options.splice(optionIndex, 1);
-                        setQuestions(newQuestions);
-                      }}
-                    >
-                      Remove Option
-                    </Button>
-                  </Group>
-                </div>
-              ))}
+              <Stack gap="xs">
+                {questions[index].options.map((option, optionIndex) => (
+                  <div key={optionIndex}>
+                    <Group justify="center">
+                      <TextInput
+                        data-testid="option-multiple-choice-input"
+                        type="text"
+                        value={option}
+                        onChange={(e) => {
+                          const newQuestions = [...questions];
+                          newQuestions[index].options[optionIndex] =
+                            e.target.value;
+                          setQuestions(newQuestions);
+                        }}
+                      />
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const newQuestions = [...questions];
+                          newQuestions[index].options.splice(optionIndex, 1);
+                          setQuestions(newQuestions);
+                        }}
+                      >
+                        Remove Option
+                      </Button>
+                    </Group>
+                  </div>
+                ))}
+              </Stack>
+              <Space h="xs" />
               <Button
                 onClick={(e) => {
                   e.preventDefault();
@@ -163,6 +169,18 @@ function QuestionForm({ index, questions, setQuestions }) {
             min={1}
             max={600}
           />
+          {isQuestionBank && (
+            <TagsInput
+              label="Question Tags"
+              placeholder="Press Enter to submit a tag"
+              value={questions[index].tags}
+              onChange={(tags) => {
+                const newQuestions = [...questions];
+                newQuestions[index].tags = tags;
+                setQuestions(newQuestions);
+              }}
+            />
+          )}
           <br />
           <Button
             onClick={(e) => {

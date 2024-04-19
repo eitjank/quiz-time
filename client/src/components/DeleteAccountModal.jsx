@@ -7,7 +7,6 @@ const DeleteAccountModal = ({ opened, close, handleAccountDeletion }) => {
       onClose={close}
       title="Confirm Account Deletion"
       size="sm"
-      hideCloseButton
     >
       <Alert color="red" title="Warning">
         Are you sure you want to delete your account? This action cannot be

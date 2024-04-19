@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
-import { Button, Group, Switch, Space, Container } from '@mantine/core';
+import {
+  Button,
+  Group,
+  Switch,
+  Space,
+  Container,
+  Stack,
+  Text,
+  Paper,
+} from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 
@@ -75,17 +84,36 @@ const QuizHostSession = () => {
   const renderQuestionInput = (question) => {
     switch (question.type) {
       case 'multipleChoice':
-        return question.options.map((option, index) => (
-          <ul key={index}>
-            <li htmlFor={`option-${index}`}>{option}</li>
-          </ul>
-        ));
+        return (
+          <Stack gap="sm">
+            {question.options.map((option, index) => (
+              <Paper
+                key={index}
+                style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
+                shadow="md"
+              >
+                <Text>{option}</Text>
+              </Paper>
+            ))}
+          </Stack>
+        );
       case 'trueFalse':
-        return ['True', 'False'].map((option, index) => (
-          <ul key={index}>
-            <li htmlFor={`trueFalse-${index}`}>{option}</li>
-          </ul>
-        ));
+        return (
+          <Stack gap="sm">
+            <Paper
+              style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
+              shadow="md"
+            >
+              <Text>True</Text>
+            </Paper>
+            <Paper
+              style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
+              shadow="md"
+            >
+              <Text>False</Text>
+            </Paper>
+          </Stack>
+        );
       default:
         return null;
     }

@@ -103,6 +103,7 @@ function QuestionBank() {
             questions={questions}
             setQuestions={setQuestions}
             index={index}
+            isQuestionBank={true}
           />
           <br />
           <Group justify="center">
