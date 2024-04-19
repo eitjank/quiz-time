@@ -51,6 +51,17 @@ const QuizHostSession = () => {
     socket.on('receiveQuestion', (question) => {
       setCurrentQuestion(question);
       setTimer(question.timeLimit);
+
+      const intervalId = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(intervalId);
+            return 0;
+          } else {
+            return prevTimer - 1;
+          }
+        });
+      }, 1000);
     });
 
     socket.on('timeUpdate', (timeRemaining) => {
@@ -68,7 +79,7 @@ const QuizHostSession = () => {
   }, [id, socket]);
 
   useEffect(() => {
-    if (timer === 0) {
+    if (timer !== null && timer <= 0) {
       setShowAnswer(true);
     } else {
       setShowAnswer(false);
@@ -121,7 +132,6 @@ const QuizHostSession = () => {
 
   return (
     <div>
-      <h1>Quiz Host Session</h1>
       <h2>Quiz Session ID: {id}</h2>
       {!finished ? (
         <>

@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthContext from '../contexts/AuthContext';
-import { Button, Container, Paper, TextInput } from '@mantine/core';
+import { Button, Container, Paper, TextInput, Group } from '@mantine/core';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -92,10 +92,12 @@ const Signup = () => {
               onChange={handleOnChange}
             />
           </div>
-          <Button type="submit">Submit</Button>
-          <span>
-            Already have an account? <Link to={'/login'}>Login</Link>
-          </span>
+          <Group justify="center">
+            <Button type="submit">Submit</Button>
+            <span>
+              Already have an account? <Link to={'/login'}>Login</Link>
+            </span>
+          </Group>
         </form>
       </Paper>
     </Container>

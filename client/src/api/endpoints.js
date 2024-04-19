@@ -1,4 +1,6 @@
-export const BASE_URL = 'http://localhost:3001/api';
+export const ENDPOINT = 'http://localhost:3001';
+
+export const BASE_URL = `${ENDPOINT}/api`;
 
 export const SIGNUP_ENDPOINT = `${BASE_URL}/auth/signup`;
 export const LOGIN_ENDPOINT = `${BASE_URL}/auth/login`;

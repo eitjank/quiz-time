@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import socketIOClient from 'socket.io-client';
-
-const ENDPOINT = 'http://localhost:3001';
+import { ENDPOINT } from '../api/endpoints';
 
 export function useQuizSession() {
   const [participants, setParticipants] = useState([]);

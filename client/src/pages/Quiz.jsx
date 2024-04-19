@@ -50,6 +50,17 @@ function Quiz() {
       setCurrentQuestion(question);
       setTimer(question.timeLimit);
       setAnswer('');
+
+      const intervalId = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(intervalId);
+            return 0;
+          } else {
+            return prevTimer - 1;
+          }
+        });
+      }, 1000);
     });
 
     socket.on('timeUpdate', (timeRemaining) => {
@@ -76,11 +87,11 @@ function Quiz() {
 
   useEffect(() => {
     if (!socket || !name || !joined) return;
-    open();
+    open(); // Open the modal to change the name
   }, [id, name, socket, joined, open]);
 
   useEffect(() => {
-    if (timer === 0) {
+    if (timer !== null && timer <= 0) {
       setShowAnswer(true);
       setIsCorrect(answer === currentQuestion.answer);
       socket.emit('submitAnswer', { quizSessionId: id, answer });
