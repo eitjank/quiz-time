@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const Quiz = require('./db/models/Quiz');
 const User = require('./db/models/User');
 const Question = require('./db/models/Question');
+require('dotenv').config();
 
-const db = 'mongodb://127.0.0.1:27017/quizApp';
+const db = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quizApp';
 
 mongoose.connect(db);
 
@@ -159,9 +160,9 @@ const addInitialDataToDB = async () => {
 
     await question2.save();
 
-    console.log('Questions and quizzes have been created.');
+    console.log('Initial data has been created.');
   } catch (err) {
-    console.error('Failed to add questions and quizzes to the database:', err);
+    console.error('Failed to add initial data to the database:', err);
   } finally {
     mongoose.disconnect();
   }

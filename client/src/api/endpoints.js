@@ -1,4 +1,5 @@
-export const ENDPOINT = 'http://localhost:3001';
+export const ENDPOINT =
+  process.env.SERVER_URL || 'http://localhost:3001';
 
 export const BASE_URL = `${ENDPOINT}/api`;
 
