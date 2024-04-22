@@ -3,10 +3,7 @@ const Quiz = require('./db/models/Quiz');
 const User = require('./db/models/User');
 const Question = require('./db/models/Question');
 require('dotenv').config();
-
-const db = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quizApp';
-
-mongoose.connect(db);
+const connectDB = require('./db/connection');
 
 const questions1 = [
   {
@@ -101,9 +98,10 @@ const questions2 = [
 
 const addInitialDataToDB = async () => {
   try {
-    Quiz.collection.drop();
-    Question.collection.drop();
-    User.collection.drop();
+    await connectDB();
+    await Quiz.collection.drop();
+    await Question.collection.drop();
+    await User.collection.drop();
 
     const user = new User({
       email: 'test@test',

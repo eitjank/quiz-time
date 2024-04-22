@@ -11,6 +11,7 @@ import {
   FileButton,
   Textarea,
   Group,
+  Space,
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 
@@ -135,15 +136,15 @@ function QuizForm({ initialQuiz, onSubmit }) {
           <label>
             <h2>Questions:</h2>
             {questions.map((question, index) => (
-              <>
+              <div key={index}>
                 <QuestionForm
                   key={index}
                   index={index}
                   questions={questions}
                   setQuestions={setQuestions}
                 />
-                <br />
-              </>
+                <Space h="lg" />
+              </div>
             ))}
             <Group justify="center">
               <Button
