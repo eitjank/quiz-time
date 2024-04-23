@@ -12,6 +12,7 @@ import NameModal from '../components/NameModal';
 import { Container, Radio, TextInput, Stack, Group } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
+import ProgressBar from '../components/ProgressBar';
 
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -199,15 +200,7 @@ function Quiz() {
           ) : (
             <>
               {currentQuestion.question && (
-                <>
-                  <div className="progress-container">
-                    <div
-                      className="progress-bar"
-                      style={{ width: `${progressBarWidth}%` }}
-                    ></div>
-                  </div>
-                  <p>Time left: {timer} seconds</p>
-                </>
+                <ProgressBar width={progressBarWidth} timeLeft={timer} />
               )}
               <Container size="md">
                 <CurrentQuestion

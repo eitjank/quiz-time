@@ -16,8 +16,8 @@ function QuizCreate() {
         body: JSON.stringify(quiz),
       }).then((res) => {
         if (!res.ok) {
-          toast.error('Failed to create quiz');
-          throw new Error('Failed to create quiz');
+          toast.error(`Failed to create quiz. ${res.statusText}`);
+          throw new Error(`Failed to create quiz. ${res.statusText}`);
         }
       });
       navigate(-1);

@@ -10,7 +10,7 @@ import { MantineProvider } from '@mantine/core';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <MantineProvider>
+  <MantineProvider theme={{ fontFamily: 'Arial' }}>
     <AuthProvider>
       <BrowserRouter>
         <React.StrictMode>

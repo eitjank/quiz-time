@@ -33,8 +33,8 @@ function QuizEdit() {
         body: JSON.stringify(quiz),
       }).then((res) => {
         if (!res.ok) {
-          toast.error('Failed to update quiz');
-          throw new Error('Failed to update quiz');
+          toast.error(`Failed to update quiz. ${res.statusText}`);
+          throw new Error(`Failed to update quiz. ${res.statusText}`);
         }
       });
       navigate(-1);

@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import AuthContext from '../../contexts/AuthContext';
+import { IconLogin, IconLogout } from '@tabler/icons-react';
 
 const Navbar = () => {
   const { isAuthenticated, logout } = useContext(AuthContext);
@@ -25,8 +26,9 @@ const Navbar = () => {
           <Link className="navbar-item" to="/profile">
             Profile
           </Link>
-          <Link className="navbar-item" onClick={logout} to="/">
+          <Link className="navbar-item logout-link" onClick={logout} to="/">
             Logout
+            <IconLogout style={{ marginLeft: '8px' }} />
           </Link>
         </>
       ) : (
@@ -34,8 +36,9 @@ const Navbar = () => {
           <Link className="navbar-item" to="/signup">
             Signup
           </Link>
-          <Link className="navbar-item" to="/login">
+          <Link className="navbar-item logout-link" to="/login">
             Login
+            <IconLogin style={{ marginLeft: '8px' }} />
           </Link>
         </>
       )}

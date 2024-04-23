@@ -19,7 +19,7 @@ function Leaderboard({ results }) {
             .map((participant, index) => (
               <tr key={index}>
                 <td data-testid="rank-cell">{index + 1}</td>
-                <td data-testid="participant-id">{participant.id}</td>
+                <td data-testid="participant-name">{participant.name}</td>
                 <td data-testid="score">{participant.score}</td>
               </tr>
             ))}

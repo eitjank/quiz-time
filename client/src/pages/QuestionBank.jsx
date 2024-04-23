@@ -53,8 +53,8 @@ function QuestionBank() {
     })
       .then((response) => {
         if (!response.ok) {
-          toast.error('Failed to delete question');
-          throw new Error('Failed to delete question');
+          toast.error(`Failed to delete question. ${response.statusText}`);
+          throw new Error(`Failed to delete question. ${response.statusText}`);
         }
         return response.json();
       })
@@ -81,8 +81,8 @@ function QuestionBank() {
         if (!response.ok) {
           // save/update
           const update_save = editingQuestion._id ? 'update' : 'save';
-          toast.error(`Failed to ${update_save} question`);
-          throw new Error(`Failed to ${update_save} question`);
+          toast.error(`Failed to ${update_save} question. ${response.statusText}`);
+          throw new Error(`Failed to ${update_save} question. ${response.statusText}`);
         }
         return response.json();
       })
@@ -118,6 +118,8 @@ function QuestionBank() {
             selectedTags={selectedTags}
             setSelectedTags={setSelectedTags}
           />
+          <Space h="lg" />
+          <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
           <Grid gutter="md">
             {questions
               .filter((question) =>
@@ -140,8 +142,6 @@ function QuestionBank() {
                 </Grid.Col>
               ))}
           </Grid>
-          <br />
-          <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
         </>
       )}
     </Container>

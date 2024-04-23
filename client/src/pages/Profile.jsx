@@ -47,7 +47,7 @@ const Profile = () => {
         return res.json();
       })
       .then((data) => {
-        toast.success(data.message);
+        toast(data.message);
         setCurrentPassword('');
         setNewPassword('');
       })
@@ -74,7 +74,7 @@ const Profile = () => {
       })
       .then((data) => {
         setUser((prevUser) => ({ ...prevUser, username: data.username }));
-        toast.success(data.message);
+        toast(data.message);
       })
       .catch((err) => console.error(err));
   };
@@ -88,7 +88,7 @@ const Profile = () => {
       .then((data) => {
         logout();
         navigate('/');
-        toast.success(data.message);
+        toast(data.message);
       })
       .catch((err) => console.error(err));
   };

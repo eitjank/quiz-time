@@ -48,7 +48,6 @@ function QuizForm({ initialQuiz, onSubmit }) {
   const handleExport = async () => {
     try {
       const res = await fetch(`${QUIZZES_ENDPOINT}/${initialQuiz.id}/export`);
-      console.log(res);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -83,14 +82,18 @@ function QuizForm({ initialQuiz, onSubmit }) {
         credentials: 'include',
         body: JSON.stringify(json),
       });
+
+      if (!response.ok) {
+        toast.error(`Failed to import quiz. ${response.statusText}`);
+        throw new Error(`Failed to import quiz. ${response.statusText}`);
+      }
       // navigate to the imported quiz
       const data = await response.json();
       navigate(`/quizzes/${data.quizId}/edit`);
 
-      toast.success('Quiz imported successfully');
+      toast('Quiz imported successfully');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to import quiz');
     }
   };
 

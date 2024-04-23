@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
+import ProgressBar from '../components/ProgressBar';
 
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -154,13 +155,7 @@ const QuizHostSession = () => {
           ) : (
             <div>
               <h1>Quiz Time!</h1>
-              <div className="progress-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${progressBarWidth}%` }}
-                ></div>
-              </div>
-              <p>Time left: {timer} seconds</p>
+              <ProgressBar width={progressBarWidth} timeLeft={timer} />
               {isManualControl && (
                 <>
                   {showAnswer ? (

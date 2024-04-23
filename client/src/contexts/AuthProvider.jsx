@@ -60,7 +60,7 @@ const AuthProvider = ({ children }) => {
     if (response.ok) {
       setUsername('');
       setIsAuthenticated(false);
-      toast('Logged out successfully', { position: 'bottom-right' });
+      toast('Logged out successfully');
     }
   };
 
