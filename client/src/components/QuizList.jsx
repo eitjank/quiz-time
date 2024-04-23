@@ -42,6 +42,7 @@ const QuizList = ({ endpoint }) => {
       });
       if (response.ok) {
         setQuizzes(quizzes.filter((q) => q._id !== quiz._id));
+        toast('Quiz deleted successfully');
       } else {
         toast.error(`Failed to delete quiz. ${response.statusText}`);
       }

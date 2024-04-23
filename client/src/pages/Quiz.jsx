@@ -9,10 +9,17 @@ import {
 } from 'unique-names-generator';
 import { useDisclosure } from '@mantine/hooks';
 import NameModal from '../components/NameModal';
-import { Container, Radio, TextInput, Stack, Group } from '@mantine/core';
+import {
+  Container,
+  Radio,
+  TextInput,
+  Stack,
+  Group,
+  Button,
+} from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
-import ProgressBar from '../components/ProgressBar';
+import ProgressBar from '../components/ProgressBar/ProgressBar';
 
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -23,10 +30,12 @@ function Quiz() {
   const [joined, setJoined] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  const { socket, results, finished, participants } = useQuizSession(id);
+  const { socket, results, finished, participants, scoreByTime } =
+    useQuizSession(id);
   const [progressBarWidth, setProgressBarWidth] = useState(100);
   const [name, setName] = useState('');
   const [opened, { open, close }] = useDisclosure(false);
+  const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
   useEffect(() => {
     if (currentQuestion.timeLimit !== 0) {
@@ -51,6 +60,7 @@ function Quiz() {
       setCurrentQuestion(question);
       setTimer(question.timeLimit);
       setAnswer('');
+      setAnswerSubmitted(false);
 
       const intervalId = setInterval(() => {
         setTimer((prevTimer) => {
@@ -78,11 +88,16 @@ function Quiz() {
       }
     });
 
+    // socket.on('answerResult', (data) => {
+    //   console.log(data);
+    // });
+
     return () => {
       // Clean up the socket connection
       socket.off('joinedQuiz');
       socket.off('receiveQuestion');
       socket.off('timeUpdate');
+      // socket.off('answerResult');
     };
   }, [id, navigate, socket]);
 
@@ -95,7 +110,9 @@ function Quiz() {
     if (timer !== null && timer <= 0) {
       setShowAnswer(true);
       setIsCorrect(answer === currentQuestion.answer);
-      socket.emit('submitAnswer', { quizSessionId: id, answer });
+      if (!scoreByTime) {
+        socket.emit('submitAnswer', { quizSessionId: id, answer });
+      }
     } else {
       setShowAnswer(false);
       setIsCorrect(null);
@@ -117,6 +134,12 @@ function Quiz() {
     close();
   };
 
+  const handleSubmitAnswer = (answer) => {
+    if (!socket) return;
+    socket.emit('submitAnswer', { quizSessionId: id, answer });
+    setAnswerSubmitted(true);
+  };
+
   const renderQuestionInput = (question) => {
     switch (question.type) {
       case 'multipleChoice':
@@ -131,8 +154,13 @@ function Quiz() {
                   value={option}
                   label={option}
                   checked={answer === option}
-                  disabled={showAnswer}
-                  onChange={(e) => setAnswer(e.target.value)}
+                  disabled={showAnswer || (scoreByTime && answer !== '')}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    if (scoreByTime) {
+                      handleSubmitAnswer(e.target.value);
+                    }
+                  }}
                 />
               ))}
             </Stack>
@@ -140,12 +168,26 @@ function Quiz() {
         );
       case 'openEnded':
         return (
-          <TextInput
-            type="text"
-            value={answer}
-            disabled={showAnswer}
-            onChange={(e) => setAnswer(e.target.value)}
-          />
+          <>
+            <TextInput
+              type="text"
+              value={answer}
+              disabled={showAnswer || (scoreByTime && answerSubmitted)}
+              onChange={(e) => setAnswer(e.target.value)}
+            />
+            {scoreByTime && (
+              <Button
+                disabled={answer === '' || answerSubmitted}
+                onClick={() => {
+                  if (!answerSubmitted) {
+                    handleSubmitAnswer(answer);
+                  }
+                }}
+              >
+                Submit
+              </Button>
+            )}
+          </>
         );
       case 'trueFalse':
         return (
@@ -159,8 +201,13 @@ function Quiz() {
                   value={option}
                   label={option}
                   checked={answer.toLowerCase() === option.toLowerCase()}
-                  disabled={showAnswer}
-                  onChange={(e) => setAnswer(e.target.value)}
+                  disabled={showAnswer || (scoreByTime && answer !== '')}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    if (scoreByTime) {
+                      handleSubmitAnswer(e.target.value);
+                    }
+                  }}
                 />
               ))}
             </Stack>

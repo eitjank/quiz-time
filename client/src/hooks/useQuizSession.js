@@ -7,6 +7,7 @@ export function useQuizSession() {
   const [socket, setSocket] = useState(null);
   const [results, setResults] = useState([]);
   const [finished, setFinished] = useState(false);
+  const [scoreByTime, setScoreByTime] = useState(false);
 
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
@@ -23,6 +24,10 @@ export function useQuizSession() {
       );
     });
 
+    socket.on('quizStarted', (data) => {
+      setScoreByTime(data.scoreByTime);
+    });
+
     socket.on('quizFinished', (data) => {
       setFinished(true);
       setResults(data.participants);
@@ -34,6 +39,7 @@ export function useQuizSession() {
       socket.off('timeUpdate');
       socket.off('participantList');
       socket.off('participantLeft');
+      socket.off('quizStarted');
       socket.off('quizFinished');
       socket.disconnect();
     };
@@ -44,5 +50,6 @@ export function useQuizSession() {
     results,
     finished,
     participants,
+    scoreByTime,
   };
 }

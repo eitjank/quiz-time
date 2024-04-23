@@ -4,6 +4,9 @@ const QuizSession = require('../db/models/QuizSession');
 const { instrument } = require('@socket.io/admin-ui');
 require('dotenv').config();
 
+const maxScore = 1000;
+const minScore = 300;
+
 let quizSessions = [];
 
 function socketSetup(server) {
@@ -53,7 +56,10 @@ function socketSetup(server) {
             }, 4000); // 4 seconds delay before moving to next question
           }
         } else {
-          endQuizSession(quiz, io, quizSessionId);
+          // Add a delay before ending the quiz
+          setTimeout(() => {
+            endQuizSession(quiz, io, quizSessionId);
+          }, 4000);
         }
       }, quiz.questions[quiz.currentQuestionIndex].timeLimit * 1000);
     }
@@ -117,10 +123,17 @@ function socketSetup(server) {
       });
     });
 
-    socket.on('startQuiz', ({ quizSessionId, isManualControl }) => {
-      quizSessions[quizSessionId].isManualControl = isManualControl;
-      startQuestionTimer(quizSessionId);
-    });
+    socket.on(
+      'startQuiz',
+      ({ quizSessionId, isManualControl, scoreByTime }) => {
+        quizSessions[quizSessionId].isManualControl = isManualControl;
+        quizSessions[quizSessionId].scoreByTime = scoreByTime;
+        io.to(quizSessionId).emit('quizStarted', {
+          scoreByTime: scoreByTime,
+        });
+        startQuestionTimer(quizSessionId);
+      }
+    );
 
     socket.on('nextQuestion', ({ quizSessionId }) => {
       const quiz = quizSessions[quizSessionId];
@@ -140,22 +153,48 @@ function socketSetup(server) {
     });
 
     socket.on('submitAnswer', (data) => {
+      if (!quizSessions[data.quizSessionId]) return;
       const quiz = quizSessions[data.quizSessionId];
       const question = quiz.questions[quiz.currentQuestionIndex];
 
-      // check if answer was submitted after the time limit
-      if (Date.now() > quiz.currentQuestionEndTime) {
-        console.log(`User ${socket.id} submitted answer after time limit`);
+      // check if user has already answered this question
+      const lastAnswer =
+        quiz.participants[socket.id].answers[
+          quiz.participants[socket.id].answers.length - 1
+        ];
+      if (lastAnswer && lastAnswer.questionId === question._id) {
         return;
       }
 
-      quiz.participants[socket.id].answers.push({
+      // check if answer was submitted after the time limit
+      if (Date.now() > quiz.currentQuestionEndTime) {
+        return;
+      }
+
+      let score = 1;
+      const answer = {
         questionId: question._id,
         answer: data.answer,
-      });
+      };
+      if (quiz.scoreByTime) {
+        const timeLimit = question.timeLimit * 1000; // convert to milliseconds
+        const timeTaken = Date.now() - quiz.currentQuestionStartTime;
+        score = maxScore - (timeTaken / timeLimit) * (maxScore - minScore);
+        score = Math.round(score); // round to nearest integer
+        score = Math.max(minScore, score);
+        answer.timeTaken = timeTaken;
+      }
+      quiz.participants[socket.id].answers.push(answer);
+
       if (data.answer === question.answer) {
         console.log(`User ${socket.id} answered correctly`);
-        quiz.participants[socket.id].score++;
+        quiz.participants[socket.id].score += score;
+        if (quiz.scoreByTime) {
+          // send what score the user got
+          // socket.emit('answerResult', {
+          //   score: score,
+          // });
+        }
       } else {
         console.log(`User ${socket.id} answered incorrectly`);
       }

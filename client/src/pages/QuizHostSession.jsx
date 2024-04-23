@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
-import ProgressBar from '../components/ProgressBar';
+import ProgressBar from '../components/ProgressBar/ProgressBar';
 
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -24,6 +24,7 @@ const QuizHostSession = () => {
   const { id } = useParams();
   const { socket, results, finished, participants } = useQuizSession();
   const [isManualControl, setIsManualControl] = useState(false);
+  const [scoreByTime, setScoreByTime] = useState(false);
   const [progressBarWidth, setProgressBarWidth] = useState(100);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ const QuizHostSession = () => {
   }, [timer]);
 
   const startQuiz = () => {
-    socket.emit('startQuiz', { quizSessionId: id, isManualControl });
+    socket.emit('startQuiz', { quizSessionId: id, isManualControl, scoreByTime });
     setStarted(true);
   };
 
@@ -143,6 +144,11 @@ const QuizHostSession = () => {
                   label="Manual Control"
                   checked={isManualControl}
                   onChange={() => setIsManualControl(!isManualControl)}
+                />
+                <Switch
+                  label="Score By Time"
+                  checked={scoreByTime}
+                  onChange={() => setScoreByTime(!scoreByTime)}
                 />
               </Group>
               <Space h="lg" />

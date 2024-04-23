@@ -19,6 +19,12 @@ function QuizCreate() {
           toast.error(`Failed to create quiz. ${res.statusText}`);
           throw new Error(`Failed to create quiz. ${res.statusText}`);
         }
+
+        if (res.status === 201) {
+          toast('Quiz created successfully');
+        } else {
+          toast.error(`Failed to create quiz. ${res.statusText}`);
+        }
       });
       navigate(-1);
     } catch (err) {

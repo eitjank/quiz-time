@@ -36,6 +36,7 @@ function QuizEdit() {
           toast.error(`Failed to update quiz. ${res.statusText}`);
           throw new Error(`Failed to update quiz. ${res.statusText}`);
         }
+        if (res.status === 200) toast('Quiz updated successfully');
       });
       navigate(-1);
     } catch (err) {
