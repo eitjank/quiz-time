@@ -758,32 +758,32 @@ const addInitialDataToDB = async () => {
     await philosophyQuiz.save();
 
     for (const question of technologyQuestions) {
-      const newQuestion = new Question(question);
+      const newQuestion = new Question({ ...question, owner: user._id });
       await newQuestion.save();
     }
 
     for (const question of sportsQuestions) {
-      const newQuestion = new Question(question);
+      const newQuestion = new Question({ ...question, owner: user._id });
       await newQuestion.save();
     }
 
     for (const question of scienceQuestions) {
-      const newQuestion = new Question(question);
+      const newQuestion = new Question({ ...question, owner: user._id });
       await newQuestion.save();
     }
 
     for (const question of geographyQuestions) {
-      const newQuestion = new Question(question);
+      const newQuestion = new Question({ ...question, owner: user._id });
       await newQuestion.save();
     }
 
     for (const question of historyQuestions) {
-      const newQuestion = new Question(question);
+      const newQuestion = new Question({ ...question, owner: user._id });
       await newQuestion.save();
     }
 
     for (const question of moviesQuestions) {
-      const newQuestion = new Question(question);
+      const newQuestion = new Question({ ...question, owner: user._id });
       await newQuestion.save();
     }
 

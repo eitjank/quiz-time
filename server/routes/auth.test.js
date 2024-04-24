@@ -37,7 +37,7 @@ describe('Authentication API', () => {
       expect(response.headers['set-cookie']).toBeDefined();
     });
 
-    it('should return an error if user already exists', async () => {
+    it('should return an error that email already exists', async () => {
       // Create a user in the database
       await User.create({
         email: 'test@example.com',
@@ -52,7 +52,7 @@ describe('Authentication API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe('User already exists');
+      expect(response.body.message).toBe('Email already exists');
     });
   });
 

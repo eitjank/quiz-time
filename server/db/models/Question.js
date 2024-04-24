@@ -9,6 +9,7 @@ const QuestionSchema = new mongoose.Schema({
   timeLimit: Number,
   image: String,
   tags: [String],
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
 // delete image from questions before deleting quiz

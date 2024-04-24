@@ -6,14 +6,16 @@ import { Button, Container, Grid, Paper, Group, Space } from '@mantine/core';
 import TagSearch from '../components/TagSearch';
 
 function QuestionBank() {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState(null);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [index, setIndex] = useState(null);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
   useEffect(() => {
-    fetch(`${QUESTIONS_ENDPOINT}`)
+    fetch(`${QUESTIONS_ENDPOINT}`, {
+      credentials: 'include',
+    })
       .then((response) => response.json())
       .then((data) => {
         setQuestions(data);
@@ -50,6 +52,7 @@ function QuestionBank() {
   const handleDelete = (question) => {
     fetch(`${QUESTIONS_ENDPOINT}/${question._id}`, {
       method: 'DELETE',
+      credentials: 'include',
     })
       .then((response) => {
         if (!response.ok) {
@@ -73,6 +76,7 @@ function QuestionBank() {
       : QUESTIONS_ENDPOINT;
     fetch(url, {
       method: method,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -127,26 +131,27 @@ function QuestionBank() {
           <Space h="lg" />
           <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
           <Grid gutter="md">
-            {questions
-              .filter((question) =>
-                selectedTags.every((tag) => question.tags.includes(tag))
-              )
-              .map((question, index) => (
-                <Grid.Col key={question._id}>
-                  <Paper shadow="md">
-                    <p>{question.question}</p>
-                    <Group justify="center">
-                      <Button onClick={() => handleEdit(question, index)}>
-                        Edit
-                      </Button>
-                      <Button onClick={() => handleDelete(question)}>
-                        Delete
-                      </Button>
-                    </Group>
-                    <Space h="lg" />
-                  </Paper>
-                </Grid.Col>
-              ))}
+            {questions &&
+              questions
+                .filter((question) =>
+                  selectedTags.every((tag) => question.tags.includes(tag))
+                )
+                .map((question, index) => (
+                  <Grid.Col key={question._id}>
+                    <Paper shadow="md">
+                      <p>{question.question}</p>
+                      <Group justify="center">
+                        <Button onClick={() => handleEdit(question, index)}>
+                          Edit
+                        </Button>
+                        <Button onClick={() => handleDelete(question)}>
+                          Delete
+                        </Button>
+                      </Group>
+                      <Space h="lg" />
+                    </Paper>
+                  </Grid.Col>
+                ))}
           </Grid>
         </>
       )}

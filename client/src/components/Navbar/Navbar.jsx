@@ -18,7 +18,7 @@ const Navbar = () => {
       {isAuthenticated ? (
         <>
           <Link className="navbar-item" to="/questionBank">
-            Question Bank
+            My Question Bank
           </Link>
           <Link className="navbar-item" to="/myQuizzes">
             My Quizzes

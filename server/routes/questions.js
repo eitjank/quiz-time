@@ -2,17 +2,22 @@ const express = require('express');
 const router = express.Router();
 const Question = require('../db/models/Question');
 const mongoose = require('mongoose');
+const authenticateUser = require('../middleware/authMiddleware');
 
-router.get('/', async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
   try {
-    const questions = await Question.find();
+    if (!req.user) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const questions = await Question.find({ owner: req.user.id });
     res.json(questions);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.get('/:id', async (req, res) => {
+// not used
+router.get('/:id', authenticateUser, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: 'Question not found' });
@@ -20,6 +25,9 @@ router.get('/:id', async (req, res) => {
     const question = await Question.findById(req.params.id);
     if (!question) {
       return res.status(404).json({ message: 'Question not found' });
+    }
+    if (question.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
     res.json(question);
   } catch (error) {
@@ -27,9 +35,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', authenticateUser, async (req, res) => {
   try {
     const newQuestion = new Question(req.body);
+    newQuestion.owner = req.user.id;
     const savedQuestion = await newQuestion.save();
     res.status(201).json(savedQuestion);
   } catch (error) {
@@ -37,7 +46,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateUser, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: 'Question not found' });
@@ -45,6 +54,9 @@ router.put('/:id', async (req, res) => {
     const question = await Question.findById(req.params.id);
     if (!question) {
       return res.status(404).json({ message: 'Question not found' });
+    }
+    if (question.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
     Object.assign(question, req.body);
     const updatedQuestion = await question.save();
@@ -54,12 +66,14 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateUser, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: 'Question not found' });
     }
-    const question = await Question.findByIdAndDelete(req.params.id);
+    const question = await Question.findByIdAndDelete(req.params.id, {
+      owner: req.user.id,
+    });
     if (!question) {
       return res.status(404).json({ message: 'Cannot find question' });
     }
