@@ -58,9 +58,10 @@ function QuestionBank() {
         }
         return response.json();
       })
-      .then((data) =>
-        setQuestions(questions.filter((q) => q._id !== question._id))
-      )
+      .then((data) => {
+        toast('Question deleted successfully');
+        setQuestions(questions.filter((q) => q._id !== question._id));
+      })
       .catch((error) => console.error(error));
   };
 
@@ -81,8 +82,12 @@ function QuestionBank() {
         if (!response.ok) {
           // save/update
           const update_save = editingQuestion._id ? 'update' : 'save';
-          toast.error(`Failed to ${update_save} question. ${response.statusText}`);
-          throw new Error(`Failed to ${update_save} question. ${response.statusText}`);
+          toast.error(
+            `Failed to ${update_save} question. ${response.statusText}`
+          );
+          throw new Error(
+            `Failed to ${update_save} question. ${response.statusText}`
+          );
         }
         return response.json();
       })
@@ -91,6 +96,7 @@ function QuestionBank() {
         newQuestions[index] = data;
         setQuestions(newQuestions);
         setEditingQuestion(null);
+        toast('Question saved successfully');
       })
       .catch((error) => console.error(error));
   };

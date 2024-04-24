@@ -13,11 +13,17 @@ import {
   Text,
   Space,
   Group,
+  Autocomplete,
 } from '@mantine/core';
 
 const QuizList = ({ endpoint }) => {
   const [quizzes, setQuizzes] = useState([]);
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
 
   useEffect(() => {
     fetch(endpoint, { credentials: 'include' })
@@ -73,9 +79,15 @@ const QuizList = ({ endpoint }) => {
       <Container size="md">
         <h1>Quizzes</h1>
         <Button onClick={() => navigate('/quizzes/create')}>Create Quiz</Button>
+        <Autocomplete
+          type="text"
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder="Search quizzes..."
+        />
         <Grid gutter="md">
           {quizzes &&
-            quizzes.map((quiz, index) => (
+            quizzes.filter((quiz) => quiz.name.toLowerCase().includes(searchTerm.toLowerCase())).map((quiz, index) => (
               <Grid.Col key={index} span={12} sm={6} md={4}>
                 <Paper shadow="md">
                   <Text size="xl">{quiz.name}</Text>

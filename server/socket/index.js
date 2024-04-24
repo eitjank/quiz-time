@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const maxScore = 1000;
 const minScore = 300;
+const delayBeforeNextQuestion = 3000; // 3 seconds
 
 let quizSessions = [];
 
@@ -53,13 +54,13 @@ function socketSetup(server) {
             setTimeout(() => {
               quiz.currentQuestionIndex++;
               startQuestionTimer(quizSessionId);
-            }, 4000); // 4 seconds delay before moving to next question
+            }, delayBeforeNextQuestion); // delay before moving to next question
           }
         } else {
           // Add a delay before ending the quiz
           setTimeout(() => {
             endQuizSession(quiz, io, quizSessionId);
-          }, 4000);
+          }, delayBeforeNextQuestion);
         }
       }, quiz.questions[quiz.currentQuestionIndex].timeLimit * 1000);
     }
@@ -180,7 +181,7 @@ function socketSetup(server) {
         const timeLimit = question.timeLimit * 1000; // convert to milliseconds
         const timeTaken = Date.now() - quiz.currentQuestionStartTime;
         score = maxScore - (timeTaken / timeLimit) * (maxScore - minScore);
-        score = Math.round(score); // round to nearest integer
+        score = Math.round(score);
         score = Math.max(minScore, score);
         answer.timeTaken = timeTaken;
       }

@@ -12,8 +12,9 @@ import {
   Space,
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
+import { toast } from 'react-toastify';
 
-function QuestionForm({ index, questions, setQuestions, isQuestionBank}) {
+function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
   const handleImageUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -181,17 +182,22 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank}) {
               }}
             />
           )}
-          <br />
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              const newQuestions = [...questions];
-              newQuestions.splice(index, 1);
-              setQuestions(newQuestions);
-            }}
-          >
-            Remove Question
-          </Button>
+          {!isQuestionBank && (
+            <>
+              <br />
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  const newQuestions = [...questions];
+                  newQuestions.splice(index, 1);
+                  setQuestions(newQuestions);
+                  toast('Question removed', { autoClose: 2000 });
+                }}
+              >
+                Remove Question
+              </Button>
+            </>
+          )}
         </Container>
         <br />
       </Paper>
