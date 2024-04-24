@@ -79,12 +79,14 @@ const QuizList = ({ endpoint }) => {
       <Container size="md">
         <h1>Quizzes</h1>
         <Button onClick={() => navigate('/quizzes/create')}>Create Quiz</Button>
+        <Space h="lg" />
         <Autocomplete
           type="text"
           value={searchTerm}
           onChange={handleSearch}
           placeholder="Search quizzes..."
         />
+        <Space h="lg" />
         <Grid gutter="md">
           {quizzes &&
             quizzes.filter((quiz) => quiz.name.toLowerCase().includes(searchTerm.toLowerCase())).map((quiz, index) => (

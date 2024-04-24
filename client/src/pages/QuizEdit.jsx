@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 function QuizEdit() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState(null);
   const [visibility, setVisibility] = useState('public');
   const { id } = useParams();
   const navigate = useNavigate();

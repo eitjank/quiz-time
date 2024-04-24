@@ -15,6 +15,8 @@ import {
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -26,6 +28,7 @@ const QuizHostSession = () => {
   const [isManualControl, setIsManualControl] = useState(false);
   const [scoreByTime, setScoreByTime] = useState(false);
   const [progressBarWidth, setProgressBarWidth] = useState(100);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentQuestion.timeLimit !== 0) {
@@ -43,10 +46,9 @@ const QuizHostSession = () => {
   useEffect(() => {
     if (!socket) return;
     socket.on('joinedQuiz', (data) => {
-      if (data.success) {
-        console.log('Joined quiz');
-      } else {
-        alert(data.message);
+      if (!data.success) {
+        toast.error(data.message);
+        navigate('/');
       }
     });
 
@@ -78,7 +80,7 @@ const QuizHostSession = () => {
       socket.off('receiveQuestion');
       socket.off('timeUpdate');
     };
-  }, [id, socket]);
+  }, [id, socket, navigate]);
 
   useEffect(() => {
     if (timer !== null && timer <= 0) {
@@ -90,7 +92,11 @@ const QuizHostSession = () => {
   }, [timer]);
 
   const startQuiz = () => {
-    socket.emit('startQuiz', { quizSessionId: id, isManualControl, scoreByTime });
+    socket.emit('startQuiz', {
+      quizSessionId: id,
+      isManualControl,
+      scoreByTime,
+    });
     setStarted(true);
   };
 

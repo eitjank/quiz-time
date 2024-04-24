@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import { ToastContainer } from 'react-toastify';
 import MyQuizzes from './pages/MyQuizzes';
 import QuestionBank from './pages/QuestionBank';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -23,11 +24,32 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/myQuizzes" element={<MyQuizzes />} />
-        <Route path="/questionBank" element={<QuestionBank />} />
+        <Route
+          path="/myQuizzes"
+          element={
+            <ProtectedRoute>
+              <MyQuizzes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/questionBank"
+          element={
+            <ProtectedRoute>
+              <QuestionBank />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/quizzes/:id" element={<Quiz />} />
         <Route path="/quizzes/:id/edit" element={<QuizEdit />} />
         <Route path="/quizzes/:id/view" element={<QuizView />} />

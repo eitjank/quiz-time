@@ -15,11 +15,11 @@ const Navbar = () => {
       <Link className="navbar-item" to="/join">
         Join Quiz
       </Link>
-      <Link className="navbar-item" to="/questionBank">
-        Question Bank
-      </Link>
       {isAuthenticated ? (
         <>
+          <Link className="navbar-item" to="/questionBank">
+            Question Bank
+          </Link>
           <Link className="navbar-item" to="/myQuizzes">
             My Quizzes
           </Link>

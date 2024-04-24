@@ -68,6 +68,19 @@ function socketSetup(server) {
     socket.on('hostJoinQuiz', async ({ quizSessionId }) => {
       const quizSession = await QuizSession.findById(quizSessionId);
       const quiz = await Quiz.findById(quizSession.quiz); // get quiz from quizSession
+
+      // Check if a host is already in the session
+      if (quizSessions[quizSessionId] && quizSessions[quizSessionId].host) {
+        console.log(
+          `Host ${socket.id} attempted to join quiz ${quizSessionId}, but another host is already in the session.`
+        );
+        socket.emit('joinedQuiz', {
+          success: false,
+          message: 'Another host is already in this quiz session.',
+        });
+        return;
+      }
+
       quizSessions[quizSessionId] = {
         participants: [],
         host: socket.id,

@@ -9,7 +9,11 @@ router.post('/signup', async (req, res) => {
     const { email, password, username, createdAt } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.json({ message: 'User already exists' });
+      return res.json({ message: 'Email already exists'});
+    }
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.json({ message: 'Username already exists' });
     }
     const user = await User.create({ email, password, username, createdAt });
     const token = createSecretToken(user._id);
