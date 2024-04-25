@@ -16,6 +16,7 @@ import { ToastContainer } from 'react-toastify';
 import MyQuizzes from './pages/MyQuizzes';
 import QuestionBank from './pages/QuestionBank';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotFound from './pages/NotFound/NotFound';
 
 function App() {
   return (
@@ -56,7 +57,7 @@ function App() {
         <Route path="/quizzes/create" element={<QuizCreate />} />
         <Route path="/quizzes" element={<PublicQuizzes />} />
         <Route path="/quizSessions/:id" element={<QuizHostSession />} />
-        <Route path="*" element={<h1>Not Found</h1>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );

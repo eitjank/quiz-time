@@ -14,11 +14,11 @@ import {
   Space,
   Group,
   Autocomplete,
-  FileButton
+  FileButton,
 } from '@mantine/core';
 import { readFile } from '../utils/readFile';
 
-const QuizList = ({ endpoint }) => {
+const QuizList = ({ endpoint, myQuizzes }) => {
   const [quizzes, setQuizzes] = useState([]);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,7 +104,7 @@ const QuizList = ({ endpoint }) => {
   return (
     <div>
       <Container size="md">
-        <h1>Quizzes</h1>
+        {myQuizzes ? <h1>My Quizzes</h1> : <h1>Quizzes</h1>}
         <Group justify="center">
           <Button onClick={() => navigate('/quizzes/create')}>
             Create Quiz
@@ -115,7 +115,6 @@ const QuizList = ({ endpoint }) => {
         </Group>
         <Space h="lg" />
         <Autocomplete
-          type="text"
           value={searchTerm}
           onChange={handleSearch}
           placeholder="Search quizzes..."
@@ -132,6 +131,7 @@ const QuizList = ({ endpoint }) => {
                   <Paper shadow="md">
                     <Text size="xl">{quiz.name}</Text>
                     <Text size="sm">{quiz.description}</Text>
+                    <Space h="sm" />
                     <Group justify="center">
                       <Button onClick={() => handleHost(quiz._id)}>Host</Button>
                       <Button onClick={() => handleView(quiz)}>View</Button>

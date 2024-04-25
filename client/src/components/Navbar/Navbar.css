@@ -1,5 +1,5 @@
 .navbar {
-  background-color: #f8f9fa;
+  background-color: var(--mantine-background);
   padding: 10px;
   display: flex;
   justify-content: space-around;
@@ -10,7 +10,7 @@
 
 .navbar-item {
   text-decoration: none;
-  color: #333;
+  color: var(--mantine-text);
   font-size: 18px;
 }
 

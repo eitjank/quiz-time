@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Container, TextInput } from '@mantine/core';
+import { Button, Container, TextInput, Paper } from '@mantine/core';
 
 function JoinQuizForm() {
   const [quizSessionId, setQuizSessionId] = useState('');
@@ -13,15 +13,27 @@ function JoinQuizForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Container>
-        <TextInput
-          placeholder="Enter Quiz ID"
-          value={quizSessionId}
-          onChange={(e) => setQuizSessionId(e.target.value)}
-        />
-        <br />
-        <Button type="submit">Join Quiz</Button>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '70vh',
+      }}
+    >
+      <Container size="sm">
+        <Paper shadow="md" style={{ padding: 15, minWidth: 300 }}>
+          <TextInput
+            placeholder="Enter Quiz ID"
+            value={quizSessionId}
+            onChange={(e) => setQuizSessionId(e.target.value)}
+            style={{ marginBottom: 15 }}
+          />
+          <Button type="submit" fullWidth>
+            Join Quiz
+          </Button>
+        </Paper>
       </Container>
     </form>
   );

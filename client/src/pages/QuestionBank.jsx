@@ -13,6 +13,8 @@ import {
   Group,
   Space,
   FileButton,
+  Pagination,
+  Autocomplete,
 } from '@mantine/core';
 import TagSearch from '../components/TagSearch';
 import { readFile } from '../utils/readFile';
@@ -23,6 +25,15 @@ function QuestionBank() {
   const [index, setIndex] = useState(null);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
 
   useEffect(() => {
     fetch(`${QUESTIONS_ENDPOINT}`, {
@@ -171,6 +182,14 @@ function QuestionBank() {
     }
   };
 
+  const filteredQuestions = questions
+    ? questions.filter(
+        (question) =>
+          selectedTags.every((tag) => question.tags.includes(tag)) &&
+          question.question.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
   return (
     <Container>
       {editingQuestion ? (
@@ -189,6 +208,7 @@ function QuestionBank() {
         </form>
       ) : (
         <>
+        <h1>My Question Bank</h1>
           <Group justify="center">
             <Button onClick={exportQuestions}>Export Questions</Button>
             <FileButton onChange={handleImport} accept="application/json">
@@ -201,13 +221,17 @@ function QuestionBank() {
             setSelectedTags={setSelectedTags}
           />
           <Space h="lg" />
+          <Autocomplete
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search questions..."
+          />
+          <Space h="lg" />
           <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
           <Grid gutter="md">
-            {questions &&
-              questions
-                .filter((question) =>
-                  selectedTags.every((tag) => question.tags.includes(tag))
-                )
+            {filteredQuestions &&
+              filteredQuestions
+                .slice(startIndex, endIndex)
                 .map((question, index) => (
                   <Grid.Col key={question._id}>
                     <Paper shadow="md">
@@ -224,6 +248,15 @@ function QuestionBank() {
                     </Paper>
                   </Grid.Col>
                 ))}
+            <Container>
+              {filteredQuestions && (
+                <Pagination
+                  total={Math.ceil(filteredQuestions.length / itemsPerPage)}
+                  value={currentPage}
+                  onChange={setCurrentPage}
+                />
+              )}
+            </Container>
           </Grid>
         </>
       )}
