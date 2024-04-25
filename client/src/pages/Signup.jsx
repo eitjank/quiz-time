@@ -23,11 +23,9 @@ const Signup = () => {
     });
   };
 
-  const handleError = (err) =>
-    toast.error(err);
+  const handleError = (err) => toast.error(err);
 
-  const handleSuccess = (msg) =>
-    toast(msg);
+  const handleSuccess = (msg) => toast(msg);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,9 +33,7 @@ const Signup = () => {
     const { success, message } = await signup(inputValue);
     if (success) {
       handleSuccess(message);
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      navigate('/');
     } else {
       handleError(message);
     }

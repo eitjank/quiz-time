@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { QUESTIONS_ENDPOINT } from '../api/endpoints';
+import {
+  QUESTIONS_ENDPOINT,
+  QUESTIONS_IMPORT_EXPORT_ENDPOINT,
+} from '../api/endpoints';
 import QuestionForm from '../components/QuestionForm';
 import { toast } from 'react-toastify';
-import { Button, Container, Grid, Paper, Group, Space } from '@mantine/core';
+import {
+  Button,
+  Container,
+  Grid,
+  Paper,
+  Group,
+  Space,
+  FileButton,
+} from '@mantine/core';
 import TagSearch from '../components/TagSearch';
+import { readFile } from '../utils/readFile';
 
 function QuestionBank() {
   const [questions, setQuestions] = useState(null);
@@ -105,6 +117,60 @@ function QuestionBank() {
       .catch((error) => console.error(error));
   };
 
+  const exportQuestions = () => {
+    fetch(`${QUESTIONS_IMPORT_EXPORT_ENDPOINT}`, {
+      credentials: 'include',
+    })
+      .then((response) => {
+        if (!response.ok) {
+          toast.error(`Failed to export questions. ${response.statusText}`);
+          throw new Error(`Failed to export questions. ${response.statusText}`);
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'questions.json';
+        a.click();
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleImport = async (file) => {
+    try {
+      const content = await readFile(file);
+      const json = JSON.parse(content);
+      const response = await fetch(`${QUESTIONS_IMPORT_EXPORT_ENDPOINT}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(json),
+      });
+
+      if (!response.ok) {
+        toast.error(`Failed to import questions. ${response.statusText}`);
+        throw new Error(`Failed to import questions. ${response.statusText}`);
+      }
+
+      toast('Questions imported successfully');
+
+      fetch(`${QUESTIONS_ENDPOINT}`, {
+        credentials: 'include',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setQuestions(data);
+          const uniqueTags = [...new Set(data.map((q) => q.tags).flat())];
+          setTags(uniqueTags);
+        })
+        .catch((error) => console.error(error));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Container>
       {editingQuestion ? (
@@ -123,6 +189,12 @@ function QuestionBank() {
         </form>
       ) : (
         <>
+          <Group justify="center">
+            <Button onClick={exportQuestions}>Export Questions</Button>
+            <FileButton onChange={handleImport} accept="application/json">
+              {(props) => <Button {...props}>Import Questions</Button>}
+            </FileButton>
+          </Group>
           <TagSearch
             tags={tags}
             selectedTags={selectedTags}

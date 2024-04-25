@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     checkAuthentication();
@@ -25,6 +26,7 @@ const AuthProvider = ({ children }) => {
     });
     const data = await response.json();
     setIsAuthenticated(data.status);
+    setIsLoading(false);
     if (data.status) {
       setUsername(data.user);
     } else {
@@ -79,13 +81,13 @@ const AuthProvider = ({ children }) => {
       const { success, message } = data;
       return { success, message };
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, username, login, logout, signup }}
+      value={{ isAuthenticated, isLoading, username, login, logout, signup }}
     >
       {children}
     </AuthContext.Provider>

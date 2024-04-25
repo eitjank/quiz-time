@@ -14,7 +14,9 @@ import {
   Space,
   Group,
   Autocomplete,
+  FileButton
 } from '@mantine/core';
+import { readFile } from '../utils/readFile';
 
 const QuizList = ({ endpoint }) => {
   const [quizzes, setQuizzes] = useState([]);
@@ -74,11 +76,43 @@ const QuizList = ({ endpoint }) => {
     }
   };
 
+  const handleImport = async (file) => {
+    try {
+      const content = await readFile(file);
+      const json = JSON.parse(content);
+      const response = await fetch(`${QUIZZES_ENDPOINT}/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(json),
+      });
+
+      if (!response.ok) {
+        toast.error(`Failed to import quiz. ${response.statusText}`);
+        throw new Error(`Failed to import quiz. ${response.statusText}`);
+      }
+      // navigate to the imported quiz
+      const data = await response.json();
+      navigate(`/quizzes/${data.quizId}/edit`);
+
+      toast('Quiz imported successfully');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div>
       <Container size="md">
         <h1>Quizzes</h1>
-        <Button onClick={() => navigate('/quizzes/create')}>Create Quiz</Button>
+        <Group justify="center">
+          <Button onClick={() => navigate('/quizzes/create')}>
+            Create Quiz
+          </Button>
+          <FileButton onChange={handleImport} accept="application/json">
+            {(props) => <Button {...props}>Import Quiz</Button>}
+          </FileButton>
+        </Group>
         <Space h="lg" />
         <Autocomplete
           type="text"
@@ -89,21 +123,25 @@ const QuizList = ({ endpoint }) => {
         <Space h="lg" />
         <Grid gutter="md">
           {quizzes &&
-            quizzes.filter((quiz) => quiz.name.toLowerCase().includes(searchTerm.toLowerCase())).map((quiz, index) => (
-              <Grid.Col key={index} span={12} sm={6} md={4}>
-                <Paper shadow="md">
-                  <Text size="xl">{quiz.name}</Text>
-                  <Text size="sm">{quiz.description}</Text>
-                  <Group justify="center">
-                    <Button onClick={() => handleHost(quiz._id)}>Host</Button>
-                    <Button onClick={() => handleView(quiz)}>View</Button>
-                    <Button onClick={() => handleEdit(quiz)}>Edit</Button>
-                    <Button onClick={() => handleDelete(quiz)}>Delete</Button>
-                  </Group>
-                  <Space h="lg" />
-                </Paper>
-              </Grid.Col>
-            ))}
+            quizzes
+              .filter((quiz) =>
+                quiz.name.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map((quiz, index) => (
+                <Grid.Col key={index} span={12} sm={6} md={4}>
+                  <Paper shadow="md">
+                    <Text size="xl">{quiz.name}</Text>
+                    <Text size="sm">{quiz.description}</Text>
+                    <Group justify="center">
+                      <Button onClick={() => handleHost(quiz._id)}>Host</Button>
+                      <Button onClick={() => handleView(quiz)}>View</Button>
+                      <Button onClick={() => handleEdit(quiz)}>Edit</Button>
+                      <Button onClick={() => handleDelete(quiz)}>Delete</Button>
+                    </Group>
+                    <Space h="lg" />
+                  </Paper>
+                </Grid.Col>
+              ))}
         </Grid>
       </Container>
     </div>

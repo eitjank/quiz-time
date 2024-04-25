@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const uploadRoutes = require('./routes/uploads');
 const questionsRoutes = require('./routes/questions');
+const questionsImportExportRoutes = require('./routes/questionsimportexport');
 require('dotenv').config();
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api/quizzes', quizzesRoutes);
 app.use('/api/quizSessions', quizSessionsRoutes);
 app.use('/api/questions', questionsRoutes);
+app.use('/api/questionsImportExport', questionsImportExportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/uploads', uploadRoutes);

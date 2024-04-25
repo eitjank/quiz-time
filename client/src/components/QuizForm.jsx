@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import QuestionForm from './QuestionForm';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import QuestionBankSelector from './QuestionBankSelector';
 import {
   Container,
   TextInput,
   Button,
-  FileButton,
   Textarea,
   Group,
   Space,
@@ -28,7 +25,6 @@ function QuizForm({ initialQuiz, onSubmit }) {
   const [visibility, setVisibility] = useState(
     initialQuiz ? initialQuiz.visibility : 'public'
   );
-  const navigate = useNavigate();
   const [showQuestionBank, setShowQuestionBank] = useState(false);
 
   useEffect(() => {
@@ -64,39 +60,6 @@ function QuizForm({ initialQuiz, onSubmit }) {
     }
   };
 
-  const readFile = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = (e) => reject(e.target.error);
-      reader.readAsText(file);
-    });
-
-  const handleImport = async (file) => {
-    try {
-      const content = await readFile(file);
-      const json = JSON.parse(content);
-      const response = await fetch(`${QUIZZES_ENDPOINT}/import`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(json),
-      });
-
-      if (!response.ok) {
-        toast.error(`Failed to import quiz. ${response.statusText}`);
-        throw new Error(`Failed to import quiz. ${response.statusText}`);
-      }
-      // navigate to the imported quiz
-      const data = await response.json();
-      navigate(`/quizzes/${data.quizId}/edit`);
-
-      toast('Quiz imported successfully');
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const addQuestionToQuizFromQuestionBank = (question) => {
     setQuestions((prevQuestions) => [...prevQuestions, question]);
     setShowQuestionBank(false);
@@ -110,9 +73,6 @@ function QuizForm({ initialQuiz, onSubmit }) {
           <Button type="button" onClick={handleExport}>
             Export Quiz
           </Button>
-          <FileButton onChange={handleImport} accept="application/json">
-            {(props) => <Button {...props}>Import Quiz</Button>}
-          </FileButton>
         </Group>
         <form onSubmit={handleSubmit}>
           <TextInput
