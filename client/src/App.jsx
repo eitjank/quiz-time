@@ -3,7 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import JoinQuizForm from './pages/JoinQuizForm';
 import Quiz from './pages/Quiz';
-import Home from './pages/Home';
+import PublicQuizzes from './pages/PublicQuizzes';
 import QuizEdit from './pages/QuizEdit';
 import QuizView from './pages/QuizView';
 import QuizCreate from './pages/QuizCreate';
@@ -23,7 +23,7 @@ function App() {
       <ToastContainer position="bottom-right" closeOnClick />
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<JoinQuizForm />} />
         <Route
           path="/myQuizzes"
           element={
@@ -54,7 +54,7 @@ function App() {
         <Route path="/quizzes/:id/edit" element={<QuizEdit />} />
         <Route path="/quizzes/:id/view" element={<QuizView />} />
         <Route path="/quizzes/create" element={<QuizCreate />} />
-        <Route path="/join" element={<JoinQuizForm />} />
+        <Route path="/quizzes" element={<PublicQuizzes />} />
         <Route path="/quizSessions/:id" element={<QuizHostSession />} />
         <Route path="*" element={<h1>Not Found</h1>} />
       </Routes>

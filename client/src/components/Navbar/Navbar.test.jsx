@@ -18,7 +18,6 @@ describe('Navbar', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Join Quiz')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
     expect(screen.queryByText('Signup')).toBeNull();
@@ -36,7 +35,6 @@ describe('Navbar', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Join Quiz')).toBeInTheDocument();
     expect(screen.queryByText('Logout')).toBeNull();
     expect(screen.getByText('Signup')).toBeInTheDocument();

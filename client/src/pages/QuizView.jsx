@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { BASE_URL, QUIZZES_ENDPOINT } from '../api/endpoints';
+import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { Container, Text, Paper, Space } from '@mantine/core';
+import OptionsList from '../components/OptionsList';
 
 function QuizView() {
   const { id } = useParams();
@@ -13,32 +15,39 @@ function QuizView() {
       .catch((err) => console.error(err));
   }, [id]);
 
+  function formatQuestionType(type) {
+    return type
+      .split(/(?=[A-Z])/)
+      .join(' ')
+      .replace(/^\w/, (c) => c.toUpperCase());
+  }
+
   if (!quiz) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div>
+    <Container size="lg">
       <h1>{quiz.name}</h1>
-      <p>{quiz.description}</p>
+      <Text>{quiz.description}</Text>
       <h2>Questions:</h2>
       {quiz.questions.map((question, index) => (
-        <div key={index}>
-          <h3>{question.question}</h3>
-          {question.image && (
-            <img src={`${BASE_URL}/${question.image}`} alt="Question" />
-          )}
-          <h4>Type: {question.type}</h4>
-          {question.type === 'multipleChoice' && <h4>Options</h4>}
-          <ul>
-            {question.options.map((option, index) => (
-              <li key={index}>{option}</li>
-            ))}
-          </ul>
-          {question.answer && <p>Answer: {question.answer}</p>}
-        </div>
+        <Paper padding="lg" shadow="xs" radius="md" key={index}>
+          <div key={index}>
+            <h3>{question.question}</h3>
+            <h4>Type: {formatQuestionType(question.type)}</h4>
+            {question.type === 'multipleChoice' && (
+              <>
+                <h4>Options</h4>
+                <OptionsList options={question.options} />
+              </>
+            )}
+            {question.answer && <p>Answer: {question.answer}</p>}
+            <Space h="md" />
+          </div>
+        </Paper>
       ))}
-    </div>
+    </Container>
   );
 }
 

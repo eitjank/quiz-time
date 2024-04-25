@@ -8,15 +8,13 @@ import {
   Switch,
   Space,
   Container,
-  Stack,
-  Text,
-  Paper,
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import OptionsList from '../components/OptionsList';
 
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -103,36 +101,9 @@ const QuizHostSession = () => {
   const renderQuestionInput = (question) => {
     switch (question.type) {
       case 'multipleChoice':
-        return (
-          <Stack gap="sm">
-            {question.options.map((option, index) => (
-              <Paper
-                key={index}
-                style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
-                shadow="md"
-              >
-                <Text>{option}</Text>
-              </Paper>
-            ))}
-          </Stack>
-        );
+        return <OptionsList options={question.options} />;
       case 'trueFalse':
-        return (
-          <Stack gap="sm">
-            <Paper
-              style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
-              shadow="md"
-            >
-              <Text>True</Text>
-            </Paper>
-            <Paper
-              style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
-              shadow="md"
-            >
-              <Text>False</Text>
-            </Paper>
-          </Stack>
-        );
+        return <OptionsList options={['True', 'False']} />;
       default:
         return null;
     }

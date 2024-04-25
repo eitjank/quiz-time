@@ -42,6 +42,7 @@ const Profile = () => {
     })
       .then((res) => {
         if (!res.ok) {
+          res.json().then((data) => toast.error(data.message));
           throw new Error('Failed to change password');
         }
         return res.json();
@@ -51,7 +52,9 @@ const Profile = () => {
         setCurrentPassword('');
         setNewPassword('');
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const handleUsernameUpdate = (event) => {
@@ -68,6 +71,7 @@ const Profile = () => {
     })
       .then((res) => {
         if (!res.ok) {
+          res.json().then((data) => toast.error(data.message));
           throw new Error('Failed to update username');
         }
         return res.json();
