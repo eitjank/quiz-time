@@ -22,3 +22,11 @@
 .navbar-item:hover {
   color: #007bff;
 }
+
+.navbar-icon {
+  color: var(--mantine-text);
+}
+
+.navbar-icon:hover {
+  color: #007bff;
+}

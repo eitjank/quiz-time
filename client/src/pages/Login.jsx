@@ -2,7 +2,14 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthContext from '../contexts/AuthContext';
-import { Button, Container, Paper, TextInput, Group } from '@mantine/core';
+import {
+  Button,
+  Container,
+  Paper,
+  TextInput,
+  Group,
+  Space,
+} from '@mantine/core';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -71,12 +78,14 @@ const Login = () => {
             placeholder="Enter your password"
             onChange={handleOnChange}
           />
+          <Space h="md" />
           <Group justify="center">
             <Button type="submit">Submit</Button>
             <span>
               Don't have an account? <Link to={'/signup'}>Signup</Link>
             </span>
           </Group>
+          <Space h="md" />
         </form>
       </Paper>
     </Container>

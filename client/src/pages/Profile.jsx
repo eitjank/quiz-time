@@ -4,19 +4,9 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
-import {
-  Button,
-  Container,
-  Paper,
-  Space,
-  TextInput,
-  useMantineColorScheme,
-  useComputedColorScheme,
-  ActionIcon,
-} from '@mantine/core';
+import { Button, Container, Paper, Space, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import DeleteAccountModal from '../components/DeleteAccountModal';
-import { IconSun, IconMoon } from '@tabler/icons-react';
 
 const Profile = () => {
   const { logout } = useContext(AuthContext);
@@ -26,10 +16,6 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const navigate = useNavigate();
   const [opened, { open, close }] = useDisclosure(false);
-  const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', {
-    getInitialValueInEffect: true,
-  });
 
   useEffect(() => {
     fetch(`${USER_ENDPOINT}/currentUser`, { credentials: 'include' })
@@ -150,29 +136,14 @@ const Profile = () => {
           <Button type="submit">Change Password</Button>
         </form>
         <Space h="xl" />
-        <Button onClick={open}>Delete Account</Button>
+        <Button variant="outline" color="red" onClick={open}>
+          Delete Account
+        </Button>
         <DeleteAccountModal
           opened={opened}
           close={close}
           handleAccountDeletion={handleAccountDeletion}
         />
-        <Space h="xl" />
-        <h2>Color Scheme</h2>
-
-        <ActionIcon
-          onClick={() =>
-            setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')
-          }
-          variant="default"
-          size="xl"
-          aria-label="Toggle color scheme"
-        >
-          {computedColorScheme === 'dark' ? (
-            <IconSun stroke={1.5} />
-          ) : (
-            <IconMoon stroke={1.5} />
-          )}
-        </ActionIcon>
         <Space h="lg" />
       </Paper>
     </Container>

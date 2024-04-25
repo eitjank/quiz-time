@@ -1,5 +1,6 @@
 import React from 'react';
 import { Paper, Stack, Text } from '@mantine/core';
+import './OptionsList.css';
 
 const OptionsList = ({ options }) => {
   return (
@@ -7,8 +8,8 @@ const OptionsList = ({ options }) => {
       {options.map((option, index) => (
         <Paper
           key={index}
-          style={{ backgroundColor: '#dcdcdc', padding: '20px' }}
-          shadow="md"
+          className='options-list-paper'
+          shadow="lg"
         >
           <Text>{option}</Text>
         </Paper>

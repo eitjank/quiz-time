@@ -70,7 +70,7 @@ function QuizForm({ initialQuiz, onSubmit }) {
       <Container size="xl">
         <h1>{initialQuiz ? 'Edit Quiz' : 'Create Quiz'}</h1>
         <Group justify="center">
-          <Button type="button" onClick={handleExport}>
+          <Button variant='default' type="button" onClick={handleExport}>
             Export Quiz
           </Button>
         </Group>

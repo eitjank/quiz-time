@@ -2,13 +2,10 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  IconLogin,
-  IconLogout,
-  IconSettings,
-  IconUserPlus,
-} from '@tabler/icons-react';
-import { Popover, Avatar } from '@mantine/core';
+import { IconLogin, IconUserPlus } from '@tabler/icons-react';
+import { Popover } from '@mantine/core';
+import ColorSchemeToggle from './ColorSchemeToggle/ColorSchemeToggle';
+import ProfilePopover from './ProfilePopover/ProfilePopover';
 
 const Navbar = () => {
   const { isAuthenticated, logout } = useContext(AuthContext);
@@ -29,31 +26,7 @@ const Navbar = () => {
           <Link className="navbar-item" to="/questionBank">
             My Question Bank
           </Link>
-          <Popover offset={13}>
-            <Popover.Target>
-              <Avatar
-                src={null}
-                alt="User avatar"
-                style={{ cursor: 'pointer' }}
-                color="blue"
-                size={35}
-              />
-            </Popover.Target>
-            <Popover.Dropdown>
-              <Link className="navbar-item icon" to="/profile">
-                <div className="icon">
-                  <IconSettings style={{ marginRight: '4px' }} />
-                  Profile
-                </div>
-              </Link>
-              <Link className="navbar-item icon" onClick={logout} to="/">
-                <div className="icon">
-                  <IconLogout style={{ marginRight: '4px' }} />
-                  Logout
-                </div>
-              </Link>
-            </Popover.Dropdown>
-          </Popover>
+          <ProfilePopover logout={logout} />
         </>
       ) : (
         <>
@@ -80,6 +53,7 @@ const Navbar = () => {
           </Popover>
         </>
       )}
+      <ColorSchemeToggle />
     </nav>
   );
 };

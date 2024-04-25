@@ -92,6 +92,7 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
             </FileButton>
             <Button
               disabled={!questions[index].image}
+              variant='outline'
               color="red"
               onClick={clearFile}
             >
@@ -121,6 +122,8 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
                         }}
                       />
                       <Button
+                        variant="outline"
+                        color="red"
                         onClick={(e) => {
                           e.preventDefault();
                           const newQuestions = [...questions];
@@ -186,6 +189,8 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
             <>
               <br />
               <Button
+                variant="outline"
+                color="red"
                 onClick={(e) => {
                   e.preventDefault();
                   const newQuestions = [...questions];

@@ -14,7 +14,7 @@ import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import OptionsList from '../components/OptionsList';
+import OptionsList from '../components/OptionsList/OptionsList';
 
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});

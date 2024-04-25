@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
 import { Container, Text, Paper, Space } from '@mantine/core';
-import OptionsList from '../components/OptionsList';
+import OptionsList from '../components/OptionsList/OptionsList';
 
 function QuizView() {
   const { id } = useParams();

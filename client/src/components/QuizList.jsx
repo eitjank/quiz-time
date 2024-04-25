@@ -106,11 +106,11 @@ const QuizList = ({ endpoint, myQuizzes }) => {
       <Container size="md">
         {myQuizzes ? <h1>My Quizzes</h1> : <h1>Quizzes</h1>}
         <Group justify="center">
-          <Button onClick={() => navigate('/quizzes/create')}>
+          <Button variant='primary' onClick={() => navigate('/quizzes/create')}>
             Create Quiz
           </Button>
           <FileButton onChange={handleImport} accept="application/json">
-            {(props) => <Button {...props}>Import Quiz</Button>}
+            {(props) => <Button variant='default' {...props}>Import Quiz</Button>}
           </FileButton>
         </Group>
         <Space h="lg" />
@@ -133,10 +133,10 @@ const QuizList = ({ endpoint, myQuizzes }) => {
                     <Text size="sm">{quiz.description}</Text>
                     <Space h="sm" />
                     <Group justify="center">
-                      <Button onClick={() => handleHost(quiz._id)}>Host</Button>
-                      <Button onClick={() => handleView(quiz)}>View</Button>
-                      <Button onClick={() => handleEdit(quiz)}>Edit</Button>
-                      <Button onClick={() => handleDelete(quiz)}>Delete</Button>
+                      <Button variant='primary' onClick={() => handleHost(quiz._id)}>Host</Button>
+                      <Button variant='default' onClick={() => handleView(quiz)}>View</Button>
+                      <Button variant='default' onClick={() => handleEdit(quiz)}>Edit</Button>
+                      <Button variant='outline' color='red' onClick={() => handleDelete(quiz)}>Delete</Button>
                     </Group>
                     <Space h="lg" />
                   </Paper>

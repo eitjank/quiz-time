@@ -202,16 +202,22 @@ function QuestionBank() {
           />
           <br />
           <Group justify="center">
-            <Button onClick={handleCancelEditingQuestion}>Cancel</Button>
             <Button type="submit">Save</Button>
+            <Button variant="default" onClick={handleCancelEditingQuestion}>Cancel</Button>
           </Group>
         </form>
       ) : (
         <>
-        <h1>My Question Bank</h1>
+          <h1>My Question Bank</h1>
           <Group justify="center">
-            <Button onClick={exportQuestions}>Export Questions</Button>
-            <FileButton onChange={handleImport} accept="application/json">
+            <Button variant="default" onClick={exportQuestions}>
+              Export Questions
+            </Button>
+            <FileButton
+              variant="default"
+              onChange={handleImport}
+              accept="application/json"
+            >
               {(props) => <Button {...props}>Import Questions</Button>}
             </FileButton>
           </Group>
@@ -240,7 +246,7 @@ function QuestionBank() {
                         <Button onClick={() => handleEdit(question, index)}>
                           Edit
                         </Button>
-                        <Button onClick={() => handleDelete(question)}>
+                        <Button variant="outline" color='red' onClick={() => handleDelete(question)}>
                           Delete
                         </Button>
                       </Group>
