@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import AuthContext from '../../contexts/AuthContext';
-import { IconLogin, IconUserPlus } from '@tabler/icons-react';
-import { Popover } from '@mantine/core';
+import { IconLogin, IconUserPlus, IconUser } from '@tabler/icons-react';
+import { Popover, ActionIcon } from '@mantine/core';
 import ColorSchemeToggle from './ColorSchemeToggle/ColorSchemeToggle';
 import ProfilePopover from './ProfilePopover/ProfilePopover';
 
@@ -26,15 +26,20 @@ const Navbar = () => {
           <Link className="navbar-item" to="/questionBank">
             My Question Bank
           </Link>
-          <ProfilePopover logout={logout} />
+          <ProfilePopover offset={13} logout={logout} />
         </>
       ) : (
         <>
           <Popover offset={13}>
             <Popover.Target>
-              <div className="navbar-item" style={{ cursor: 'pointer' }}>
-                Join
-              </div>
+              <ActionIcon
+                variant="transparent"
+                className="navbar-icon"
+                size="xl"
+                aria-label="Profile settings"
+              >
+                <IconUser />
+              </ActionIcon>
             </Popover.Target>
             <Popover.Dropdown>
               <Link className="navbar-item" to="/signup">

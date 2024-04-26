@@ -5,12 +5,12 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./db/connection');
 const socketSetup = require('./socket');
 const quizzesRoutes = require('./routes/quizzes');
-const quizSessionsRoutes = require('./routes/quizsessions');
+const quizSessionsRoutes = require('./routes/quizSessions');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const uploadRoutes = require('./routes/uploads');
 const questionsRoutes = require('./routes/questions');
-const questionsImportExportRoutes = require('./routes/questionsimportexport');
+const questionsImportExportRoutes = require('./routes/questionsImportExport');
 require('dotenv').config();
 
 const app = express();

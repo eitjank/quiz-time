@@ -4,9 +4,9 @@ import { IconSettings, IconLogout, IconUser } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import '../Navbar.css';
 
-const ProfilePopover = ({ logout }) => {
+const ProfilePopover = ({ offset, logout }) => {
   return (
-    <Popover offset={13}>
+    <Popover offset={offset}>
       <Popover.Target>
         <ActionIcon
           variant="transparent"

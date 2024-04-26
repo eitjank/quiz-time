@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
-import { Container, Text, Paper, Space } from '@mantine/core';
+import { Container, Text, Space, Title } from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
+import BorderedCard from '../components/BorderedCard';
 
 function QuizView() {
   const { id } = useParams();
   const [quiz, setQuiz] = useState(null);
 
   useEffect(() => {
-    fetch(`${QUIZZES_ENDPOINT}/${id}`, { credentials: 'include' })
+    fetch(`${QUIZZES_ENDPOINT}/${id}?withOwner=true`, {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => setQuiz(data))
       .catch((err) => console.error(err));
@@ -30,12 +33,15 @@ function QuizView() {
     <Container size="lg">
       <h1>{quiz.name}</h1>
       <Text>{quiz.description}</Text>
+      <Space h="md" />
+      <Text>Created by user: {quiz.owner.username} </Text>
       <h2>Questions:</h2>
       {quiz.questions.map((question, index) => (
-        <Paper padding="lg" shadow="xs" radius="md" key={index}>
+        <BorderedCard key={index}>
           <div key={index}>
-            <h3>{question.question}</h3>
-            <h4>Type: {formatQuestionType(question.type)}</h4>
+            <Title order={3}>{question.question}</Title>
+            <Space h="sm" />
+            <Title order={4}>Type: {formatQuestionType(question.type)}</Title>
             {question.type === 'multipleChoice' && (
               <>
                 <h4>Options</h4>
@@ -43,9 +49,8 @@ function QuizView() {
               </>
             )}
             {question.answer && <p>Answer: {question.answer}</p>}
-            <Space h="md" />
           </div>
-        </Paper>
+        </BorderedCard>
       ))}
     </Container>
   );

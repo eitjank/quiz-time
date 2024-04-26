@@ -4,9 +4,10 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
-import { Button, Container, Paper, Space, TextInput } from '@mantine/core';
+import { Button, Container, Space, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import BorderedCard from '../components/BorderedCard';
 
 const Profile = () => {
   const { logout } = useContext(AuthContext);
@@ -103,13 +104,14 @@ const Profile = () => {
 
   return (
     <Container>
-      <Paper shadow="md">
+      <BorderedCard>
         <h1>{user.username}'s Profile</h1>
         <h4>Email: {user.email}</h4>
 
         <h2>Update Profile</h2>
         <form onSubmit={handleUsernameUpdate}>
           <TextInput
+            className="text-input-left"
             label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -121,12 +123,14 @@ const Profile = () => {
         <h2>Change Password</h2>
         <form onSubmit={handlePasswordChange}>
           <TextInput
+            className="text-input-left"
             type="password"
             label="Current Password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
           <TextInput
+            className="text-input-left"
             type="password"
             label="New Password"
             value={newPassword}
@@ -144,8 +148,7 @@ const Profile = () => {
           close={close}
           handleAccountDeletion={handleAccountDeletion}
         />
-        <Space h="lg" />
-      </Paper>
+      </BorderedCard>
     </Container>
   );
 };

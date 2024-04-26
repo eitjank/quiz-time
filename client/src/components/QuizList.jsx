@@ -9,14 +9,15 @@ import {
   Button,
   Container,
   Grid,
-  Paper,
   Text,
   Space,
   Group,
   Autocomplete,
   FileButton,
+  Title,
 } from '@mantine/core';
 import { readFile } from '../utils/readFile';
+import BorderedCard from './BorderedCard';
 
 const QuizList = ({ endpoint, myQuizzes }) => {
   const [quizzes, setQuizzes] = useState([]);
@@ -104,15 +105,29 @@ const QuizList = ({ endpoint, myQuizzes }) => {
   return (
     <div>
       <Container size="md">
-        {myQuizzes ? <h1>My Quizzes</h1> : <h1>Quizzes</h1>}
-        <Group justify="center">
-          <Button variant='primary' onClick={() => navigate('/quizzes/create')}>
-            Create Quiz
-          </Button>
-          <FileButton onChange={handleImport} accept="application/json">
-            {(props) => <Button variant='default' {...props}>Import Quiz</Button>}
-          </FileButton>
-        </Group>
+        {myQuizzes ? (
+          <>
+            <Title>My Quizzes</Title>
+            <Space h="md" />
+            <Group justify="center">
+              <Button
+                variant="primary"
+                onClick={() => navigate('/quizzes/create')}
+              >
+                Create Quiz
+              </Button>
+              <FileButton onChange={handleImport} accept="application/json">
+                {(props) => (
+                  <Button variant="default" {...props}>
+                    Import Quiz
+                  </Button>
+                )}
+              </FileButton>
+            </Group>
+          </>
+        ) : (
+          <Title>Quizzes</Title>
+        )}
         <Space h="lg" />
         <Autocomplete
           value={searchTerm}
@@ -128,18 +143,42 @@ const QuizList = ({ endpoint, myQuizzes }) => {
               )
               .map((quiz, index) => (
                 <Grid.Col key={index} span={12} sm={6} md={4}>
-                  <Paper shadow="md">
+                  <BorderedCard>
                     <Text size="xl">{quiz.name}</Text>
                     <Text size="sm">{quiz.description}</Text>
                     <Space h="sm" />
                     <Group justify="center">
-                      <Button variant='primary' onClick={() => handleHost(quiz._id)}>Host</Button>
-                      <Button variant='default' onClick={() => handleView(quiz)}>View</Button>
-                      <Button variant='default' onClick={() => handleEdit(quiz)}>Edit</Button>
-                      <Button variant='outline' color='red' onClick={() => handleDelete(quiz)}>Delete</Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => handleHost(quiz._id)}
+                      >
+                        Host
+                      </Button>
+                      <Button
+                        variant="default"
+                        onClick={() => handleView(quiz)}
+                      >
+                        View
+                      </Button>
+                      {myQuizzes && (
+                        <>
+                          <Button
+                            variant="default"
+                            onClick={() => handleEdit(quiz)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            color="red"
+                            onClick={() => handleDelete(quiz)}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      )}
                     </Group>
-                    <Space h="lg" />
-                  </Paper>
+                  </BorderedCard>
                 </Grid.Col>
               ))}
         </Grid>

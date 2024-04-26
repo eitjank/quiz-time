@@ -5,11 +5,11 @@ import AuthContext from '../contexts/AuthContext';
 import {
   Button,
   Container,
-  Paper,
   TextInput,
   Group,
-  Space,
+  Title,
 } from '@mantine/core';
+import BorderedCard from '../components/BorderedCard';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -57,10 +57,11 @@ const Login = () => {
 
   return (
     <Container>
-      <Paper shadow="xs" radius="xs">
-        <h2>Login</h2>
+      <BorderedCard>
+        <Title order={2}>Login</Title>
         <form onSubmit={handleSubmit}>
           <TextInput
+            className="text-input-left"
             type="email"
             label="Email"
             name="email"
@@ -70,6 +71,7 @@ const Login = () => {
             onChange={handleOnChange}
           />
           <TextInput
+            className="text-input-left"
             type="password"
             label="Password"
             name="password"
@@ -78,16 +80,14 @@ const Login = () => {
             placeholder="Enter your password"
             onChange={handleOnChange}
           />
-          <Space h="md" />
           <Group justify="center">
             <Button type="submit">Submit</Button>
             <span>
               Don't have an account? <Link to={'/signup'}>Signup</Link>
             </span>
           </Group>
-          <Space h="md" />
         </form>
-      </Paper>
+      </BorderedCard>
     </Container>
   );
 };

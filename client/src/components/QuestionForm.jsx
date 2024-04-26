@@ -1,7 +1,6 @@
 import React from 'react';
 import { BASE_URL, FILE_UPLOAD_ENDPOINT } from '../api/endpoints';
 import {
-  Paper,
   Container,
   TextInput,
   Button,
@@ -13,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
+import BorderedCard from './BorderedCard';
 
 function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
   const handleImageUpload = async (file) => {
@@ -53,7 +53,7 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
 
   return (
     <div key={index}>
-      <Paper shadow="md">
+      <BorderedCard>
         <Container size="md">
           <TextInput
             component="select"
@@ -204,8 +204,7 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
             </>
           )}
         </Container>
-        <br />
-      </Paper>
+      </BorderedCard>
     </div>
   );
 }

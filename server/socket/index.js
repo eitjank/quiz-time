@@ -220,9 +220,11 @@ function socketSetup(server) {
         if (quizSessions[quizSessionId].host === socket.id) {
           console.log(`Host ${socket.id} disconnected`);
           delete quizSessions[quizSessionId];
+          io.to(quizSessionId).emit('hostLeft');
         } else if (quizSessions[quizSessionId].participants[socket.id]) {
           console.log(`Participant ${socket.id} disconnected`);
-          quizSessions[quizSessionId].participants[socket.id].active = false;
+          // quizSessions[quizSessionId].participants[socket.id].active = false;
+          delete quizSessions[quizSessionId].participants[socket.id];
           io.to(quizSessionId).emit('participantLeft', {
             participantId: socket.id,
           });

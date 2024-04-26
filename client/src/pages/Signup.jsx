@@ -5,11 +5,11 @@ import AuthContext from '../contexts/AuthContext';
 import {
   Button,
   Container,
-  Paper,
   TextInput,
   Group,
-  Space,
+  Title,
 } from '@mantine/core';
+import BorderedCard from '../components/BorderedCard';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -55,52 +55,47 @@ const Signup = () => {
 
   return (
     <Container>
-      <Paper shadow="xs" radius="md">
-        <h2>Signup</h2>
+      <BorderedCard>
+        <Title order={2}>Signup</Title>
         <form onSubmit={handleSubmit}>
-          <div>
-            <TextInput
-              label="Email"
-              type="email"
-              name="email"
-              value={email}
-              required
-              placeholder="Enter your email"
-              onChange={handleOnChange}
-            />
-          </div>
-          <div>
-            <TextInput
-              label="Username"
-              type="text"
-              name="username"
-              value={username}
-              required
-              placeholder="Enter your username"
-              onChange={handleOnChange}
-            />
-          </div>
-          <div>
-            <TextInput
-              label="Password"
-              type="password"
-              name="password"
-              value={password}
-              required
-              placeholder="Enter your password"
-              onChange={handleOnChange}
-            />
-          </div>
-          <Space h="md" />
+          <TextInput
+            className="text-input-left"
+            label="Email"
+            type="email"
+            name="email"
+            value={email}
+            required
+            placeholder="Enter your email"
+            onChange={handleOnChange}
+          />
+          <TextInput
+            className="text-input-left"
+            label="Username"
+            type="text"
+            name="username"
+            value={username}
+            required
+            placeholder="Enter your username"
+            onChange={handleOnChange}
+          />
+          <TextInput
+            className="text-input-left"
+            label="Password"
+            type="password"
+            name="password"
+            value={password}
+            required
+            placeholder="Enter your password"
+            onChange={handleOnChange}
+          />
           <Group justify="center">
             <Button type="submit">Submit</Button>
             <span>
               Already have an account? <Link to={'/login'}>Login</Link>
             </span>
           </Group>
-          <Space h="md" />
         </form>
-      </Paper>
+      </BorderedCard>
     </Container>
   );
 };

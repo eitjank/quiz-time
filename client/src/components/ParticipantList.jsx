@@ -1,12 +1,13 @@
-import { Grid, Paper, Text } from '@mantine/core';
+import { Grid, Text } from '@mantine/core';
+import BorderedCard from './BorderedCard';
 
 const ParticipantList = ({ participants }) => (
   <Grid>
     {participants.map((participant) => (
       <Grid.Col span={4} key={participant.id}>
-        <Paper shadow="md">
+        <BorderedCard>
           <Text size="lg">{participant.name}</Text>
-        </Paper>
+        </BorderedCard>
       </Grid.Col>
     ))}
   </Grid>

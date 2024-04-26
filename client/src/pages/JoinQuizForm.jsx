@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Container, TextInput, Paper } from '@mantine/core';
+import { Button, Container, TextInput } from '@mantine/core';
+import BorderedCard from '../components/BorderedCard';
 
 function JoinQuizForm() {
   const [quizSessionId, setQuizSessionId] = useState('');
@@ -23,7 +24,7 @@ function JoinQuizForm() {
       }}
     >
       <Container size="sm">
-        <Paper shadow="md" style={{ padding: 15, minWidth: 300 }}>
+        <BorderedCard style={{ minWidth: 300 }}>
           <TextInput
             placeholder="Enter Quiz ID"
             value={quizSessionId}
@@ -33,7 +34,7 @@ function JoinQuizForm() {
           <Button type="submit" fullWidth>
             Join Quiz
           </Button>
-        </Paper>
+        </BorderedCard>
       </Container>
     </form>
   );

@@ -9,15 +9,17 @@ import {
   Button,
   Container,
   Grid,
-  Paper,
   Group,
   Space,
   FileButton,
   Pagination,
   Autocomplete,
+  Text,
+  Title,
 } from '@mantine/core';
 import TagSearch from '../components/TagSearch';
 import { readFile } from '../utils/readFile';
+import BorderedCard from '../components/BorderedCard';
 
 function QuestionBank() {
   const [questions, setQuestions] = useState(null);
@@ -42,15 +44,21 @@ function QuestionBank() {
       .then((response) => response.json())
       .then((data) => {
         setQuestions(data);
-        const uniqueTags = [...new Set(data.map((q) => q.tags).flat())];
-        setTags(uniqueTags);
       })
       .catch((error) => console.error(error));
   }, []);
 
-  const handleEdit = (question, index) => {
+  // update tags when questions change
+  useEffect(() => {
+    if (questions) {
+      const uniqueTags = [...new Set(questions.map((q) => q.tags).flat())];
+      setTags(uniqueTags);
+    }
+  }, [questions]);
+
+  const handleEdit = (question) => {
     setEditingQuestion(question);
-    setIndex(index);
+    setIndex(questions.findIndex((q) => q._id === question._id));
   };
 
   const handleCreateQuestion = () => {
@@ -123,6 +131,7 @@ function QuestionBank() {
         newQuestions[index] = data;
         setQuestions(newQuestions);
         setEditingQuestion(null);
+        setIndex(null);
         toast('Question saved successfully');
       })
       .catch((error) => console.error(error));
@@ -203,12 +212,15 @@ function QuestionBank() {
           <br />
           <Group justify="center">
             <Button type="submit">Save</Button>
-            <Button variant="default" onClick={handleCancelEditingQuestion}>Cancel</Button>
+            <Button variant="default" onClick={handleCancelEditingQuestion}>
+              Cancel
+            </Button>
           </Group>
         </form>
       ) : (
         <>
-          <h1>My Question Bank</h1>
+          <Title order={1}>My Question Bank</Title>
+          <Space h="md" />
           <Group justify="center">
             <Button variant="default" onClick={exportQuestions}>
               Export Questions
@@ -221,6 +233,7 @@ function QuestionBank() {
               {(props) => <Button {...props}>Import Questions</Button>}
             </FileButton>
           </Group>
+          <Space h="xs" />
           <TagSearch
             tags={tags}
             selectedTags={selectedTags}
@@ -234,26 +247,27 @@ function QuestionBank() {
           />
           <Space h="lg" />
           <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
+          <Space h="lg" />
           <Grid gutter="md">
             {filteredQuestions &&
-              filteredQuestions
-                .slice(startIndex, endIndex)
-                .map((question, index) => (
-                  <Grid.Col key={question._id}>
-                    <Paper shadow="md">
-                      <p>{question.question}</p>
-                      <Group justify="center">
-                        <Button onClick={() => handleEdit(question, index)}>
-                          Edit
-                        </Button>
-                        <Button variant="outline" color='red' onClick={() => handleDelete(question)}>
-                          Delete
-                        </Button>
-                      </Group>
-                      <Space h="lg" />
-                    </Paper>
-                  </Grid.Col>
-                ))}
+              filteredQuestions.slice(startIndex, endIndex).map((question) => (
+                <Grid.Col key={question._id}>
+                  <BorderedCard>
+                    <Text>{question.question}</Text>
+                    <Space h="sm" />
+                    <Group justify="center">
+                      <Button onClick={() => handleEdit(question)}>Edit</Button>
+                      <Button
+                        variant="outline"
+                        color="red"
+                        onClick={() => handleDelete(question)}
+                      >
+                        Delete
+                      </Button>
+                    </Group>
+                  </BorderedCard>
+                </Grid.Col>
+              ))}
             <Container>
               {filteredQuestions && (
                 <Pagination

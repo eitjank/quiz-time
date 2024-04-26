@@ -16,10 +16,15 @@ import {
   Stack,
   Group,
   Button,
+  Title,
+  Space,
+  Modal,
+  Alert,
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
+import { toast } from 'react-toastify';
 
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
@@ -34,7 +39,8 @@ function Quiz() {
     useQuizSession(id);
   const [progressBarWidth, setProgressBarWidth] = useState(100);
   const [name, setName] = useState('');
-  const [opened, { open, close }] = useDisclosure(false);
+  const [nameModalOpened, nameModalHandlers] = useDisclosure(false);
+  const [hostLeftModalOpened, hostLeftModalHandlers] = useDisclosure(false);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
   useEffect(() => {
@@ -83,9 +89,13 @@ function Quiz() {
         setJoined(true);
       } else {
         setJoined(false);
-        alert(data.message);
-        navigate('/join');
+        toast.error(data.message);
+        navigate('/');
       }
+    });
+
+    socket.on('hostLeft', () => {
+      hostLeftModalHandlers.open();
     });
 
     // socket.on('answerResult', (data) => {
@@ -99,12 +109,15 @@ function Quiz() {
       socket.off('timeUpdate');
       // socket.off('answerResult');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate, socket]);
 
   useEffect(() => {
     if (!socket || !name || !joined) return;
-    open(); // Open the modal to change the name
-  }, [id, name, socket, joined, open]);
+    console.log('Changing name');
+    nameModalHandlers.open(); // Open the modal to change the name
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, name, socket, joined]);
 
   useEffect(() => {
     if (timer !== null && timer <= 0) {
@@ -131,7 +144,7 @@ function Quiz() {
   const handleNameSubmit = (event) => {
     event.preventDefault();
     if (socket) socket.emit('changeName', { quizSessionId: id, name });
-    close();
+    nameModalHandlers.close();
   };
 
   const handleSubmitAnswer = (answer) => {
@@ -225,21 +238,38 @@ function Quiz() {
   return (
     <>
       <NameModal
-        {...{
-          opened,
-          close,
-          name,
-          setName,
-          handleNameSubmit,
-          generateRandomName,
-        }}
+        opened={nameModalOpened}
+        close={nameModalHandlers.close}
+        name={name}
+        setName={setName}
+        handleNameSubmit={handleNameSubmit}
+        generateRandomName={generateRandomName}
       />
-      <h1>Quiz Time!</h1>
+      <Modal
+        opened={hostLeftModalOpened}
+        onClose={() => {}}
+        size="xs"
+        withCloseButton={false}
+        centered
+      >
+        <Alert color="red" title="Host has left">
+          The host has left the quiz. The quiz has ended.
+        </Alert>
+        <Space h="md" />
+        <Group justify="center">
+          <Button variant="outline" onClick={() => navigate('/')}>
+            Return to main page
+          </Button>
+        </Group>
+      </Modal>
+      <Title order={1}>Quiz Time!</Title>
+      <Space h="sm" />
       {!finished ? (
         <>
           {!currentQuestion.question ? (
             <>
-              <h2>Participants:</h2>
+              <Title order={2}>Participants:</Title>
+              <Space h="lg" />
               <Container size="lg">
                 <ParticipantList participants={participants} />
               </Container>

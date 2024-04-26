@@ -14,15 +14,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/private', authenticateUser, async (req, res) => {
+router.get('/my-quizzes', authenticateUser, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(403).json({ message: 'Forbidden' });
     }
-    const quizzes = await Quiz.find({
-      visibility: 'private',
-      owner: req.user.id,
-    });
+    const quizzes = await Quiz.find({ owner: req.user.id });
     res.json(quizzes);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -42,6 +39,10 @@ router.get('/:id', authenticateUser, async (req, res) => {
         (!req.user || quiz.owner.toString() !== req.user.id)
       ) {
         return res.status(403).json({ message: 'Forbidden' });
+      }
+      const { withOwner } = req.query;
+      if (withOwner === 'true') {
+        await quiz.populate('owner', 'username');
       }
 
       res.json(quiz);
@@ -144,7 +145,7 @@ router.post('/import', authenticateUser, async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       questions: req.body.questions,
-      owner: req.user.id, 
+      owner: req.user.id,
       visibility: req.body.visibility,
     });
     const importedQuiz = await quiz.save();

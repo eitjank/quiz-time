@@ -17,11 +17,17 @@ import MyQuizzes from './pages/MyQuizzes';
 import QuestionBank from './pages/QuestionBank';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound/NotFound';
+import { useMantineColorScheme } from '@mantine/core';
 
 function App() {
+  const { colorScheme } = useMantineColorScheme();
   return (
     <div className="App">
-      <ToastContainer position="bottom-right" closeOnClick />
+      <ToastContainer
+        position="bottom-right"
+        theme={colorScheme === 'dark' ? 'dark' : 'light'}
+        closeOnClick
+      />
       <Navbar />
       <Routes>
         <Route path="/" element={<JoinQuizForm />} />
