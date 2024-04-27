@@ -20,6 +20,7 @@ import {
   Space,
   Modal,
   Alert,
+  Checkbox,
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
@@ -29,7 +30,7 @@ import { toast } from 'react-toastify';
 function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [timer, setTimer] = useState(null);
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
   const [joined, setJoined] = useState(false);
@@ -122,7 +123,10 @@ function Quiz() {
   useEffect(() => {
     if (timer !== null && timer <= 0) {
       setShowAnswer(true);
-      setIsCorrect(answer === currentQuestion.answer);
+      setIsCorrect(
+        answer.length === currentQuestion.answer.length &&
+          answer.every((ans) => currentQuestion.answer.includes(ans))
+      );
       if (!scoreByTime) {
         socket.emit('submitAnswer', { quizSessionId: id, answer });
       }
@@ -157,40 +161,62 @@ function Quiz() {
     switch (question.type) {
       case 'multipleChoice':
         return (
-          <Group justify="center">
-            <Stack gap="sm">
-              {question.options.map((option, index) => (
-                <Radio
-                  key={index}
-                  id={`option-${index}`}
-                  name="quizOption"
-                  value={option}
-                  label={option}
-                  checked={answer === option}
-                  disabled={showAnswer || (scoreByTime && answer !== '')}
-                  onChange={(e) => {
-                    setAnswer(e.target.value);
-                    if (scoreByTime) {
-                      handleSubmitAnswer(e.target.value);
-                    }
-                  }}
-                />
-              ))}
-            </Stack>
-          </Group>
+          <>
+            <Group justify="center">
+              <Stack gap="sm">
+                {question.options.map((option, index) => (
+                  <Checkbox
+                    key={index}
+                    id={`option-${index}`}
+                    name="quizOption"
+                    value={option}
+                    label={option}
+                    checked={answer.includes(option)}
+                    disabled={showAnswer}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setAnswer((prevAnswer) => [
+                          ...prevAnswer,
+                          e.target.value,
+                        ]);
+                      } else {
+                        setAnswer((prevAnswer) =>
+                          prevAnswer.filter((ans) => ans !== e.target.value)
+                        );
+                      }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Group>
+            <Space h="sm" />
+            {scoreByTime && (
+              <Button
+                disabled={showAnswer || answer.length === 0 || answerSubmitted}
+                onClick={() => {
+                  if (!answerSubmitted) {
+                    handleSubmitAnswer(answer);
+                  }
+                }}
+              >
+                Submit
+              </Button>
+            )}
+            <Space h="sm" />
+          </>
         );
       case 'openEnded':
         return (
           <>
             <TextInput
               type="text"
-              value={answer}
+              value={answer[0]}
               disabled={showAnswer || (scoreByTime && answerSubmitted)}
-              onChange={(e) => setAnswer(e.target.value)}
+              onChange={(e) => setAnswer([e.target.value])}
             />
             {scoreByTime && (
               <Button
-                disabled={answer === '' || answerSubmitted}
+                disabled={answer[0] === '' || answerSubmitted}
                 onClick={() => {
                   if (!answerSubmitted) {
                     handleSubmitAnswer(answer);
@@ -213,12 +239,12 @@ function Quiz() {
                   name="trueFalseOption"
                   value={option}
                   label={option}
-                  checked={answer.toLowerCase() === option.toLowerCase()}
+                  checked={answer[0] && answer[0] === option}
                   disabled={showAnswer || (scoreByTime && answer !== '')}
                   onChange={(e) => {
-                    setAnswer(e.target.value);
+                    setAnswer([e.target.value]);
                     if (scoreByTime) {
-                      handleSubmitAnswer(e.target.value);
+                      handleSubmitAnswer([e.target.value]);
                     }
                   }}
                 />

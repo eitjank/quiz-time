@@ -14,7 +14,7 @@ const QuizSessionSchema = new mongoose.Schema({
       answers: [
         {
           questionId: mongoose.Schema.Types.ObjectId,
-          answer: String,
+          answer: [String],
         },
       ],
     },

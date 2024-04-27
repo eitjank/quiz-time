@@ -9,6 +9,8 @@ import {
   TagsInput,
   Stack,
   Space,
+  Checkbox,
+  Text,
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
@@ -92,24 +94,40 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
             </FileButton>
             <Button
               disabled={!questions[index].image}
-              variant='outline'
+              variant="outline"
               color="red"
               onClick={clearFile}
             >
               Remove Image
             </Button>
           </Group>
-          <br />
+          <Space h="xs" />
           {questions[index].image && (
             <img src={`${BASE_URL}/${questions[index].image}`} alt="Question" />
           )}
           {questions[index].type === 'multipleChoice' && (
             <>
-              <p>Options:</p>
+              <Text>Options:</Text>
+              <Text>Select the correct answers</Text>
+              <Space h="xs" />
               <Stack gap="xs">
                 {questions[index].options.map((option, optionIndex) => (
                   <div key={optionIndex}>
                     <Group justify="center">
+                      <Checkbox
+                        checked={questions[index].answer.includes(option)}
+                        onChange={(e) => {
+                          const newQuestions = [...questions];
+                          if (e.target.checked) {
+                            newQuestions[index].answer.push(option);
+                          } else {
+                            newQuestions[index].answer = newQuestions[
+                              index
+                            ].answer.filter((answer) => answer !== option);
+                          }
+                          setQuestions(newQuestions);
+                        }}
+                      />
                       <TextInput
                         data-testid="option-multiple-choice-input"
                         type="text"
@@ -148,19 +166,60 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
               >
                 Add Option
               </Button>
+              <Space h="xs" />
             </>
           )}
-          <TextInput
-            label="Answer"
-            data-testid="answer-input"
-            type="text"
-            value={questions[index].answer}
-            onChange={(e) => {
-              const newQuestions = [...questions];
-              newQuestions[index].answer = e.target.value;
-              setQuestions(newQuestions);
-            }}
-          />
+          {questions[index].type === 'trueFalse' && (
+            <>
+              <Text>Select the correct answer</Text>
+              <Space h="xs" />
+              <Group justify="center">
+                <Stack>
+                  <Checkbox
+                    label="True"
+                    checked={questions[index].answer.includes('True')}
+                    onChange={(e) => {
+                      const newQuestions = [...questions];
+                      if (e.target.checked) {
+                        newQuestions[index].answer = ['True'];
+                      } else {
+                        newQuestions[index].answer = ['False'];
+                      }
+                      setQuestions(newQuestions);
+                    }}
+                  />
+                  <Checkbox
+                    label="False"
+                    checked={questions[index].answer.includes('False')}
+                    onChange={(e) => {
+                      const newQuestions = [...questions];
+                      if (e.target.checked) {
+                        newQuestions[index].answer = ['False'];
+                      } else {
+                        newQuestions[index].answer = ['True'];
+                      }
+                      setQuestions(newQuestions);
+                    }}
+                  />
+                </Stack>
+              </Group>
+              <Space h="xs" />
+            </>
+          )}
+
+          {questions[index].type === 'openEnded' && (
+            <TextInput
+              label="Answer"
+              data-testid="answer-input"
+              type="text"
+              value={questions[index].answer}
+              onChange={(e) => {
+                const newQuestions = [...questions];
+                newQuestions[index].answer = e.target.value;
+                setQuestions(newQuestions);
+              }}
+            />
+          )}
           <TextInput
             label="Time Limit (seconds)"
             type="number"

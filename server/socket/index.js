@@ -200,7 +200,10 @@ function socketSetup(server) {
       }
       quiz.participants[socket.id].answers.push(answer);
 
-      if (data.answer === question.answer) {
+      if (
+        data.answer.length === question.answer.length &&
+        data.answer.every((ans) => question.answer.includes(ans))
+      ) {
         console.log(`User ${socket.id} answered correctly`);
         quiz.participants[socket.id].score += score;
         if (quiz.scoreByTime) {
@@ -235,18 +238,19 @@ function socketSetup(server) {
 }
 
 function endQuizSession(quiz, io, quizSessionId) {
-  const participantsArray = Object.values(quiz.participants);
-  io.to(quizSessionId).emit('quizFinished', {
-    message: 'Quiz has finished.',
-    participants: participantsArray,
-  });
-  // save the results to the database
   try {
+    const participantsArray = Object.values(quiz.participants);
+    io.to(quizSessionId).emit('quizFinished', {
+      message: 'Quiz has finished.',
+      participants: participantsArray,
+    });
+    // save the results to the database
     QuizSession.findByIdAndUpdate(quizSessionId, {
       participants: participantsArray,
       isFinished: true,
     }).then(() => {
       console.log('Quiz session updated');
+      delete quizSessions[quizSessionId];
     });
   } catch (error) {
     console.error('Error updating quiz session:', error);

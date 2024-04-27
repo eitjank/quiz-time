@@ -4,6 +4,7 @@ import { QUIZZES_ENDPOINT } from '../api/endpoints';
 import { Container, Text, Space, Title } from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
 import BorderedCard from '../components/BorderedCard';
+import QuestionAnswer from '../components/QuestionAnswer';
 
 function QuizView() {
   const { id } = useParams();
@@ -48,7 +49,7 @@ function QuizView() {
                 <OptionsList options={question.options} />
               </>
             )}
-            {question.answer && <p>Answer: {question.answer}</p>}
+            <QuestionAnswer question={question} />
           </div>
         </BorderedCard>
       ))}

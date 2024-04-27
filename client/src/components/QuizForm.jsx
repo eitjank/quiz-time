@@ -11,6 +11,7 @@ import {
   Space,
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 
 function QuizForm({ initialQuiz, onSubmit }) {
   const [name, setName] = useState(initialQuiz ? initialQuiz.name : '');
@@ -20,12 +21,21 @@ function QuizForm({ initialQuiz, onSubmit }) {
   const [questions, setQuestions] = useState(
     initialQuiz
       ? initialQuiz.questions
-      : [{ type: 'multipleChoice', question: '', options: [''] }]
+      : [
+          {
+            type: 'multipleChoice',
+            question: '',
+            options: [''],
+            answer: [],
+            timeLimit: 10,
+          },
+        ]
   );
   const [visibility, setVisibility] = useState(
     initialQuiz ? initialQuiz.visibility : 'public'
   );
   const [showQuestionBank, setShowQuestionBank] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (initialQuiz) {
@@ -70,7 +80,7 @@ function QuizForm({ initialQuiz, onSubmit }) {
       <Container size="xl">
         <h1>{initialQuiz ? 'Edit Quiz' : 'Create Quiz'}</h1>
         <Group justify="center">
-          <Button variant='default' type="button" onClick={handleExport}>
+          <Button variant="default" type="button" onClick={handleExport}>
             Export Quiz
           </Button>
         </Group>
@@ -142,10 +152,15 @@ function QuizForm({ initialQuiz, onSubmit }) {
               />
             )}
           </label>
-          <br />
-          <Button type="submit">
-            {initialQuiz ? 'Update Quiz' : 'Create Quiz'}
-          </Button>
+          <Space h="lg" />
+          <Group justify="center">
+            <Button type="submit">
+              {initialQuiz ? 'Update Quiz' : 'Create Quiz'}
+            </Button>
+            <Button variant="default" onClick={() => navigate(-1)}>
+              Cancel
+            </Button>
+          </Group>
         </form>
       </Container>
     </div>

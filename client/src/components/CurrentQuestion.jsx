@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardSection, Text } from '@mantine/core';
 import { BASE_URL } from '../api/endpoints';
+import QuestionAnswer from './QuestionAnswer';
 
 const CurrentQuestion = ({
   currentQuestion,
@@ -23,7 +24,7 @@ const CurrentQuestion = ({
         <Text size="lg">{currentQuestion.question}</Text>
       </Card>
       {renderQuestionInput(currentQuestion)}
-      {showAnswer && <p>The correct answer is: {currentQuestion.answer}</p>}
+      {showAnswer && <QuestionAnswer question={currentQuestion} />}
     </div>
   );
 };

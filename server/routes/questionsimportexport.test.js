@@ -59,15 +59,15 @@ describe('Question Routes', () => {
         .post('/api/questionsImportExport')
         .set('Cookie', cookie)
         .send([
-          { type: 'openEnded', question: 'Question 1', answer: 'Answer 1' },
-          { type: 'openEnded', question: 'Question 2', answer: 'Answer 2' },
+          { type: 'openEnded', question: 'Question 1', answer: ['Answer 1'] },
+          { type: 'openEnded', question: 'Question 2', answer: ['Answer 2'] },
         ]);
       expect(response.status).toBe(201);
       expect(response.body.length).toBe(2);
       expect(response.body[0].question).toBe('Question 1');
-      expect(response.body[0].answer).toBe('Answer 1');
+      expect(response.body[0].answer[0]).toBe('Answer 1');
       expect(response.body[1].question).toBe('Question 2');
-      expect(response.body[1].answer).toBe('Answer 2');
+      expect(response.body[1].answer[0]).toBe('Answer 2');
     });
 
     it('should return 403 Forbidden if user is not authenticated', async () => {
