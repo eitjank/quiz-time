@@ -1,18 +1,14 @@
 import React from 'react';
-import { Paper, Stack, Text } from '@mantine/core';
-import './OptionsList.css';
+import { Stack, Text } from '@mantine/core';
+import BorderedCard from '../BorderedCard';
 
 const OptionsList = ({ options }) => {
   return (
     <Stack gap="sm">
       {options.map((option, index) => (
-        <Paper
-          key={index}
-          className='options-list-paper'
-          shadow="lg"
-        >
+        <BorderedCard key={index}>
           <Text>{option}</Text>
-        </Paper>
+        </BorderedCard>
       ))}
     </Stack>
   );

@@ -19,6 +19,10 @@ const QuestionSchema = new mongoose.Schema({
   image: String,
   tags: [String],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  folder: {
+    type: String,
+    default: '/',
+  },
 });
 
 // delete image from questions before deleting quiz

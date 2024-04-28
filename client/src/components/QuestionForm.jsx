@@ -118,6 +118,9 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
                         checked={questions[index].answer.includes(option)}
                         onChange={(e) => {
                           const newQuestions = [...questions];
+                          if (!Array.isArray(newQuestions[index].answer)) {
+                            newQuestions[index].answer = [];
+                          }
                           if (e.target.checked) {
                             newQuestions[index].answer.push(option);
                           } else {

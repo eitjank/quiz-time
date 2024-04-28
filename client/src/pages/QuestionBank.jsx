@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 import {
   Button,
   Container,
-  Grid,
   Group,
   Space,
   FileButton,
@@ -16,6 +15,9 @@ import {
   Autocomplete,
   Text,
   Title,
+  AppShell,
+  Stack,
+  Burger,
 } from '@mantine/core';
 import TagSearch from '../components/TagSearch';
 import { readFile } from '../utils/readFile';
@@ -29,9 +31,12 @@ function QuestionBank() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 9;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
+  const [selectedFolder, setSelectedFolder] = useState('/');
+  const [folders, setFolders] = useState([]);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(true);
 
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -53,6 +58,8 @@ function QuestionBank() {
     if (questions) {
       const uniqueTags = [...new Set(questions.map((q) => q.tags).flat())];
       setTags(uniqueTags);
+      const uniqueFolders = [...new Set(questions.map((q) => q.folder))];
+      setFolders(uniqueFolders);
     }
   }, [questions]);
 
@@ -191,16 +198,62 @@ function QuestionBank() {
     }
   };
 
+  const handleFolderChange = (folder) => {
+    setSelectedFolder(folder);
+  };
+  
+  const toggleNavbar = () => {
+    setIsNavbarOpen((prevIsNavbarOpen) => !prevIsNavbarOpen);
+  };
+
   const filteredQuestions = questions
     ? questions.filter(
         (question) =>
           selectedTags.every((tag) => question.tags.includes(tag)) &&
+          question.folder === selectedFolder &&
           question.question.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
   return (
     <Container>
+      {isNavbarOpen && (
+        <AppShell.Navbar p="md">
+          <Group justify="center">
+            <Burger opened={true} onClick={toggleNavbar} />
+          </Group>
+          <Title order={4}>Folders</Title>
+          <Space h="sm" />
+          <Stack>
+            <Button
+              variant="default"
+              onClick={() => {
+                const newFolder = prompt('Enter folder name');
+                if (newFolder) {
+                  // also check if folder already exists if so, don't add
+                  if (folders.includes(newFolder)) {
+                    alert('Folder already exists');
+                  } else {
+                    setFolders([...folders, newFolder]);
+                  }
+                }
+              }}
+            >
+              Add Folder
+            </Button>
+            {folders.map((folder) => (
+              <Button
+                variant="subtle"
+                key={folder}
+                color={folder === selectedFolder ? 'blue' : 'gray'}
+                onClick={() => handleFolderChange(folder)}
+              >
+                {folder}
+              </Button>
+            ))}
+          </Stack>
+        </AppShell.Navbar>
+      )}
       {editingQuestion ? (
         <form onSubmit={handleSubmit}>
           <QuestionForm
@@ -239,6 +292,10 @@ function QuestionBank() {
             selectedTags={selectedTags}
             setSelectedTags={setSelectedTags}
           />
+          <Space h="xs" />
+          <Button variant="default" onClick={toggleNavbar}>
+            Folders
+          </Button>
           <Space h="lg" />
           <Autocomplete
             value={searchTerm}
@@ -248,36 +305,42 @@ function QuestionBank() {
           <Space h="lg" />
           <Button onClick={() => handleCreateQuestion()}>Add Question</Button>
           <Space h="lg" />
-          <Grid gutter="md">
-            {filteredQuestions &&
-              filteredQuestions.slice(startIndex, endIndex).map((question) => (
-                <Grid.Col key={question._id}>
-                  <BorderedCard>
-                    <Text>{question.question}</Text>
-                    <Space h="sm" />
-                    <Group justify="center">
-                      <Button onClick={() => handleEdit(question)}>Edit</Button>
-                      <Button
-                        variant="outline"
-                        color="red"
-                        onClick={() => handleDelete(question)}
-                      >
-                        Delete
-                      </Button>
-                    </Group>
-                  </BorderedCard>
-                </Grid.Col>
-              ))}
-            <Container>
-              {filteredQuestions && (
-                <Pagination
-                  total={Math.ceil(filteredQuestions.length / itemsPerPage)}
-                  value={currentPage}
-                  onChange={setCurrentPage}
-                />
-              )}
-            </Container>
-          </Grid>
+          {filteredQuestions &&
+            filteredQuestions.slice(startIndex, endIndex).map((question) => (
+              <BorderedCard key={question._id}>
+                <Group>
+                  <Text
+                    style={{
+                      flex: '1',
+                      marginRight: '1em',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {question.question}
+                  </Text>
+                  <Button onClick={() => handleEdit(question)}>Edit</Button>
+                  <Button
+                    variant="outline"
+                    color="red"
+                    onClick={() => handleDelete(question)}
+                  >
+                    Delete
+                  </Button>
+                </Group>
+              </BorderedCard>
+            ))}
+          <Group justify="center">
+            {filteredQuestions && (
+              <Pagination
+                total={Math.ceil(filteredQuestions.length / itemsPerPage)}
+                value={currentPage}
+                onChange={setCurrentPage}
+              />
+            )}
+          </Group>
+          <Space h="sm" />
         </>
       )}
     </Container>
