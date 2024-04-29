@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  MOVE_QUESTION_ENDPOINT,
   QUESTIONS_ENDPOINT,
   QUESTIONS_IMPORT_EXPORT_ENDPOINT,
 } from '../api/endpoints';
@@ -17,6 +18,7 @@ import {
   AppShell,
   Stack,
   Burger,
+  Select,
 } from '@mantine/core';
 import TagSearch from '../components/TagSearch';
 import { readFile } from '../utils/readFile';
@@ -33,7 +35,7 @@ function QuestionBank() {
   const itemsPerPage = 9;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const [selectedFolder, setSelectedFolder] = useState('/');
+  const [selectedFolder, setSelectedFolder] = useState(null);
   const [folders, setFolders] = useState([]);
   const [isNavbarOpen, setIsNavbarOpen] = useState(true);
   const navigate = useNavigate();
@@ -144,6 +146,35 @@ function QuestionBank() {
     }
   };
 
+  function moveQuestion(questionId, newFolder) {
+    fetch(`${MOVE_QUESTION_ENDPOINT}/${questionId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ newFolder }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+          toast(data.message);
+          // change folder in state
+          const newQuestions = questions.map((question) => {
+            if (question._id === questionId) {
+              question.folder = newFolder;
+            }
+            return question;
+          });
+          setQuestions(newQuestions);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error(error.message);
+      });
+  }
+
   const handleFolderChange = (folder) => {
     setSelectedFolder(folder);
   };
@@ -156,7 +187,7 @@ function QuestionBank() {
     ? questions.filter(
         (question) =>
           selectedTags.every((tag) => question.tags.includes(tag)) &&
-          question.folder === selectedFolder &&
+          (!selectedFolder || question.folder === selectedFolder) &&
           question.question.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
@@ -191,6 +222,13 @@ function QuestionBank() {
               }}
             >
               Add Folder
+            </Button>
+            <Button
+              variant="subtle"
+              color={selectedFolder === null ? 'blue' : 'gray'}
+              onClick={() => handleFolderChange(null)}
+            >
+              View All Questions
             </Button>
             {folders.map((folder) => (
               <Button
@@ -274,6 +312,17 @@ function QuestionBank() {
                 {question.question}
               </Text>
               <Button onClick={() => handleEdit(question)}>Edit</Button>
+              <Select
+                data={folders.map((folder) => ({
+                  value: folder,
+                  label: folder,
+                }))}
+                placeholder="Move to..."
+                style={{ width: 128 }}
+                onChange={(folder) => {
+                  moveQuestion(question._id, folder);
+                }}
+              />
               <Button
                 variant="outline"
                 color="red"

@@ -202,4 +202,63 @@ describe('Question Routes', () => {
 
     // Add more test cases for error scenarios
   });
+
+  describe('PUT /moveQuestion/:id', () => {
+    it('should move a question to a new folder', async () => {
+      // Create a sample question in the database
+      const question = await Question.create({
+        type: 'multiple-choice',
+        question: 'Sample Question',
+        answer: 'Sample Answer',
+        owner: savedUser._id,
+        folder: 'old-folder',
+      });
+
+      const newFolder = 'new-folder';
+
+      const response = await request(app)
+        .put(`/api/questions/moveQuestion/${question._id}`)
+        .set('Cookie', cookie)
+        .send({ newFolder });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Question moved successfully.');
+
+      // Check if the question is updated in the database
+      const updatedQuestion = await Question.findById(question._id);
+      expect(updatedQuestion.folder).toBe(newFolder);
+    });
+
+    it('should return an error if the question does not exist', async () => {
+      const response = await request(app)
+        .put('/api/questions/moveQuestion/nonexistent-id')
+        .set('Cookie', cookie)
+        .send({ newFolder: 'new-folder' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Question not found');
+    });
+
+    it('should return an error if the user is not the owner of the question', async () => {
+      // Create a sample question in the database with a different owner
+      const question = await Question.create({
+        type: 'multiple-choice',
+        question: 'Sample Question',
+        answer: 'Sample Answer',
+        owner: '65eb92aa68c7c390ecc5be2a',
+      });
+
+      const newFolder = 'new-folder';
+
+      const response = await request(app)
+        .put(`/api/questions/moveQuestion/${question._id}`)
+        .set('Cookie', cookie)
+        .send({ newFolder });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Forbidden');
+    });
+
+    // Add more test cases for error scenarios
+  });
 });

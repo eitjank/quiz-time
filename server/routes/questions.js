@@ -4,6 +4,31 @@ const Question = require('../db/models/Question');
 const mongoose = require('mongoose');
 const authenticateUser = require('../middleware/authMiddleware');
 
+router.put('/moveQuestion/:id', authenticateUser, async (req, res) => {
+  const { id } = req.params;
+  const { newFolder } = req.body;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+    const question = await Question.findOne({ _id: id, owner: req.user.id });
+    if (!question) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const result = await Question.updateOne(
+      { _id: id },
+      { $set: { folder: newFolder } }
+    );
+    if (result.modifiedCount === 1) {
+      res.json({ message: 'Question moved successfully.' });
+    } else {
+      res.json({ message: 'No changes made to the question.' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error moving question.', error: err });
+  }
+});
+
 router.get('/', authenticateUser, async (req, res) => {
   try {
     if (!req.user) {
