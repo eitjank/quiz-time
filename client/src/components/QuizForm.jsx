@@ -129,7 +129,7 @@ function QuizForm({ initialQuiz, onSubmit }) {
                       type: 'multipleChoice',
                       question: '',
                       options: [''],
-                      answer: '',
+                      answer: [],
                       timeLimit: 10,
                     },
                   ]);

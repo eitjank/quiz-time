@@ -16,7 +16,6 @@ router.get('/', authenticateUser, async (req, res) => {
   }
 });
 
-// not used
 router.get('/:id', authenticateUser, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -37,6 +36,9 @@ router.get('/:id', authenticateUser, async (req, res) => {
 
 router.post('/', authenticateUser, async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
     const newQuestion = new Question(req.body);
     newQuestion.owner = req.user.id;
     const savedQuestion = await newQuestion.save();

@@ -17,20 +17,25 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuthentication = async () => {
-    const response = await fetch(AUTH_ENDPOINT, {
-      method: 'POST',
-      credentials: 'include', // Include cookies in the request
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const data = await response.json();
-    setIsAuthenticated(data.status);
-    setIsLoading(false);
-    if (data.status) {
-      setUsername(data.user);
-    } else {
-      setUsername('');
+    try {
+      const response = await fetch(AUTH_ENDPOINT, {
+        method: 'POST',
+        credentials: 'include', // Include cookies in the request
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setIsAuthenticated(data.status);
+      setIsLoading(false);
+      if (data.status) {
+        setUsername(data.user);
+      } else {
+        setUsername('');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
     }
   };
 

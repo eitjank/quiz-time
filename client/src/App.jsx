@@ -18,6 +18,7 @@ import QuestionBank from './pages/QuestionBank';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound/NotFound';
 import { AppShell, useMantineColorScheme } from '@mantine/core';
+import QuestionEdit from './pages/QuestionEdit';
 
 function App() {
   const { colorScheme } = useMantineColorScheme();
@@ -33,11 +34,7 @@ function App() {
         theme={colorScheme === 'dark' ? 'dark' : 'light'}
         closeOnClick
       />
-      <AppShell
-        header={{ height: 64 }}
-        padding="md"
-        style={{ background }}
-      >
+      <AppShell header={{ height: 64 }} padding="md" style={{ background }}>
         <AppShell.Header>
           <Navbar />
         </AppShell.Header>
@@ -65,6 +62,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/question/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <QuestionEdit isEditing={true} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/question/create"
+              element={
+                <ProtectedRoute>
+                  <QuestionEdit />
                 </ProtectedRoute>
               }
             />
