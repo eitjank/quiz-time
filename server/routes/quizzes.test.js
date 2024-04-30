@@ -64,6 +64,39 @@ describe('Quizzes API', () => {
     });
   });
 
+  describe('GET /quizzes/my-quizzes', () => {
+    it('should return quizzes created by the authenticated user', async () => {
+      await Quiz.create({
+        name: 'Quiz 1',
+        description: 'Description 1',
+        questions: [],
+        owner: savedUser._id,
+      });
+      await Quiz.create({
+        name: 'Quiz 2',
+        description: 'Description 2',
+        questions: [],
+        owner: savedUser._id,
+      });
+
+      const response = await request(app)
+        .get('/api/quizzes/my-quizzes')
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+      expect(response.body[0].name).toBe('Quiz 1');
+      expect(response.body[1].name).toBe('Quiz 2');
+    });
+
+    it('should return 403 if user is not authenticated', async () => {
+      const response = await request(app).get('/api/quizzes/my-quizzes');
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Forbidden');
+    });
+  });
+
   describe('GET /quizzes/:id', () => {
     it('should return a single quiz', async () => {
       const createdQuiz = await Quiz.create({
@@ -218,6 +251,33 @@ describe('Quizzes API', () => {
         .set('Cookie', cookie);
 
       expect(response.status).toBe(404);
+    });
+  });
+
+  describe('POST /quizzes/import', () => {
+    it('should import a quiz', async () => {
+      const quizData = {
+        name: 'Imported Quiz',
+        description: 'Imported Description',
+        questions: [],
+      };
+
+      const response = await request(app)
+        .post('/api/quizzes/import')
+        .set('Cookie', cookie)
+        .send(quizData);
+
+      expect(response.status).toBe(201);
+
+      expect(response.body.message).toBe('Quiz imported successfully');
+      expect(response.body.quizId).toBeDefined();
+    });
+
+    it('should return 403 if user is not authenticated', async () => {
+      const response = await request(app).post('/api/quizzes/import');
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Forbidden');
     });
   });
 });

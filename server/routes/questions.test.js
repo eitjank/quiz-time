@@ -130,7 +130,16 @@ describe('Question Routes', () => {
       expect(question.question).toBe(questionObj.question);
     });
 
-    // Add more test cases for error scenarios
+    it('should return an error if the user is not authenticated', async () => {
+      const response = await request(app).post('/api/questions').send({
+        type: 'multiple-choice',
+        question: 'New Question',
+        answer: 'New Answer',
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Forbidden');
+    });
   });
 
   describe('PUT /questions/:id', () => {
@@ -166,7 +175,33 @@ describe('Question Routes', () => {
       expect(response.body.message).toBe('Question not found');
     });
 
-    // Add more test cases for error scenarios
+    it('should return an error if the user is not the owner of the question', async () => {
+      // Create a sample question in the database with a different owner
+      const question = await Question.create({
+        type: 'multiple-choice',
+        question: 'Sample Question',
+        answer: 'Sample Answer',
+        owner: '65eb92aa68c7c390ecc5be2a',
+      });
+
+      const response = await request(app)
+        .put(`/api/questions/${question._id}`)
+        .set('Cookie', cookie)
+        .send({ question: 'Updated Question' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Forbidden');
+    });
+
+    it('should return 404 if the question is not found', async () => {
+      const response = await request(app)
+        .put('/api/questions/65eb92aa68c7c390ecc5be2a')
+        .set('Cookie', cookie)
+        .send({ question: 'Updated Question' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Question not found');
+    });
   });
 
   describe('DELETE /questions/:id', () => {
@@ -191,7 +226,7 @@ describe('Question Routes', () => {
       expect(deletedQuestion).toBeNull();
     });
 
-    it('should return an error if the question does not exist', async () => {
+    it('should return an error if the question id is invalid', async () => {
       const response = await request(app)
         .delete('/api/questions/nonexistent-id')
         .set('Cookie', cookie);
@@ -200,7 +235,14 @@ describe('Question Routes', () => {
       expect(response.body.message).toBe('Question not found');
     });
 
-    // Add more test cases for error scenarios
+    it('should return an error if the question does not exist', async () => {
+      const response = await request(app)
+        .delete('/api/questions/65eb92aa68c7c390ecc5be2a')
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Question not found');
+    });
   });
 
   describe('PUT /moveQuestion/:id', () => {

@@ -102,7 +102,7 @@ router.delete('/:id', authenticateUser, async (req, res) => {
       owner: req.user.id,
     });
     if (!question) {
-      return res.status(404).json({ message: 'Cannot find question' });
+      return res.status(404).json({ message: 'Question not found' });
     }
     res.json({ message: 'Deleted Question' });
   } catch (error) {

@@ -16,7 +16,6 @@ describe('User Routes', () => {
     });
     await user.save();
 
-
     // Authenticate the test user and get the token
     const response = await request(app)
       .post('/api/auth/login')
@@ -51,7 +50,31 @@ describe('User Routes', () => {
       expect(response.body.message).toBe('Forbidden');
     });
 
-    // Add more test cases for error scenarios
+    it('should return 404 if user is not found', async () => {
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `email${randomString}@email`;
+      const user = `user${randomString}`;
+      const newUser = new User({
+        email: email,
+        username: user,
+        password: 'newpassword',
+      });
+      await newUser.save();
+
+      const response1 = await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'newpassword' });
+      const newCookie = response1.headers['set-cookie'];
+
+      await User.deleteOne({ email });
+
+      const response2 = await request(app)
+        .get('/api/user/currentUser')
+        .set('Cookie', newCookie);
+
+      expect(response2.status).toBe(404);
+      expect(response2.body.message).toBe('User not found');
+    });
   });
 
   describe('PUT /updateUsername', () => {
@@ -65,7 +88,52 @@ describe('User Routes', () => {
       expect(response.body.username).toBe('newusername');
     });
 
-    // Add more test cases for error scenarios
+    it('should return 400 if the username already exists', async () => {
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `email${randomString}@email`;
+      const user = `user${randomString}`;
+      const newUser = new User({
+        email: email,
+        username: user,
+        password: 'newpassword',
+      });
+      await newUser.save();
+
+      const response = await request(app)
+        .put('/api/user/updateUsername')
+        .set('Cookie', cookie)
+        .send({ username: user });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Username already exists');
+    });
+
+    it('should return 404 if user is not found', async () => {
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `email${randomString}@email`;
+      const user = `user${randomString}`;
+      const newUser = new User({
+        email: email,
+        username: user,
+        password: 'newpassword',
+      });
+      await newUser.save();
+
+      const response1 = await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'newpassword' });
+      const newCookie = response1.headers['set-cookie'];
+
+      await User.deleteOne({ email });
+
+      const response2 = await request(app)
+        .put('/api/user/updateUsername')
+        .set('Cookie', newCookie)
+        .send({ username: 'newusername' });
+
+      expect(response2.status).toBe(404);
+      expect(response2.body.message).toBe('User not found');
+    });
   });
 
   describe('PUT /changePassword', () => {
@@ -81,7 +149,48 @@ describe('User Routes', () => {
       expect(response.status).toBe(200);
     });
 
-    // Add more test cases for error scenarios
+    it('should return 400 if the current password is incorrect', async () => {
+      const response = await request(app)
+        .put('/api/user/changePassword')
+        .set('Cookie', cookie)
+        .send({
+          currentPassword: 'wrongpassword',
+          newPassword: 'newpassword',
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Current password is incorrect');
+    });
+
+    it('should return 404 if user is not found', async () => {
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `email${randomString}@email`;
+      const user = `user${randomString}`;
+      const newUser = new User({
+        email: email,
+        username: user,
+        password: 'newpassword',
+      });
+      await newUser.save();
+
+      const response1 = await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'newpassword' });
+      const newCookie = response1.headers['set-cookie'];
+
+      await User.deleteOne({ email });
+
+      const response2 = await request(app)
+        .put('/api/user/changePassword')
+        .set('Cookie', newCookie)
+        .send({
+          currentPassword: 'newpassword',
+          newPassword: 'newpassword',
+        });
+
+      expect(response2.status).toBe(404);
+      expect(response2.body.message).toBe('User not found');
+    });
   });
 
   describe('DELETE /deleteAccount', () => {
@@ -93,6 +202,30 @@ describe('User Routes', () => {
       expect(response.body.message).toBe('Account deleted successfully');
     });
 
-    // Add more test cases for error scenarios
+    it('should return 404 if user is not found', async () => {
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `email${randomString}@email`;
+      const user = `user${randomString}`;
+      const newUser = new User({
+        email: email,
+        username: user,
+        password: 'newpassword',
+      });
+      await newUser.save();
+
+      const response1 = await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'newpassword' });
+      const newCookie = response1.headers['set-cookie'];
+
+      await User.deleteOne({ email });
+
+      const response2 = await request(app)
+        .delete('/api/user/deleteAccount')
+        .set('Cookie', newCookie);
+
+      expect(response2.status).toBe(404);
+      expect(response2.body.message).toBe('User not found');
+    });
   });
 });

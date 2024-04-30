@@ -115,7 +115,6 @@ router.delete('/:id', authenticateUser, async (req, res) => {
     await Quiz.findByIdAndDelete(req.params.id);
     res.json({ message: 'Quiz deleted successfully' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -149,7 +148,7 @@ router.post('/import', authenticateUser, async (req, res) => {
       visibility: req.body.visibility,
     });
     const importedQuiz = await quiz.save();
-    res.json({
+    res.status(201).json({
       message: 'Quiz imported successfully',
       quizId: importedQuiz._id,
     });
