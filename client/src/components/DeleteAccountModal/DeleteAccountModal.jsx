@@ -7,8 +7,9 @@ const DeleteAccountModal = ({ opened, close, handleAccountDeletion }) => {
       onClose={close}
       title="Confirm Account Deletion"
       size="sm"
+      data-testid="delete-account-modal"
     >
-      <Alert color="red" title="Warning">
+      <Alert color="red" title="Warning" data-testid="deletion-warning">
         Are you sure you want to delete your account? This action cannot be
         undone.
       </Alert>

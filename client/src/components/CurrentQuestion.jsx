@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardSection, Text } from '@mantine/core';
 import { BASE_URL } from '../api/endpoints';
-import QuestionAnswer from './QuestionAnswer';
+import QuestionAnswer from './QuestionAnswer/QuestionAnswer';
 
 const CurrentQuestion = ({
   currentQuestion,

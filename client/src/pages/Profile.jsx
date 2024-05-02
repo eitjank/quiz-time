@@ -6,8 +6,8 @@ import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { Button, Container, Space, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import DeleteAccountModal from '../components/DeleteAccountModal';
-import BorderedCard from '../components/BorderedCard';
+import DeleteAccountModal from '../components/DeleteAccountModal/DeleteAccountModal';
+import BorderedCard from '../components/BorderedCard/BorderedCard';
 
 const Profile = () => {
   const { logout } = useContext(AuthContext);

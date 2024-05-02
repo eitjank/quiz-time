@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
-import BorderedCard from './BorderedCard';
+import BorderedCard from './BorderedCard/BorderedCard';
 
 function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
   const handleImageUpload = async (file) => {

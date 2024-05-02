@@ -8,7 +8,7 @@ import {
   animals,
 } from 'unique-names-generator';
 import { useDisclosure } from '@mantine/hooks';
-import NameModal from '../components/NameModal';
+import NameModal from '../components/NameModal/NameModal';
 import {
   Container,
   Radio,
@@ -22,7 +22,7 @@ import {
   Alert,
   Checkbox,
 } from '@mantine/core';
-import ParticipantList from '../components/ParticipantList';
+import ParticipantList from '../components/ParticipantList/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
 import { toast } from 'react-toastify';
@@ -43,6 +43,7 @@ function Quiz() {
   const [nameModalOpened, nameModalHandlers] = useDisclosure(false);
   const [hostLeftModalOpened, hostLeftModalHandlers] = useDisclosure(false);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
+  const [currentQuestionScore, setCurrentQuestionScore] = useState(null);
 
   useEffect(() => {
     if (currentQuestion.timeLimit !== 0) {
@@ -99,9 +100,9 @@ function Quiz() {
       hostLeftModalHandlers.open();
     });
 
-    // socket.on('answerResult', (data) => {
-    //   console.log(data);
-    // });
+    socket.on('answerResult', (data) => {
+      setCurrentQuestionScore(data.score);
+    });
 
     return () => {
       // Clean up the socket connection
@@ -172,7 +173,7 @@ function Quiz() {
                     value={option}
                     label={option}
                     checked={answer.includes(option)}
-                    disabled={showAnswer}
+                    disabled={showAnswer || (scoreByTime && answerSubmitted)}
                     onChange={(e) => {
                       if (e.target.checked) {
                         setAnswer((prevAnswer) => [
@@ -240,7 +241,7 @@ function Quiz() {
                   value={option}
                   label={option}
                   checked={answer[0] && answer[0] === option}
-                  disabled={showAnswer || (scoreByTime && answer !== '')}
+                  disabled={showAnswer || (scoreByTime && answerSubmitted)}
                   onChange={(e) => {
                     setAnswer([e.target.value]);
                     if (scoreByTime) {
@@ -263,49 +264,47 @@ function Quiz() {
 
   return (
     <>
-      <NameModal
-        opened={nameModalOpened}
-        close={nameModalHandlers.close}
-        name={name}
-        setName={setName}
-        handleNameSubmit={handleNameSubmit}
-        generateRandomName={generateRandomName}
-      />
-      <Modal
-        opened={hostLeftModalOpened}
-        onClose={() => {}}
-        size="xs"
-        withCloseButton={false}
-        centered
-      >
-        <Alert color="red" title="Host has left">
-          The host has left the quiz. The quiz has ended.
-        </Alert>
-        <Space h="md" />
-        <Group justify="center">
-          <Button variant="outline" onClick={() => navigate('/')}>
-            Return to main page
-          </Button>
-        </Group>
-      </Modal>
-      <Title order={1}>Quiz Time!</Title>
-      <Space h="sm" />
-      {!finished ? (
-        <>
-          {!currentQuestion.question ? (
-            <>
-              <Title order={2}>Participants:</Title>
-              <Space h="lg" />
-              <Container size="lg">
+      <Container size="lg">
+        <NameModal
+          opened={nameModalOpened}
+          close={nameModalHandlers.close}
+          name={name}
+          setName={setName}
+          handleNameSubmit={handleNameSubmit}
+          generateRandomName={generateRandomName}
+        />
+        <Modal
+          opened={hostLeftModalOpened}
+          onClose={() => {}}
+          size="xs"
+          withCloseButton={false}
+          centered
+        >
+          <Alert color="red" title="Host has left">
+            The host has left the quiz. The quiz has ended.
+          </Alert>
+          <Space h="md" />
+          <Group justify="center">
+            <Button variant="outline" onClick={() => navigate('/')}>
+              Return to main page
+            </Button>
+          </Group>
+        </Modal>
+        <Title order={1}>Quiz Time!</Title>
+        <Space h="sm" />
+        {!finished ? (
+          <>
+            {!currentQuestion.question ? (
+              <>
+                <Title order={2}>Participants:</Title>
+                <Space h="lg" />
                 <ParticipantList participants={participants} />
-              </Container>
-            </>
-          ) : (
-            <>
-              {currentQuestion.question && (
-                <ProgressBar width={progressBarWidth} timeLeft={timer} />
-              )}
-              <Container size="md">
+              </>
+            ) : (
+              <>
+                {currentQuestion.question && (
+                  <ProgressBar width={progressBarWidth} timeLeft={timer} />
+                )}
                 <CurrentQuestion
                   currentQuestion={currentQuestion}
                   renderQuestionInput={renderQuestionInput}
@@ -314,17 +313,22 @@ function Quiz() {
                 {showAnswer &&
                   isCorrect !== null &&
                   (isCorrect ? (
-                    <p>Your answer is correct!</p>
+                    <>
+                      <p>Your answer is correct!</p>
+                      {currentQuestionScore && (
+                        <p>Your score: {currentQuestionScore}</p>
+                      )}
+                    </>
                   ) : (
                     <p>Your answer is incorrect.</p>
                   ))}
-              </Container>
-            </>
-          )}
-        </>
-      ) : (
-        <Leaderboard results={results} />
-      )}
+              </>
+            )}
+          </>
+        ) : (
+          <Leaderboard results={results} />
+        )}
+      </Container>
     </>
   );
 }

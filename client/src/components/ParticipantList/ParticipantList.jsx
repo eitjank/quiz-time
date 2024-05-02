@@ -1,5 +1,5 @@
 import { Grid, Text } from '@mantine/core';
-import BorderedCard from './BorderedCard';
+import BorderedCard from '../BorderedCard/BorderedCard';
 
 const ParticipantList = ({ participants }) => (
   <Grid>

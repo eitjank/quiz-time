@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import JoinQuizForm from './pages/JoinQuizForm';
+import JoinQuizForm from './pages/JoinQuizForm/JoinQuizForm';
 import Quiz from './pages/Quiz';
 import PublicQuizzes from './pages/PublicQuizzes';
 import QuizEdit from './pages/QuizEdit';

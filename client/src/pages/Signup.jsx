@@ -2,14 +2,8 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthContext from '../contexts/AuthContext';
-import {
-  Button,
-  Container,
-  TextInput,
-  Group,
-  Title,
-} from '@mantine/core';
-import BorderedCard from '../components/BorderedCard';
+import { Button, Container, TextInput, Group, Title } from '@mantine/core';
+import BorderedCard from '../components/BorderedCard/BorderedCard';
 
 const Signup = () => {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS_ENDPOINT } from '../api/endpoints';
 import { Button, Paper, Container } from '@mantine/core';
-import TagSearch from './TagSearch';
+import TagSearch from './TagSearch/TagSearch';
 import { toast } from 'react-toastify';
 
 const QuestionBankSelector = ({ addQuestionToQuiz }) => {

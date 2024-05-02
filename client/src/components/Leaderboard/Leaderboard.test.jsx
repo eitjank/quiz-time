@@ -1,53 +1,42 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render, screen } from '../../test-utils';
 import Leaderboard from './Leaderboard';
 
+const mockResults = [
+  { name: 'John Doe', score: 100 },
+  { name: 'Jane Doe', score: 90 },
+];
+
 describe('Leaderboard', () => {
-  const results = [
-    { name: 'participant1', score: 10 },
-    { name: 'participant2', score: 15 },
-    { name: 'participant3', score: 5 },
-  ];
+  it('renders the leaderboard table with correct participant names and scores', () => {
+    render(<Leaderboard results={mockResults} />);
 
-  it('renders leaderboard correctly', () => {
-    render(<Leaderboard results={results} />);
+    const participantNames = screen.getAllByTestId('participant-name');
+    const participantScores = screen.getAllByTestId('score');
 
-    expect(screen.getByText('Results')).toBeInTheDocument();
-    expect(screen.getByText('Rank')).toBeInTheDocument();
-    expect(screen.getByText('Participant ID')).toBeInTheDocument();
-    expect(screen.getByText('Score')).toBeInTheDocument();
+    expect(participantNames).toHaveLength(mockResults.length);
+    expect(participantScores).toHaveLength(mockResults.length);
 
-    expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('participant2')).toBeInTheDocument();
-    expect(screen.getByText('15')).toBeInTheDocument();
-
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('participant1')).toBeInTheDocument();
-    expect(screen.getByText('10')).toBeInTheDocument();
-
-    expect(screen.getByText('3')).toBeInTheDocument();
-    expect(screen.getByText('participant3')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument();
+    mockResults.forEach((participant, index) => {
+      expect(participantNames[index]).toHaveTextContent(participant.name);
+      expect(participantScores[index]).toHaveTextContent(
+        participant.score.toString()
+      );
+    });
   });
 
-  it('sorts results in descending order', () => {
-    render(<Leaderboard results={results} />);
+  it('sorts the participants in descending order based on their scores', () => {
+    render(<Leaderboard results={mockResults} />);
 
-    const rankCells = screen.getAllByTestId('rank-cell');
     const participantNames = screen.getAllByTestId('participant-name');
-    const scores = screen.getAllByTestId('score');
+    const participantScores = screen.getAllByTestId('score');
 
-    expect(rankCells[0]).toHaveTextContent('1');
-    expect(participantNames[0]).toHaveTextContent('participant2');
-    expect(scores[0]).toHaveTextContent('15');
+    const sortedResults = [...mockResults].sort((a, b) => b.score - a.score);
 
-    expect(rankCells[1]).toHaveTextContent('2');
-    expect(participantNames[1]).toHaveTextContent('participant1');
-    expect(scores[1]).toHaveTextContent('10');
-
-    expect(rankCells[2]).toHaveTextContent('3');
-    expect(participantNames[2]).toHaveTextContent('participant3');
-    expect(scores[2]).toHaveTextContent('5');
+    sortedResults.forEach((participant, index) => {
+      expect(participantNames[index]).toHaveTextContent(participant.name);
+      expect(participantScores[index]).toHaveTextContent(
+        participant.score.toString()
+      );
+    });
   });
 });

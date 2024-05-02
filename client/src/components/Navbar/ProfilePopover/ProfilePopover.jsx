@@ -25,7 +25,7 @@ const ProfilePopover = ({ offset, logout }) => {
           </div>
         </Link>
         <Link className="navbar-item icon" onClick={logout} to="/">
-          <div className="icon">
+          <div className="icon" data-testid="logout-link">
             <IconLogout style={{ marginRight: '4px' }} />
             Logout
           </div>

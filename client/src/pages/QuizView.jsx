@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
 import { Container, Text, Space, Title } from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
-import BorderedCard from '../components/BorderedCard';
-import QuestionAnswer from '../components/QuestionAnswer';
+import BorderedCard from '../components/BorderedCard/BorderedCard';
+import QuestionAnswer from '../components/QuestionAnswer/QuestionAnswer';
 
 function QuizView() {
   const { id } = useParams();

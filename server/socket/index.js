@@ -208,9 +208,9 @@ function socketSetup(server) {
         quiz.participants[socket.id].score += score;
         if (quiz.scoreByTime) {
           // send what score the user got
-          // socket.emit('answerResult', {
-          //   score: score,
-          // });
+          socket.emit('answerResult', {
+            score: score,
+          });
         }
       } else {
         console.log(`User ${socket.id} answered incorrectly`);

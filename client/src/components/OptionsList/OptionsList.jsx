@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack, Text } from '@mantine/core';
-import BorderedCard from '../BorderedCard';
+import BorderedCard from '../BorderedCard/BorderedCard';
 
 const OptionsList = ({ options }) => {
   return (

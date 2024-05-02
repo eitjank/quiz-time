@@ -19,10 +19,11 @@ import {
   Stack,
   Burger,
   Select,
+  Divider,
 } from '@mantine/core';
-import TagSearch from '../components/TagSearch';
+import TagSearch from '../components/TagSearch/TagSearch';
 import { readFile } from '../utils/readFile';
-import BorderedCard from '../components/BorderedCard';
+import BorderedCard from '../components/BorderedCard/BorderedCard';
 import { IconFolder } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -143,6 +144,7 @@ function QuestionBank() {
         .catch((error) => console.error(error));
     } catch (err) {
       console.error(err);
+      toast.error(err.message);
     }
   };
 
@@ -223,6 +225,7 @@ function QuestionBank() {
             >
               Add Folder
             </Button>
+            <Divider />
             <Button
               variant="subtle"
               color={selectedFolder === null ? 'blue' : 'gray'}
@@ -273,12 +276,6 @@ function QuestionBank() {
         </FileButton>
       </Group>
       <Space h="xs" />
-      <TagSearch
-        tags={tags}
-        selectedTags={selectedTags}
-        setSelectedTags={setSelectedTags}
-      />
-      <Space h="xs" />
       <Button
         variant="outline"
         color={isNavbarOpen === true ? 'blue' : 'gray'}
@@ -287,7 +284,13 @@ function QuestionBank() {
         <IconFolder size={18} />
         Folders
       </Button>
-      <Space h="lg" />
+      <Space h="xs" />
+      <TagSearch
+        tags={tags}
+        selectedTags={selectedTags}
+        setSelectedTags={setSelectedTags}
+      />
+      <Space h="xs" />
       <Autocomplete
         value={searchTerm}
         onChange={handleSearch}

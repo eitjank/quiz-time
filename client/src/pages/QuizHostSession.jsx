@@ -2,14 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
-import {
-  Button,
-  Group,
-  Switch,
-  Space,
-  Container,
-} from '@mantine/core';
-import ParticipantList from '../components/ParticipantList';
+import { Button, Group, Switch, Space, Container } from '@mantine/core';
+import ParticipantList from '../components/ParticipantList/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
 import { toast } from 'react-toastify';
@@ -111,70 +105,68 @@ const QuizHostSession = () => {
 
   return (
     <div>
-      <h2>Quiz Session ID: {id}</h2>
-      {!finished ? (
-        <>
-          {!started ? (
-            <>
-              <Group justify="center">
-                <Switch
-                  label="Manual Control"
-                  checked={isManualControl}
-                  onChange={() => setIsManualControl(!isManualControl)}
-                />
-                <Switch
-                  label="Score By Time"
-                  checked={scoreByTime}
-                  onChange={() => setScoreByTime(!scoreByTime)}
-                />
-              </Group>
-              <Space h="lg" />
-              <Button onClick={startQuiz}>Start Quiz</Button>
-              <h2>Participants:</h2>
-              <Container size="lg">
+      <Container size="lg">
+        <h2>Quiz Session ID: {id}</h2>
+        {!finished ? (
+          <>
+            {!started ? (
+              <>
+                <Group justify="center">
+                  <Switch
+                    label="Manual Control"
+                    checked={isManualControl}
+                    onChange={() => setIsManualControl(!isManualControl)}
+                  />
+                  <Switch
+                    label="Score By Time"
+                    checked={scoreByTime}
+                    onChange={() => setScoreByTime(!scoreByTime)}
+                  />
+                </Group>
+                <Space h="lg" />
+                <Button onClick={startQuiz}>Start Quiz</Button>
+                <h2>Participants:</h2>
                 <ParticipantList participants={participants} />
-              </Container>
-            </>
-          ) : (
-            <div>
-              <h1>Quiz Time!</h1>
-              <ProgressBar width={progressBarWidth} timeLeft={timer} />
-              {isManualControl && (
-                <>
-                  {showAnswer ? (
-                    <Button
-                      onClick={() => {
-                        socket.emit('nextQuestion', { quizSessionId: id });
-                        setShowAnswer(false);
-                      }}
-                    >
-                      Next Question
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() =>
-                        socket.emit('skipQuestion', { quizSessionId: id })
-                      }
-                    >
-                      Skip Question
-                    </Button>
-                  )}
-                </>
-              )}
-              <Space h="lg" />
-              <Container size="md">
+              </>
+            ) : (
+              <div>
+                <h1>Quiz Time!</h1>
+                <ProgressBar width={progressBarWidth} timeLeft={timer} />
+                {isManualControl && (
+                  <>
+                    {showAnswer ? (
+                      <Button
+                        onClick={() => {
+                          socket.emit('nextQuestion', { quizSessionId: id });
+                          setShowAnswer(false);
+                        }}
+                      >
+                        Next Question
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() =>
+                          socket.emit('skipQuestion', { quizSessionId: id })
+                        }
+                      >
+                        Skip Question
+                      </Button>
+                    )}
+                  </>
+                )}
+                <Space h="lg" />
                 <CurrentQuestion
                   currentQuestion={currentQuestion}
                   renderQuestionInput={renderQuestionInput}
                   showAnswer={showAnswer}
                 />
-              </Container>
-            </div>
-          )}
-        </>
-      ) : (
-        <Leaderboard results={results} />
-      )}
+              </div>
+            )}
+          </>
+        ) : (
+          <Leaderboard results={results} />
+        )}
+      </Container>
     </div>
   );
 };

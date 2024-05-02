@@ -17,7 +17,7 @@ import {
   Title,
 } from '@mantine/core';
 import { readFile } from '../utils/readFile';
-import BorderedCard from './BorderedCard';
+import BorderedCard from './BorderedCard/BorderedCard';
 
 const QuizList = ({ endpoint, myQuizzes }) => {
   const [quizzes, setQuizzes] = useState([]);

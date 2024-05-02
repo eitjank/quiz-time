@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, TextInput } from '@mantine/core';
-import BorderedCard from '../components/BorderedCard';
+import BorderedCard from '../../components/BorderedCard/BorderedCard';
 
 function JoinQuizForm() {
   const [quizSessionId, setQuizSessionId] = useState('');
