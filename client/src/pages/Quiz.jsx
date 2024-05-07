@@ -31,7 +31,7 @@ function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [timer, setTimer] = useState(null);
   const [answer, setAnswer] = useState([]);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [currentCorrectAnswer, setCurrentCorrectAnswer] = useState([]);
   const [isCorrect, setIsCorrect] = useState(null);
   const [joined, setJoined] = useState(false);
   const { id } = useParams();
@@ -44,6 +44,7 @@ function Quiz() {
   const [hostLeftModalOpened, hostLeftModalHandlers] = useDisclosure(false);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
   const [currentQuestionScore, setCurrentQuestionScore] = useState(null);
+  const [totalScore, setTotalScore] = useState(0);
 
   useEffect(() => {
     if (currentQuestion.timeLimit !== 0) {
@@ -68,6 +69,8 @@ function Quiz() {
       setCurrentQuestion(question);
       setTimer(question.timeLimit);
       setAnswer('');
+      setCurrentCorrectAnswer(null);
+      setIsCorrect(null);
       setAnswerSubmitted(false);
 
       const intervalId = setInterval(() => {
@@ -80,6 +83,10 @@ function Quiz() {
           }
         });
       }, 1000);
+    });
+
+    socket.on('correctAnswer', ({ correctAnswer }) => {
+      setCurrentCorrectAnswer(correctAnswer);
     });
 
     socket.on('timeUpdate', (timeRemaining) => {
@@ -102,6 +109,8 @@ function Quiz() {
 
     socket.on('answerResult', (data) => {
       setCurrentQuestionScore(data.score);
+      setTotalScore(data.totalScore);
+      setIsCorrect(data.score === 0 ? false : true);
     });
 
     return () => {
@@ -109,7 +118,8 @@ function Quiz() {
       socket.off('joinedQuiz');
       socket.off('receiveQuestion');
       socket.off('timeUpdate');
-      // socket.off('answerResult');
+      socket.off('correctAnswer');
+      socket.off('answerResult');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate, socket]);
@@ -122,16 +132,11 @@ function Quiz() {
 
   useEffect(() => {
     if (timer !== null && timer <= 0) {
-      setShowAnswer(true);
-      setIsCorrect(
-        answer.length === currentQuestion.answer.length &&
-          answer.every((ans) => currentQuestion.answer.includes(ans))
-      );
-      if (!scoreByTime) {
+      if (!answerSubmitted) {
         socket.emit('submitAnswer', { quizSessionId: id, answer });
+        setAnswerSubmitted(true);
       }
     } else {
-      setShowAnswer(false);
       setIsCorrect(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,7 +177,7 @@ function Quiz() {
                     value={option}
                     label={option}
                     checked={answer.includes(option)}
-                    disabled={showAnswer || (scoreByTime && answerSubmitted)}
+                    disabled={currentCorrectAnswer || answerSubmitted}
                     onChange={(e) => {
                       if (e.target.checked) {
                         setAnswer((prevAnswer) => [
@@ -193,18 +198,18 @@ function Quiz() {
               </Stack>
             </Group>
             <Space h="sm" />
-            {scoreByTime && (
-              <Button
-                disabled={showAnswer || answer.length === 0 || answerSubmitted}
-                onClick={() => {
-                  if (!answerSubmitted) {
-                    handleSubmitAnswer(answer);
-                  }
-                }}
-              >
-                Submit
-              </Button>
-            )}
+            <Button
+              disabled={
+                currentCorrectAnswer || answer.length === 0 || answerSubmitted
+              }
+              onClick={() => {
+                if (!answerSubmitted) {
+                  handleSubmitAnswer(answer);
+                }
+              }}
+            >
+              Submit
+            </Button>
             <Space h="sm" />
           </>
         );
@@ -214,22 +219,20 @@ function Quiz() {
             <TextInput
               type="text"
               value={answer[0]}
-              disabled={showAnswer || (scoreByTime && answerSubmitted)}
+              disabled={currentCorrectAnswer || answerSubmitted}
               onChange={(e) => setAnswer([e.target.value])}
             />
             <Space h="sm" />
-            {scoreByTime && (
-              <Button
-                disabled={answer[0] === '' || answerSubmitted}
-                onClick={() => {
-                  if (!answerSubmitted) {
-                    handleSubmitAnswer(answer);
-                  }
-                }}
-              >
-                Submit
-              </Button>
-            )}
+            <Button
+              disabled={answer[0] === '' || answerSubmitted}
+              onClick={() => {
+                if (!answerSubmitted) {
+                  handleSubmitAnswer(answer);
+                }
+              }}
+            >
+              Submit
+            </Button>
             <Space h="sm" />
           </>
         );
@@ -245,7 +248,7 @@ function Quiz() {
                   value={option}
                   label={option}
                   checked={answer[0] && answer[0] === option}
-                  disabled={showAnswer || (scoreByTime && answerSubmitted)}
+                  disabled={currentCorrectAnswer || answerSubmitted}
                   onChange={(e) => {
                     setAnswer([e.target.value]);
                     if (scoreByTime) {
@@ -257,6 +260,18 @@ function Quiz() {
                   }}
                 />
               ))}
+              {!scoreByTime && (
+                <Button
+                  disabled={answer[0] === '' || answerSubmitted}
+                  onClick={() => {
+                    if (!answerSubmitted) {
+                      handleSubmitAnswer(answer);
+                    }
+                  }}
+                >
+                  Submit
+                </Button>
+              )}
             </Stack>
           </Group>
         );
@@ -315,16 +330,16 @@ function Quiz() {
                 <CurrentQuestion
                   currentQuestion={currentQuestion}
                   renderQuestionInput={renderQuestionInput}
-                  showAnswer={showAnswer}
+                  answer={currentCorrectAnswer}
                 />
-                {showAnswer &&
-                  isCorrect !== null &&
+                {isCorrect !== null &&
                   (isCorrect ? (
                     <>
                       <p>Your answer is correct!</p>
                       {currentQuestionScore && (
-                        <p>Your score: {currentQuestionScore}</p>
+                        <p>Your got: {currentQuestionScore} points</p>
                       )}
+                      {totalScore && <p>Your total score: {totalScore}</p>}
                     </>
                   ) : (
                     <p>Your answer is incorrect.</p>

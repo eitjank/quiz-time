@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { QUIZZES_ENDPOINT } from '../api/endpoints';
+import { BASE_URL, QUIZZES_ENDPOINT } from '../api/endpoints';
 import { Container, Text, Space, Title } from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
 import BorderedCard from '../components/BorderedCard/BorderedCard';
@@ -51,13 +51,16 @@ function QuizView() {
             <Title order={3}>{question.question}</Title>
             <Space h="sm" />
             <Title order={4}>Type: {formatQuestionType(question.type)}</Title>
+            {question.image && (
+              <img src={`${BASE_URL}/${question.image}`} alt="Question" />
+            )}
             {question.type === 'multipleChoice' && (
               <>
                 <h4>Options</h4>
                 <OptionsList options={question.options} />
               </>
             )}
-            <QuestionAnswer question={question} />
+            <QuestionAnswer answer={question.answer} />
           </div>
         </BorderedCard>
       ))}

@@ -18,7 +18,6 @@ export function useQuizSession() {
     });
 
     socket.on('participantLeft', (data) => {
-      console.log(`Participant ${data.participantId} left the quiz`);
       setParticipants((prevParticipants) =>
         prevParticipants.filter((p) => p.id !== data.participantId)
       );

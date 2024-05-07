@@ -2,11 +2,8 @@ import { render, screen } from '../../test-utils';
 import QuestionAnswer from './QuestionAnswer';
 
 it('renders QuestionAnswer component with answer', () => {
-  const question = {
-    answer: ['Option 1', 'Option 2', 'Option 3'],
-  };
-
-  render(<QuestionAnswer question={question} />);
+  const answer = ['Option 1', 'Option 2', 'Option 3'];
+  render(<QuestionAnswer answer={answer} />);
 
   const answerElement = screen.getByText(
     'Answer: Option 1, Option 2, Option 3'
@@ -15,11 +12,9 @@ it('renders QuestionAnswer component with answer', () => {
 });
 
 it('renders QuestionAnswer component without answer', () => {
-  const question = {
-    answer: null,
-  };
+  const answer = null;
 
-  render(<QuestionAnswer question={question} />);
+  render(<QuestionAnswer answer={answer} />);
 
   const answerElement = screen.queryByText('Answer:');
   expect(answerElement).toBeNull();

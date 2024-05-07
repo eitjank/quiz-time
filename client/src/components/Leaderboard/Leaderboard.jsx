@@ -31,7 +31,7 @@ function Leaderboard({ results }) {
                   <Table.Td data-testid="participant-name">
                     {participant.name}
                   </Table.Td>
-                  <Table.Td data-testid="score">{participant.score}</Table.Td>
+                  <Table.Td data-testid="score">{participant.totalScore}</Table.Td>
                 </Table.Tr>
               ))}
           </Table.Tbody>

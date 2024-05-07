@@ -3,11 +3,7 @@ import { Card, CardSection, Space, Text } from '@mantine/core';
 import { BASE_URL } from '../api/endpoints';
 import QuestionAnswer from './QuestionAnswer/QuestionAnswer';
 
-const CurrentQuestion = ({
-  currentQuestion,
-  renderQuestionInput,
-  showAnswer,
-}) => {
+const CurrentQuestion = ({ currentQuestion, renderQuestionInput, answer }) => {
   return (
     <div>
       <Card shadow="xs" radius="md">
@@ -25,7 +21,7 @@ const CurrentQuestion = ({
       </Card>
       <Space h="sm" />
       {renderQuestionInput(currentQuestion)}
-      {showAnswer && <QuestionAnswer question={currentQuestion} />}
+      <QuestionAnswer answer={answer} />
     </div>
   );
 };

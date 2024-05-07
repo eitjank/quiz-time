@@ -13,7 +13,7 @@ import OptionsList from '../components/OptionsList/OptionsList';
 const QuizHostSession = () => {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [timer, setTimer] = useState(null);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [currentCorrectAnswer, setCurrentCorrectAnswer] = useState(null);
   const [started, setStarted] = useState(false);
   const { id } = useParams();
   const { socket, results, finished, participants } = useQuizSession();
@@ -46,6 +46,7 @@ const QuizHostSession = () => {
 
     socket.on('receiveQuestion', (question) => {
       setCurrentQuestion(question);
+      setCurrentCorrectAnswer(null);
       setTimer(question.timeLimit);
 
       const intervalId = setInterval(() => {
@@ -60,6 +61,10 @@ const QuizHostSession = () => {
       }, 1000);
     });
 
+    socket.on('correctAnswer', ({ correctAnswer }) => {
+      setCurrentCorrectAnswer(correctAnswer);
+    });
+
     socket.on('timeUpdate', (timeRemaining) => {
       setTimer(timeRemaining);
     });
@@ -71,19 +76,12 @@ const QuizHostSession = () => {
       socket.off('joinedQuiz');
       socket.off('receiveQuestion');
       socket.off('timeUpdate');
+      socket.off('correctAnswer');
     };
   }, [id, socket, navigate]);
 
-  useEffect(() => {
-    if (timer !== null && timer <= 0) {
-      setShowAnswer(true);
-    } else {
-      setShowAnswer(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timer]);
-
   const startQuiz = () => {
+    if (!socket) return;
     socket.emit('startQuiz', {
       quizSessionId: id,
       isManualControl,
@@ -134,11 +132,11 @@ const QuizHostSession = () => {
                 <ProgressBar width={progressBarWidth} timeLeft={timer} />
                 {isManualControl && (
                   <>
-                    {showAnswer ? (
+                    {currentCorrectAnswer ? (
                       <Button
                         onClick={() => {
                           socket.emit('nextQuestion', { quizSessionId: id });
-                          setShowAnswer(false);
+                          setCurrentCorrectAnswer(null);
                         }}
                       >
                         Next Question
@@ -158,7 +156,7 @@ const QuizHostSession = () => {
                 <CurrentQuestion
                   currentQuestion={currentQuestion}
                   renderQuestionInput={renderQuestionInput}
-                  showAnswer={showAnswer}
+                  answer={currentCorrectAnswer}
                 />
               </div>
             )}

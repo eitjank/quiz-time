@@ -1,14 +1,8 @@
 import React from 'react';
 import { Text } from '@mantine/core';
 
-const QuestionAnswer = ({ question }) => {
-  return (
-    <>
-      {question.answer && (
-        <Text>Answer: {question.answer.join(', ')}</Text>
-      )}
-    </>
-  );
+const QuestionAnswer = ({ answer }) => {
+  return <>{answer && <Text>Answer: {answer.join(', ')}</Text>}</>;
 };
 
 export default QuestionAnswer;
