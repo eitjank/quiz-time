@@ -13,7 +13,7 @@ const QuizSessionSchema = new mongoose.Schema({
       score: Number,
       answers: [
         {
-          questionId: mongoose.Schema.Types.ObjectId,
+          questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
           answer: [String],
         },
       ],

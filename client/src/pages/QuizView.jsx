@@ -5,6 +5,7 @@ import { Container, Text, Space, Title } from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
 import BorderedCard from '../components/BorderedCard/BorderedCard';
 import QuestionAnswer from '../components/QuestionAnswer/QuestionAnswer';
+import { toast } from 'react-toastify';
 
 function QuizView() {
   const { id } = useParams();
@@ -14,6 +15,13 @@ function QuizView() {
     fetch(`${QUIZZES_ENDPOINT}/${id}?withOwner=true`, {
       credentials: 'include',
     })
+      .then((res) => {
+        if (!res.ok) {
+          toast.error(`Failed to fetch quiz. ${res.statusText}`);
+          throw new Error('Failed to fetch quiz');
+        }
+        return res;
+      })
       .then((res) => res.json())
       .then((data) => setQuiz(data))
       .catch((err) => console.error(err));

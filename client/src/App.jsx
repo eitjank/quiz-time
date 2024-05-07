@@ -1,5 +1,5 @@
 import './App.css';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import JoinQuizForm from './pages/JoinQuizForm/JoinQuizForm';
 import Quiz from './pages/Quiz';
@@ -17,8 +17,10 @@ import MyQuizzes from './pages/MyQuizzes';
 import QuestionBank from './pages/QuestionBank';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound/NotFound';
-import { AppShell, useMantineColorScheme } from '@mantine/core';
+import { AppShell, Burger, useMantineColorScheme } from '@mantine/core';
 import QuestionEdit from './pages/QuestionEdit';
+import { useDisclosure, useViewportSize } from '@mantine/hooks';
+import './components/Navbar/Navbar.css';
 
 function App() {
   const { colorScheme } = useMantineColorScheme();
@@ -26,6 +28,18 @@ function App() {
     colorScheme === 'dark'
       ? 'linear-gradient(45deg, #282c34 30%, #3c3f41 90%)'
       : 'linear-gradient(45deg, #87CEFA 30%, #B0E0E6 90%)';
+  const { width } = useViewportSize();
+  const [headerHeight, setHeaderHeight] = useState(56);
+  const [opened, { toggle }] = useDisclosure();
+
+  useEffect(() => {
+    if (width > 576) {
+      setHeaderHeight(56);
+      if (opened) {
+        toggle();
+      }
+    }
+  }, [width, opened, toggle]);
 
   return (
     <div className="App">
@@ -34,9 +48,25 @@ function App() {
         theme={colorScheme === 'dark' ? 'dark' : 'light'}
         closeOnClick
       />
-      <AppShell header={{ height: 64 }} padding="md" style={{ background }}>
+      <AppShell
+        header={{ height: headerHeight }}
+        padding="md"
+        style={{ background }}
+      >
         <AppShell.Header>
-          <Navbar />
+          <Burger
+            opened={opened}
+            onClick={() => {
+              toggle();
+              if (width <= 576) {
+                setHeaderHeight(opened ? 56 : 269);
+              }
+            }}
+            aria-label="Toggle navigation"
+            hiddenFrom="xs"
+            style={{ marginTop: 8 }}
+          />
+          {(width >= 576 || opened) && <Navbar />}
         </AppShell.Header>
         <AppShell.Main>
           <Routes>

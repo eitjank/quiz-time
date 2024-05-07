@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardSection, Text } from '@mantine/core';
+import { Card, CardSection, Space, Text } from '@mantine/core';
 import { BASE_URL } from '../api/endpoints';
 import QuestionAnswer from './QuestionAnswer/QuestionAnswer';
 
@@ -23,6 +23,7 @@ const CurrentQuestion = ({
         )}
         <Text size="lg">{currentQuestion.question}</Text>
       </Card>
+      <Space h="sm" />
       {renderQuestionInput(currentQuestion)}
       {showAnswer && <QuestionAnswer question={currentQuestion} />}
     </div>

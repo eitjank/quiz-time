@@ -116,7 +116,6 @@ function Quiz() {
 
   useEffect(() => {
     if (!socket || !name || !joined) return;
-    console.log('Changing name');
     nameModalHandlers.open(); // Open the modal to change the name
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, name, socket, joined]);
@@ -186,6 +185,9 @@ function Quiz() {
                         );
                       }
                     }}
+                    style={{
+                      margin: '10px 0',
+                    }}
                   />
                 ))}
               </Stack>
@@ -215,6 +217,7 @@ function Quiz() {
               disabled={showAnswer || (scoreByTime && answerSubmitted)}
               onChange={(e) => setAnswer([e.target.value])}
             />
+            <Space h="sm" />
             {scoreByTime && (
               <Button
                 disabled={answer[0] === '' || answerSubmitted}
@@ -227,6 +230,7 @@ function Quiz() {
                 Submit
               </Button>
             )}
+            <Space h="sm" />
           </>
         );
       case 'trueFalse':
@@ -247,6 +251,9 @@ function Quiz() {
                     if (scoreByTime) {
                       handleSubmitAnswer([e.target.value]);
                     }
+                  }}
+                  style={{
+                    margin: '10px 0',
                   }}
                 />
               ))}

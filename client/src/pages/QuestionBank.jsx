@@ -38,7 +38,7 @@ function QuestionBank() {
   const endIndex = startIndex + itemsPerPage;
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [folders, setFolders] = useState([]);
-  const [isNavbarOpen, setIsNavbarOpen] = useState(true);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = (value) => {
@@ -214,7 +214,6 @@ function QuestionBank() {
               onClick={() => {
                 const newFolder = prompt('Enter folder name');
                 if (newFolder) {
-                  // also check if folder already exists if so, don't add
                   if (folders.includes(newFolder)) {
                     alert('Folder already exists');
                   } else {

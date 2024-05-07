@@ -14,6 +14,13 @@ function QuizEdit() {
 
   useEffect(() => {
     fetch(`${QUIZZES_ENDPOINT}/${id}`, { credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) {
+          toast.error(`Failed to fetch quiz. ${res.statusText}`);
+          throw new Error('Failed to fetch quiz');
+        }
+        return res;
+      })
       .then((res) => res.json())
       .then((data) => {
         setName(data.name);
