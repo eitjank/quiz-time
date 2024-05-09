@@ -1,0 +1,28 @@
+config:
+  target: 'http://localhost:3001'
+  phases:
+    - duration: 20
+      arrivalRate: 25
+  engines:
+    socketio-v3: {}
+
+scenarios:
+  - name: Quiz scenario
+    engine: socketio-v3
+    flow:
+      - think: 1
+
+      - emit:
+          channel: 'joinQuiz'
+          data:
+            quizSessionId: 'enter-quiz-session-id-here'
+
+      - think: 20
+
+      - emit:
+          channel: 'submitAnswer'
+          data:
+            quizSessionId: 'enter-quiz-session-id-here'
+            answer: ['answer1']
+
+      - think: 60

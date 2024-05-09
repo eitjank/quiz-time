@@ -24,7 +24,7 @@ function Leaderboard({ results }) {
           </Table.Thead>
           <Table.Tbody>
             {results
-              .sort((a, b) => b.score - a.score)
+              .sort((a, b) => b.totalScore - a.totalScore)
               .map((participant, index) => (
                 <Table.Tr key={index}>
                   <Table.Td data-testid="rank-cell">{index + 1}</Table.Td>

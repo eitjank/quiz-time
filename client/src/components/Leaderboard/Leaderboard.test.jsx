@@ -2,8 +2,8 @@ import { render, screen } from '../../test-utils';
 import Leaderboard from './Leaderboard';
 
 const mockResults = [
-  { name: 'John Doe', score: 100 },
-  { name: 'Jane Doe', score: 90 },
+  { name: 'John Doe', totalScore: 100 },
+  { name: 'Jane Doe', totalScore: 90 },
 ];
 
 describe('Leaderboard', () => {
@@ -19,7 +19,7 @@ describe('Leaderboard', () => {
     mockResults.forEach((participant, index) => {
       expect(participantNames[index]).toHaveTextContent(participant.name);
       expect(participantScores[index]).toHaveTextContent(
-        participant.score.toString()
+        participant.totalScore.toString()
       );
     });
   });
@@ -30,12 +30,12 @@ describe('Leaderboard', () => {
     const participantNames = screen.getAllByTestId('participant-name');
     const participantScores = screen.getAllByTestId('score');
 
-    const sortedResults = [...mockResults].sort((a, b) => b.score - a.score);
+    const sortedResults = [...mockResults].sort((a, b) => b.totalScore - a.totalScore);
 
     sortedResults.forEach((participant, index) => {
       expect(participantNames[index]).toHaveTextContent(participant.name);
       expect(participantScores[index]).toHaveTextContent(
-        participant.score.toString()
+        participant.totalScore.toString()
       );
     });
   });

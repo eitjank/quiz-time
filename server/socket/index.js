@@ -4,10 +4,10 @@ const QuizSession = require('../db/models/QuizSession');
 const { instrument } = require('@socket.io/admin-ui');
 require('dotenv').config();
 
-const maxScore = 1000;
-const minScore = 300;
-const delayBeforeNextQuestion = 2500;
-const delpayPeriod = 1500;
+const MAX_SCORE = 1000;
+const MIN_SCORE = 300;
+const DELAY_BEFORE_NEXT_QUESTION = 2500;
+const DELAY = 1500;
 
 let quizSessions = [];
 
@@ -27,8 +27,6 @@ function socketSetup(server) {
   });
 
   io.on('connection', (socket) => {
-    console.log(`New client connected with ID: ${socket.id}`);
-
     socket.on('requestQuestion', (data) => {
       const quiz = quizSessions[data.quizSessionId];
       const question = quiz.questions[quiz.currentQuestionIndex];
@@ -45,11 +43,11 @@ function socketSetup(server) {
       if (!quizSessions[quizSessionId]) return;
       const quiz = quizSessions[quizSessionId];
       quiz.currentQuestionStartTime = Date.now();
-      // Add grace period to the time limit to account for the delay in the client
+      // Add delay to the time limit to account for the delay in the client
       quiz.currentQuestionEndTime =
         Date.now() +
         quiz.questions[quiz.currentQuestionIndex].timeLimit * 1000 +
-        1500;
+        DELAY;
       const question = quiz.questions[quiz.currentQuestionIndex];
       const questionToSend = {
         type: question.type,
@@ -68,18 +66,17 @@ function socketSetup(server) {
               setTimeout(() => {
                 quiz.currentQuestionIndex++;
                 startQuestionTimer(quizSessionId);
-              }, delayBeforeNextQuestion); // delay before moving to next question
+              }, DELAY_BEFORE_NEXT_QUESTION); // delay before moving to next question
             }
-          }, delpayPeriod);
+          }, DELAY);
         } else {
           // Add a delay before ending the quiz
           setTimeout(() => {
             endQuestion(quiz, io, quizSessionId);
             setTimeout(() => {
-              console.log('Ending quiz session');
               endQuizSession(quiz, io, quizSessionId);
-            }, delayBeforeNextQuestion);
-          }, delpayPeriod);
+            }, DELAY_BEFORE_NEXT_QUESTION);
+          }, DELAY);
         }
       }, quiz.questions[quiz.currentQuestionIndex].timeLimit * 1000);
     }
@@ -90,9 +87,6 @@ function socketSetup(server) {
 
       // Check if a host is already in the session
       if (quizSessions[quizSessionId] && quizSessions[quizSessionId].host) {
-        console.log(
-          `Host ${socket.id} attempted to join quiz ${quizSessionId}, but another host is already in the session.`
-        );
         socket.emit('joinedQuiz', {
           success: false,
           message: 'Another host is already in this quiz session.',
@@ -108,7 +102,6 @@ function socketSetup(server) {
         currentQuestionStartTime: null,
         isFinished: false,
       };
-      console.log(`Host ${socket.id} joined quiz ${quizSessionId}`);
       socket.join(quizSessionId);
       socket.emit('joinedQuiz', {
         success: true,
@@ -120,7 +113,6 @@ function socketSetup(server) {
     socket.on('joinQuiz', async ({ quizSessionId, name }) => {
       if (quizSessions[quizSessionId]) {
         socket.join(quizSessionId);
-        console.log(`User ${socket.id} joined quiz ${quizSessionId}`);
         socket.emit('joinedQuiz', {
           success: true,
           quizSessionId: quizSessionId,
@@ -186,20 +178,27 @@ function socketSetup(server) {
       io.to(quizSessionId).emit('timeUpdate', 0);
       setTimeout(() => {
         endQuestion(quiz, io, quizSessionId);
-      }, delpayPeriod);
+      }, DELAY);
     });
 
     socket.on('submitAnswer', (data) => {
-      if (!quizSessions[data.quizSessionId]) return;
-      const quiz = quizSessions[data.quizSessionId];
-      const question = quiz.questions[quiz.currentQuestionIndex];
+      if (!data || !data.quizSessionId || !Array.isArray(data.answer)) return;
 
-      // check if user has already answered this question
-      const lastAnswer =
-        quiz.participants[socket.id].answers[
-          quiz.participants[socket.id].answers.length - 1
-        ];
-      if (lastAnswer && lastAnswer.questionId === question._id) {
+      const quiz = quizSessions[data.quizSessionId];
+      if (!quiz) return;
+
+      const participant = quiz.participants[socket.id];
+      if (!participant) return;
+
+      const question = quiz.questions[quiz.currentQuestionIndex];
+      if (!question) return;
+
+      // Initialize participant's answers if not already done
+      if (!participant.answers) {
+        participant.answers = [];
+      }
+
+      if (hasAlreadyAnswered(participant, question._id)) {
         return;
       }
 
@@ -208,40 +207,18 @@ function socketSetup(server) {
         return;
       }
 
-      let score = 1;
-      const answer = {
-        questionId: question._id,
-        answer: data.answer,
-        score: 0,
-      };
-      if (
-        data.answer.length === question.answer.length &&
-        data.answer.every((ans) => question.answer.includes(ans))
-      ) {
-        answer.score = 1;
-        if (quiz.scoreByTime) {
-          const timeLimit = question.timeLimit * 1000; // convert to milliseconds
-          const timeTaken = Date.now() - quiz.currentQuestionStartTime;
-          score = maxScore - (timeTaken / timeLimit) * (maxScore - minScore);
-          score = Math.round(score);
-          score = Math.max(minScore, score);
-          answer.timeTaken = timeTaken;
-          answer.score = score;
-        }
-        quiz.participants[socket.id].totalScore += answer.score;
-      }
-      quiz.participants[socket.id].answers.push(answer);
+      // calculate score and update participant's answers
+      const answer = createAnswer(question, data.answer, quiz);
+      participant.totalScore += answer.score;
+      participant.answers.push(answer);
     });
 
     socket.on('disconnect', () => {
-      console.log(`Client disconnected with ID: ${socket.id}`);
       for (const quizSessionId in quizSessions) {
         if (quizSessions[quizSessionId].host === socket.id) {
-          console.log(`Host ${socket.id} disconnected`);
           delete quizSessions[quizSessionId];
           io.to(quizSessionId).emit('hostLeft');
         } else if (quizSessions[quizSessionId].participants[socket.id]) {
-          console.log(`Participant ${socket.id} disconnected`);
           delete quizSessions[quizSessionId].participants[socket.id];
           io.to(quizSessionId).emit('participantLeft', {
             participantId: socket.id,
@@ -287,12 +264,42 @@ function endQuizSession(quiz, io, quizSessionId) {
       participants: Object.values(quiz.participants),
       isFinished: true,
     }).then(() => {
-      console.log('Quiz session updated');
       delete quizSessions[quizSessionId];
     });
   } catch (error) {
     console.error('Error updating quiz session:', error);
   }
+}
+
+function hasAlreadyAnswered(participant, questionId) {
+  const lastAnswer = participant.answers[participant.answers.length - 1];
+  return lastAnswer && lastAnswer.questionId === questionId;
+}
+
+function createAnswer(question, userAnswer, quiz) {
+  let score = 0;
+  let timeTaken = null;
+  if (
+    userAnswer.length === question.answer.length &&
+    userAnswer.every((ans) => question.answer.includes(ans))
+  ) {
+    if (quiz.scoreByTime) {
+      const timeLimit = question.timeLimit * 1000; // convert to milliseconds
+      timeTaken = Date.now() - quiz.currentQuestionStartTime;
+      score = MAX_SCORE - (timeTaken / timeLimit) * (MAX_SCORE - MIN_SCORE);
+      score = Math.round(score);
+      score = Math.max(MIN_SCORE, score);
+    } else {
+      score = 1;
+    }
+  }
+
+  return {
+    questionId: question._id,
+    answer: userAnswer,
+    score: score,
+    timeTaken: quiz.scoreByTime ? timeTaken : undefined,
+  };
 }
 
 module.exports = socketSetup;

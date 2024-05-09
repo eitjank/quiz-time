@@ -7,7 +7,7 @@
     "start": "nodemon server.js",
     "test": "jest --forceExit --detectOpenHandles --watchAll --maxWorkers=1",
     "test:coverage": "jest --coverage --forceExit --detectOpenHandles --watchAll --maxWorkers=1",
-    "artillery": "artillery run scenario.yml"
+    "artillery": "artillery run test/join-quiz-scenario.yml"
   },
   "keywords": [],
   "author": "",

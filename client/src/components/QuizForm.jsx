@@ -147,9 +147,12 @@ function QuizForm({ initialQuiz, onSubmit }) {
               </Button>
             </Group>
             {showQuestionBank && (
-              <QuestionBankSelector
-                addQuestionToQuiz={addQuestionToQuizFromQuestionBank}
-              />
+              <>
+                <Space h="sm" />
+                <QuestionBankSelector
+                  addQuestionToQuiz={addQuestionToQuizFromQuestionBank}
+                />
+              </>
             )}
           </label>
           <Space h="lg" />

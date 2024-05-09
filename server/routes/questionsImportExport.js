@@ -21,7 +21,6 @@ router.get('/', authenticateUser, async (req, res) => {
 // import questions
 router.post('/', authenticateUser, async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.user) {
       return res.status(403).json({ message: 'Forbidden' });
     }

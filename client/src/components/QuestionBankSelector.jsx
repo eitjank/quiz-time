@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS_ENDPOINT } from '../api/endpoints';
-import { Button, Paper, Container } from '@mantine/core';
+import { Button, Paper, Container, Autocomplete, Space } from '@mantine/core';
 import TagSearch from './TagSearch/TagSearch';
 import { toast } from 'react-toastify';
 
@@ -8,6 +8,7 @@ const QuestionBankSelector = ({ addQuestionToQuiz }) => {
   const [questionBank, setQuestionBank] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetch(`${QUESTIONS_ENDPOINT}`, { credentials: 'include' })
@@ -25,6 +26,18 @@ const QuestionBankSelector = ({ addQuestionToQuiz }) => {
       .catch((error) => console.error(error));
   }, []);
 
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
+
+  const filteredQuestions = questionBank
+    ? questionBank.filter(
+        (question) =>
+          selectedTags.every((tag) => question.tags.includes(tag)) &&
+          question.question.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
   return (
     <>
       <TagSearch
@@ -32,21 +45,23 @@ const QuestionBankSelector = ({ addQuestionToQuiz }) => {
         selectedTags={selectedTags}
         setSelectedTags={setSelectedTags}
       />
+      <Space h="sm" />
+      <Autocomplete
+        value={searchTerm}
+        onChange={handleSearch}
+        placeholder="Search questions..."
+      />
       {questionBank.length > 0 &&
-        questionBank
-          .filter((question) =>
-            selectedTags.every((tag) => question.tags.includes(tag))
-          )
-          .map((question, index) => (
-            <Paper shadow="md" key={index}>
-              <Container size="md">
-                <p>{question.question}</p>
-                <Button onClick={() => addQuestionToQuiz(question)}>
-                  Add to Quiz
-                </Button>
-              </Container>
-            </Paper>
-          ))}
+        filteredQuestions.map((question, index) => (
+          <Paper shadow="md" key={index}>
+            <Container size="md">
+              <p>{question.question}</p>
+              <Button onClick={() => addQuestionToQuiz(question)}>
+                Add to Quiz
+              </Button>
+            </Container>
+          </Paper>
+        ))}
     </>
   );
 };
