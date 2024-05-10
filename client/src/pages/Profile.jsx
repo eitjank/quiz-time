@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
-import { Button, Container, Space, TextInput } from '@mantine/core';
+import { Button, Container, Loader, Space, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import DeleteAccountModal from '../components/DeleteAccountModal/DeleteAccountModal';
 import BorderedCard from '../components/BorderedCard/BorderedCard';
@@ -99,7 +99,7 @@ const Profile = () => {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (

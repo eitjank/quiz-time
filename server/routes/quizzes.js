@@ -1,5 +1,6 @@
 const express = require('express');
 const Quiz = require('../db/models/Quiz');
+const QuizSession = require('../db/models/QuizSession');
 const mongoose = require('mongoose');
 const authenticateUser = require('../middleware/authMiddleware');
 
@@ -154,6 +155,94 @@ router.post('/import', authenticateUser, async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+
+router.get('/:id/stats', authenticateUser, async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ message: 'Quiz not found' });
+  }
+  try {
+    // check if owner
+    const quiz = await Quiz.findById(req.params.id);
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found' });
+    }
+    if (!req.user || quiz.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const quizSessions = await QuizSession.find({ quiz: req.params.id });
+
+    const quizStats = {
+      name: quiz.name,
+      questionStats: {},
+    };
+
+    const questionStats = quizStats.questionStats;
+
+    quiz.questions.forEach((question) => {
+      questionStats[question._id] = {
+        questionText: question.question,
+        totalAttempts: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        incorrectAnswerCounts: {},
+      };
+    });
+
+    quizSessions.forEach((session) => {
+      session.participants.forEach((participant) => {
+        participant.answers.forEach((answer) => {
+          questionStats[answer.questionId].totalAttempts += 1;
+
+          if (answer.score > 0) {
+            questionStats[answer.questionId].correctAnswers += 1;
+          } else {
+            questionStats[answer.questionId].incorrectAnswers += 1;
+
+            answer.answer.forEach((incorrectAnswer) => {
+              if (
+                !questionStats[answer.questionId].incorrectAnswerCounts[
+                  incorrectAnswer
+                ]
+              ) {
+                questionStats[answer.questionId].incorrectAnswerCounts[
+                  incorrectAnswer
+                ] = 0;
+              }
+
+              questionStats[answer.questionId].incorrectAnswerCounts[
+                incorrectAnswer
+              ] += 1;
+            });
+          }
+        });
+      });
+    });
+
+    // Calculate percentage correct and most common incorrect answer for each question
+    for (const questionId in questionStats) {
+      const stats = questionStats[questionId];
+      stats.percentageCorrect = (
+        (stats.correctAnswers / stats.totalAttempts) *
+        100
+      ).toFixed(2);
+
+      let mostCommonIncorrectAnswer = null;
+      let maxIncorrectCount = 0;
+      for (const answer in stats.incorrectAnswerCounts) {
+        if (stats.incorrectAnswerCounts[answer] > maxIncorrectCount) {
+          maxIncorrectCount = stats.incorrectAnswerCounts[answer];
+          mostCommonIncorrectAnswer = answer;
+        }
+      }
+      stats.mostCommonIncorrectAnswer = mostCommonIncorrectAnswer;
+    }
+
+    res.json(quizStats);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

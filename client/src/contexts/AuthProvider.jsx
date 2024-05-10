@@ -3,6 +3,7 @@ import AuthContext from './AuthContext';
 import {
   AUTH_ENDPOINT,
   LOGIN_ENDPOINT,
+  LOGOUT_ENDPOINT,
   SIGNUP_ENDPOINT,
 } from '../api/endpoints';
 import { toast } from 'react-toastify';
@@ -60,7 +61,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const response = await fetch(`${AUTH_ENDPOINT}/logout`, {
+    const response = await fetch(`${LOGOUT_ENDPOINT}`, {
       method: 'POST',
       credentials: 'include', // Include cookies in the request
     });

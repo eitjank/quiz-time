@@ -7,7 +7,7 @@
 
 .progress-bar {
   height: 20px;
-  background-color: #4caf50;
+  background-color: var(--mantine-color-blue-5);
   width: 100%; /* Initial width */
   transition: width 1s linear;
 }

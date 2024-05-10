@@ -54,6 +54,7 @@ function socketSetup(server) {
         question: question.question,
         options: question.options,
         timeLimit: question.timeLimit,
+        image: question.image,
       };
       io.to(quizSessionId).emit('receiveQuestion', questionToSend);
       quiz.timeoutId = setTimeout(() => {

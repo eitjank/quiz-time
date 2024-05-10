@@ -8,8 +8,8 @@ describe('Upload Routes', () => {
 
   afterAll(async () => {
     // Delete the uploaded files
-    uploadedFilePaths.forEach(async (filePath) => {
-      await deleteImageFromFilePath(filePath);
+    uploadedFilePaths.forEach((filePath) => {
+      deleteImageFromFilePath(filePath);
     });
 
     // Close the server
@@ -45,18 +45,22 @@ describe('Upload Routes', () => {
       const response1 = await request(app)
         .post('/api/uploads')
         .attach('file', 'uploads/rain1.jpg'); // Replace with the actual file path
-      
-      expect(response1.status).toBe(201);
-      expect(response1.body.message).toBe('File uploaded successfully'); 
 
-      const response = await request(app).delete(`/api/uploads/${response1.body.filePath}`); // Replace with the actual file path
+      expect(response1.status).toBe(201);
+      expect(response1.body.message).toBe('File uploaded successfully');
+
+      const response = await request(app).delete(
+        `/api/uploads/${response1.body.filePath}`
+      ); // Replace with the actual file path
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('File deleted successfully');
     });
 
     it('should return an error if the file does not exist', async () => {
-      const response = await request(app).delete('/api/uploads/uploads/nonexistent.jpg');
+      const response = await request(app).delete(
+        '/api/uploads/uploads/nonexistent.jpg'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.message).toBe('Failed to delete file');

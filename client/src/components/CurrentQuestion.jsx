@@ -6,7 +6,7 @@ import QuestionAnswer from './QuestionAnswer/QuestionAnswer';
 const CurrentQuestion = ({ currentQuestion, renderQuestionInput, answer }) => {
   return (
     <div>
-      <Card shadow="xs" radius="md">
+      <Card shadow="xs" radius="md" withBorder>
         {currentQuestion.image && (
           <CardSection>
             {currentQuestion.image && (

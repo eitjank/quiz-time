@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QuestionForm from '../components/QuestionForm';
-import { Button, Container, Group } from '@mantine/core';
+import { Button, Container, Group, Loader } from '@mantine/core';
 import { toast } from 'react-toastify';
 import { QUESTIONS_ENDPOINT } from '../api/endpoints';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -78,7 +78,7 @@ const QuestionEdit = ({ isEditing }) => {
   };
 
   if (!questions.length) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import 'react-toastify/dist/ReactToastify.css';
 import '@mantine/core/styles.css';
+import '@mantine/charts/styles.css';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import AuthProvider from './contexts/AuthProvider';

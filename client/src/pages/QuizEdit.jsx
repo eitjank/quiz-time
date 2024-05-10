@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import QuizForm from '../components/QuizForm';
 import { QUIZZES_ENDPOINT } from '../api/endpoints';
 import { toast } from 'react-toastify';
+import { Loader } from '@mantine/core';
 
 function QuizEdit() {
   const [name, setName] = useState('');
@@ -51,7 +52,7 @@ function QuizEdit() {
     }
   };
 
-  if (!questions) return <div>Loading...</div>;
+  if (!questions) return <Loader />;
 
   return (
     <QuizForm

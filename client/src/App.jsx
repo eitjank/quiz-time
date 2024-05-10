@@ -21,6 +21,7 @@ import { AppShell, Burger, useMantineColorScheme } from '@mantine/core';
 import QuestionEdit from './pages/QuestionEdit';
 import { useDisclosure, useViewportSize } from '@mantine/hooks';
 import './components/Navbar/Navbar.css';
+import QuizStats from './pages/QuizStats';
 
 function App() {
   const { colorScheme } = useMantineColorScheme();
@@ -116,6 +117,7 @@ function App() {
             <Route path="/quizzes/:id" element={<Quiz />} />
             <Route path="/quizzes/:id/edit" element={<QuizEdit />} />
             <Route path="/quizzes/:id/view" element={<QuizView />} />
+            <Route path="/quizzes/:id/stats" element={<QuizStats />} />
             <Route path="/quizzes/create" element={<QuizCreate />} />
             <Route path="/quizzes" element={<PublicQuizzes />} />
             <Route path="/quizSessions/:id" element={<QuizHostSession />} />

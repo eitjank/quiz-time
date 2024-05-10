@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BASE_URL, QUIZZES_ENDPOINT } from '../api/endpoints';
-import { Container, Text, Space, Title } from '@mantine/core';
+import { Container, Text, Space, Title, Button, Loader } from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
 import BorderedCard from '../components/BorderedCard/BorderedCard';
 import QuestionAnswer from '../components/QuestionAnswer/QuestionAnswer';
 import { toast } from 'react-toastify';
+import AuthContext from '../contexts/AuthContext';
 
 function QuizView() {
   const { id } = useParams();
   const [quiz, setQuiz] = useState(null);
+  const { username } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${QUIZZES_ENDPOINT}/${id}?withOwner=true`, {
@@ -35,15 +38,24 @@ function QuizView() {
   }
 
   if (!quiz) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (
     <Container size="lg">
-      <h1>{quiz.name}</h1>
+      <Title>{quiz.name}</Title>
       <Text>{quiz.description}</Text>
       <Space h="md" />
       <Text>Created by user: {quiz.owner.username} </Text>
+      <Space h="md" />
+      {username && username === quiz.owner.username && (
+        <Button
+          variant="default"
+          onClick={() => navigate(`/quizzes/${id}/stats`)}
+        >
+          View Quiz Stats
+        </Button>
+      )}
       <h2>Questions:</h2>
       {quiz.questions.map((question, index) => (
         <BorderedCard key={index}>

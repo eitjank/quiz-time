@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../server');
 const Quiz = require('../db/models/Quiz');
+const QuizSession = require('../db/models/QuizSession');
 const User = require('../db/models/User');
 const mongoose = require('mongoose');
 
@@ -31,8 +32,8 @@ describe('Quizzes API', () => {
   });
 
   afterAll(async () => {
-    await Quiz.deleteMany({});
-    await User.deleteMany({});
+    await Quiz.deleteMany();
+    await User.deleteMany();
     // Close the server
     await new Promise((resolve) => app.close(resolve));
 
@@ -278,6 +279,80 @@ describe('Quizzes API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Forbidden');
+    });
+  });
+
+  describe('GET /quizzes/:id/stats', () => {
+    it('should respond with 404 if quiz does not exist', async () => {
+      const id = 'nonexistentQuizId';
+      const response = await request(app)
+        .get(`/api/quizzes/${id}/stats`)
+        .set('Cookie', cookie);
+      expect(response.status).toBe(404);
+    });
+
+    it('should respond with quiz stats', async () => {
+      const quiz = await Quiz.create({
+        name: 'Quiz 1',
+        description: 'Description 1',
+        owner: savedUser._id,
+        questions: [
+          {
+            type: 'multiple-choice',
+            question: 'What is 1 + 1?',
+            options: ['1', '2', '3', '4'],
+            answer: ['2'],
+          },
+          {
+            type: 'multiple-choice',
+            question: 'What is 2 + 2?',
+            options: ['3', '4', '5', '6'],
+            answer: ['4'],
+          },
+        ],
+      });
+
+      // Create a quiz session with some participants and answers
+      const quizSession = await QuizSession.create({
+        quiz: quiz._id,
+        participants: [
+          {
+            name: 'Participant 1',
+            answers: [
+              { questionId: quiz.questions[0]._id, answer: '1', score: 0 },
+              { questionId: quiz.questions[1]._id, answer: '4', score: 1 },
+            ],
+          },
+          {
+            name: 'Participant 2',
+            answers: [
+              { questionId: quiz.questions[0]._id, answer: '2', score: 1 },
+              { questionId: quiz.questions[1]._id, answer: '3', score: 0 },
+            ],
+          },
+        ],
+      });
+
+      const id = quiz._id;
+      const response = await request(app)
+        .get(`/api/quizzes/${id}/stats`)
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(200);
+
+      expect(response.body).toHaveProperty('questionStats');
+      expect(typeof response.body.questionStats).toBe('object');
+
+      for (const questionId in response.body.questionStats) {
+        const stats = response.body.questionStats[questionId];
+        expect(stats).toHaveProperty('questionText');
+        expect(stats).toHaveProperty('totalAttempts');
+        expect(stats).toHaveProperty('correctAnswers');
+        expect(stats).toHaveProperty('incorrectAnswers');
+        expect(stats).toHaveProperty('incorrectAnswerCounts');
+        expect(stats).toHaveProperty('percentageCorrect');
+        expect(stats).toHaveProperty('mostCommonIncorrectAnswer');
+      }
     });
   });
 });
