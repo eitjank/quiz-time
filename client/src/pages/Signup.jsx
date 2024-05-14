@@ -106,7 +106,7 @@ const Signup = () => {
     if (password.length < 8)
       return handleError('Password must be at least 8 characters');
 
-    if (strength < 50) return handleError('Password is too weak');
+    if (strength <= 50) return handleError('Password is too weak');
 
     const { success, message } = await signup(inputValue);
     if (success) {
