@@ -13,6 +13,7 @@ const CurrentQuestion = ({ currentQuestion, renderQuestionInput, answer }) => {
               <img
                 src={`${BASE_URL}/${currentQuestion.image}`}
                 alt="Question"
+                style={{ maxWidth: '50%', height: 'auto' }}
               />
             )}
           </CardSection>

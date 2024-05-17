@@ -103,7 +103,11 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
           </Group>
           <Space h="xs" />
           {questions[index].image && (
-            <img src={`${BASE_URL}/${questions[index].image}`} alt="Question" />
+            <img
+              src={`${BASE_URL}/${questions[index].image}`}
+              alt="Question"
+              style={{ maxWidth: '50%', height: 'auto' }}
+            />
           )}
           {questions[index].type === 'multipleChoice' && (
             <>

@@ -64,7 +64,11 @@ function QuizView() {
             <Space h="sm" />
             <Title order={4}>Type: {formatQuestionType(question.type)}</Title>
             {question.image && (
-              <img src={`${BASE_URL}/${question.image}`} alt="Question" />
+              <img
+                src={`${BASE_URL}/${question.image}`}
+                alt="Question"
+                style={{ maxWidth: '50%', height: 'auto' }}
+              />
             )}
             {question.type === 'multipleChoice' && (
               <>
