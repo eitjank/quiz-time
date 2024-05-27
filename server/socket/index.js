@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const MAX_SCORE = 1000;
 const MIN_SCORE = 300;
-const DELAY_BEFORE_NEXT_QUESTION = 2500;
+const DELAY_BEFORE_NEXT_QUESTION = 3500;
 const DELAY = 1500;
 
 let quizSessions = [];
@@ -281,7 +281,7 @@ function createAnswer(question, userAnswer, quiz) {
   let score = 0;
   let timeTaken = null;
   if (
-    userAnswer.length === question.answer.length &&
+    userAnswer.length === question.answer.length && // check if all correct answers are selected
     userAnswer.every((ans) => question.answer.includes(ans))
   ) {
     if (quiz.scoreByTime) {

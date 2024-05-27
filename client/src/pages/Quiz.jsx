@@ -21,6 +21,7 @@ import {
   Modal,
   Alert,
   Checkbox,
+  Text,
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
@@ -68,7 +69,7 @@ function Quiz() {
     socket.on('receiveQuestion', (question) => {
       setCurrentQuestion(question);
       setTimer(question.timeLimit);
-      setAnswer('');
+      setAnswer([]);
       setCurrentCorrectAnswer(null);
       setIsCorrect(null);
       setAnswerSubmitted(false);
@@ -111,6 +112,23 @@ function Quiz() {
       setCurrentQuestionScore(data.score);
       setTotalScore(data.totalScore);
       setIsCorrect(data.score === 0 ? false : true);
+      if (data.score === 0) {
+        const audio = new Audio('/sounds/incorrect.mp3');
+        audio.play();
+        toast.error('Your answer is incorrect.', {
+          position: 'bottom-center',
+          pauseOnHover: false,
+          autoClose: 2500,
+        });
+      } else {
+        const audio = new Audio('/sounds/correct.mp3');
+        audio.play();
+        toast.success('Your answer is correct!', {
+          position: 'bottom-center',
+          pauseOnHover: false,
+          autoClose: 2500,
+        });
+      }
     });
 
     return () => {
@@ -335,14 +353,16 @@ function Quiz() {
                 {isCorrect !== null &&
                   (isCorrect ? (
                     <>
-                      <p>Your answer is correct!</p>
+                      <Text>Your answer is correct!</Text>
                       {currentQuestionScore && (
-                        <p>Your got: {currentQuestionScore} points</p>
+                        <Text>You got: {currentQuestionScore} points</Text>
                       )}
-                      {totalScore && <p>Your total score: {totalScore}</p>}
+                      {totalScore && (
+                        <Text>Your total score: {totalScore}</Text>
+                      )}
                     </>
                   ) : (
-                    <p>Your answer is incorrect.</p>
+                    <Text>Your answer is incorrect.</Text>
                   ))}
               </>
             )}
