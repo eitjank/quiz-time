@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard/Leaderboard';
 import { useQuizSession } from '../hooks/useQuizSession';
-import { Button, Group, Switch, Space, Container } from '@mantine/core';
+import { Button, Group, Switch, Space, Container, Title } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
 import ProgressBar from '../components/ProgressBar/ProgressBar';
@@ -104,7 +104,8 @@ const QuizHostSession = () => {
   return (
     <div>
       <Container size="lg">
-        <h2>Quiz Session ID: {id}</h2>
+        <Title order={2}>Quiz Session ID: {id}</Title>
+        <Space h="lg" />
         {!finished ? (
           <>
             {!started ? (
@@ -123,12 +124,14 @@ const QuizHostSession = () => {
                 </Group>
                 <Space h="lg" />
                 <Button onClick={startQuiz}>Start Quiz</Button>
-                <h2>Participants:</h2>
+                <Space h="lg" />
+                <Title order={2}>Participants:</Title>
+                <Space h="lg" />
                 <ParticipantList participants={participants} />
               </>
             ) : (
               <div>
-                <h1>Quiz Time!</h1>
+                <Title order={1}>Quiz Time!</Title>
                 <ProgressBar width={progressBarWidth} timeLeft={timer} />
                 {isManualControl && (
                   <>

@@ -20,6 +20,7 @@ const NameModal = ({
         <TextInput
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
+          maxLength={25}
         />
         <Button
           onClick={() => {

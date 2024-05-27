@@ -37,8 +37,7 @@ function Quiz() {
   const [joined, setJoined] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  const { socket, results, finished, participants, scoreByTime } =
-    useQuizSession(id);
+  const { socket, results, finished, participants } = useQuizSession(id);
   const [progressBarWidth, setProgressBarWidth] = useState(100);
   const [name, setName] = useState('');
   const [nameModalOpened, nameModalHandlers] = useDisclosure(false);
@@ -161,15 +160,23 @@ function Quiz() {
   }, [timer]);
 
   const generateRandomName = () => {
-    return uniqueNamesGenerator({
+    let name = uniqueNamesGenerator({
       dictionaries: [adjectives, animals],
       style: 'capital',
       separator: ' ',
     });
+    if (name.length > 25) {
+      name = name.substring(0, 25);
+    }
+    return name;
   };
 
   const handleNameSubmit = (event) => {
     event.preventDefault();
+    // Don't submit if the name is empty
+    if (name.trim() === '') {
+      return;
+    }
     if (socket) socket.emit('changeName', { quizSessionId: id, name });
     nameModalHandlers.close();
   };
@@ -267,29 +274,22 @@ function Quiz() {
                   label={option}
                   checked={answer[0] && answer[0] === option}
                   disabled={currentCorrectAnswer || answerSubmitted}
-                  onChange={(e) => {
-                    setAnswer([e.target.value]);
-                    if (scoreByTime) {
-                      handleSubmitAnswer([e.target.value]);
-                    }
-                  }}
+                  onChange={(e) => setAnswer([e.target.value])}
                   style={{
                     margin: '10px 0',
                   }}
                 />
               ))}
-              {!scoreByTime && (
-                <Button
-                  disabled={answer[0] === '' || answerSubmitted}
-                  onClick={() => {
-                    if (!answerSubmitted) {
-                      handleSubmitAnswer(answer);
-                    }
-                  }}
-                >
-                  Submit
-                </Button>
-              )}
+              <Button
+                disabled={answer[0] === '' || answerSubmitted}
+                onClick={() => {
+                  if (!answerSubmitted) {
+                    handleSubmitAnswer(answer);
+                  }
+                }}
+              >
+                Submit
+              </Button>
             </Stack>
           </Group>
         );
@@ -338,7 +338,10 @@ function Quiz() {
               <>
                 <Title order={2}>Participants:</Title>
                 <Space h="lg" />
-                <ParticipantList participants={participants} />
+                <ParticipantList
+                  participants={participants}
+                  currentUserId={socket ? socket.id : null}
+                />
               </>
             ) : (
               <>
@@ -368,7 +371,10 @@ function Quiz() {
             )}
           </>
         ) : (
-          <Leaderboard results={results} />
+          <Leaderboard
+            results={results}
+            currentUserId={socket ? socket.id : null}
+          />
         )}
       </Container>
     </>
