@@ -3,6 +3,7 @@ const Quiz = require('../db/models/Quiz');
 const QuizSession = require('../db/models/QuizSession');
 const mongoose = require('mongoose');
 const authenticateUser = require('../middleware/authMiddleware');
+const { validateQuestions } = require('../utils/quizUtils');
 
 const router = express.Router();
 
@@ -60,6 +61,8 @@ router.post('/', authenticateUser, async (req, res) => {
     if (!req.user) {
       return res.status(403).json({ message: 'Forbidden' });
     }
+    validateQuestions(req.body.questions);
+
     const quiz = new Quiz({
       name: req.body.name,
       description: req.body.description,
@@ -70,7 +73,7 @@ router.post('/', authenticateUser, async (req, res) => {
     const newQuiz = await quiz.save();
     res.status(201).json(newQuiz);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -85,6 +88,8 @@ router.put('/:id', authenticateUser, async (req, res) => {
       if (!req.user || quiz.owner.toString() !== req.user.id) {
         return res.status(403).json({ message: 'Forbidden' });
       }
+      validateQuestions(req.body.questions);
+
       quiz.name = req.body.name;
       quiz.description = req.body.description;
       quiz.questions = req.body.questions;

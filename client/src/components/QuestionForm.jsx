@@ -66,6 +66,8 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
             onChange={(e) => {
               const newQuestions = [...questions];
               newQuestions[index].type = e.target.value;
+              newQuestions[index].options = [];
+              newQuestions[index].answer = [];
               setQuestions(newQuestions);
             }}
           >
@@ -152,7 +154,11 @@ function QuestionForm({ index, questions, setQuestions, isQuestionBank }) {
                         onClick={(e) => {
                           e.preventDefault();
                           const newQuestions = [...questions];
+                          const optionToRemove = newQuestions[index].options[optionIndex];
                           newQuestions[index].options.splice(optionIndex, 1);
+                          newQuestions[index].answer = newQuestions[index].answer.filter(
+                            (answer) => answer !== optionToRemove
+                          );
                           setQuestions(newQuestions);
                         }}
                       >

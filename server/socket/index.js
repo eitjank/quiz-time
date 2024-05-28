@@ -281,8 +281,13 @@ function createAnswer(question, userAnswer, quiz) {
   let score = 0;
   let timeTaken = null;
   if (
-    userAnswer.length === question.answer.length && // check if all correct answers are selected
-    userAnswer.every((ans) => question.answer.includes(ans))
+    question.type === 'openEnded'
+      ? userAnswer
+          .map((a) => a.toLowerCase())
+          .every((ans) =>
+            question.answer.map((a) => a.toLowerCase()).includes(ans)
+          ) // case insensitive comparison
+      : userAnswer.every((ans) => question.answer.includes(ans))
   ) {
     if (quiz.scoreByTime) {
       const timeLimit = question.timeLimit * 1000; // convert to milliseconds

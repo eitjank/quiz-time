@@ -41,13 +41,15 @@ function QuizEdit() {
         body: JSON.stringify(quiz),
       }).then((res) => {
         if (!res.ok) {
-          toast.error(`Failed to update quiz. ${res.statusText}`);
-          throw new Error(`Failed to update quiz. ${res.statusText}`);
+          return res.json().then((err) => {
+            throw new Error(err.message);
+          });
         }
         if (res.status === 200) toast('Quiz updated successfully');
       });
       navigate(-1);
     } catch (err) {
+      toast.error(`Failed to update quiz. ${err.message}`);
       console.error(err);
     }
   };
