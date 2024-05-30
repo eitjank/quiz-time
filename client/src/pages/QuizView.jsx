@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BASE_URL, QUIZZES_ENDPOINT } from '../api/endpoints';
-import { Container, Text, Space, Title, Button, Loader } from '@mantine/core';
+import {
+  Container,
+  Text,
+  Space,
+  Title,
+  Button,
+  Loader,
+  Group,
+} from '@mantine/core';
 import OptionsList from '../components/OptionsList/OptionsList';
 import BorderedCard from '../components/BorderedCard/BorderedCard';
 import QuestionAnswer from '../components/QuestionAnswer/QuestionAnswer';
@@ -13,6 +21,7 @@ function QuizView() {
   const [quiz, setQuiz] = useState(null);
   const { username } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showAnswers, setShowAnswers] = useState(false);
 
   useEffect(() => {
     fetch(`${QUIZZES_ENDPOINT}/${id}?withOwner=true`, {
@@ -48,14 +57,19 @@ function QuizView() {
       <Space h="md" />
       <Text>Created by user: {quiz.owner.username} </Text>
       <Space h="md" />
-      {username && username === quiz.owner.username && (
-        <Button
-          variant="default"
-          onClick={() => navigate(`/quizzes/${id}/stats`)}
-        >
-          View Quiz Stats
+      <Group justify="center">
+        {username && username === quiz.owner.username && (
+          <Button
+            variant="default"
+            onClick={() => navigate(`/quizzes/${id}/stats`)}
+          >
+            View Quiz Stats
+          </Button>
+        )}
+        <Button variant="default" onClick={() => setShowAnswers(!showAnswers)}>
+          {showAnswers ? 'Hide Answers' : 'Show Answers'}
         </Button>
-      )}
+      </Group>
       <h2>Questions:</h2>
       {quiz.questions.map((question, index) => (
         <BorderedCard key={index}>
@@ -76,7 +90,7 @@ function QuizView() {
                 <OptionsList options={question.options} />
               </>
             )}
-            <QuestionAnswer answer={question.answer} />
+            {showAnswers && <QuestionAnswer answer={question.answer} />}
           </div>
         </BorderedCard>
       ))}

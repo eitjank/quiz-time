@@ -11,17 +11,15 @@ import { useDisclosure } from '@mantine/hooks';
 import NameModal from '../components/NameModal/NameModal';
 import {
   Container,
-  Radio,
   TextInput,
-  Stack,
   Group,
   Button,
   Title,
   Space,
   Modal,
   Alert,
-  Checkbox,
   Text,
+  useMantineColorScheme,
 } from '@mantine/core';
 import ParticipantList from '../components/ParticipantList/ParticipantList';
 import CurrentQuestion from '../components/CurrentQuestion';
@@ -45,6 +43,8 @@ function Quiz() {
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
   const [currentQuestionScore, setCurrentQuestionScore] = useState(null);
   const [totalScore, setTotalScore] = useState(0);
+  const { colorScheme } = useMantineColorScheme();
+  const color = colorScheme === 'dark' ? 'blue' : '#5474B4';
 
   useEffect(() => {
     if (currentQuestion.timeLimit !== 0) {
@@ -193,36 +193,33 @@ function Quiz() {
         return (
           <>
             <Group justify="center">
-              <Stack gap="sm">
-                {question.options.map((option, index) => (
-                  <Checkbox
-                    key={index}
-                    id={`option-${index}`}
-                    name="quizOption"
-                    value={option}
-                    label={option}
-                    checked={answer.includes(option)}
-                    disabled={currentCorrectAnswer || answerSubmitted}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setAnswer((prevAnswer) => [
-                          ...prevAnswer,
-                          e.target.value,
-                        ]);
-                      } else {
-                        setAnswer((prevAnswer) =>
-                          prevAnswer.filter((ans) => ans !== e.target.value)
-                        );
-                      }
-                    }}
-                    style={{
-                      margin: '10px 0',
-                    }}
-                  />
-                ))}
-              </Stack>
+              {question.options.map((option, index) => (
+                <Button
+                  key={index}
+                  id={`option-${index}`}
+                  name="quizOption"
+                  variant={answer.includes(option) ? 'outline' : 'default'}
+                  color={color}
+                  size="lg"
+                  disabled={currentCorrectAnswer || answerSubmitted}
+                  onClick={() => {
+                    if (answer.includes(option)) {
+                      setAnswer((prevAnswer) =>
+                        prevAnswer.filter((ans) => ans !== option)
+                      );
+                    } else {
+                      setAnswer((prevAnswer) => [...prevAnswer, option]);
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                  }}
+                >
+                  {option}
+                </Button>
+              ))}
             </Group>
-            <Space h="sm" />
+            <Space h="md" />
             <Button
               disabled={
                 currentCorrectAnswer || answer.length === 0 || answerSubmitted
@@ -263,35 +260,38 @@ function Quiz() {
         );
       case 'trueFalse':
         return (
-          <Group justify="center">
-            <Stack gap="sm">
+          <>
+            <Group justify="center">
               {['True', 'False'].map((option, index) => (
-                <Radio
+                <Button
                   key={index}
                   id={`trueFalse-${index}`}
                   name="trueFalseOption"
-                  value={option}
-                  label={option}
-                  checked={answer[0] && answer[0] === option}
+                  variant={answer[0] === option ? 'outline' : 'default'}
+                  color={color}
+                  size="lg"
                   disabled={currentCorrectAnswer || answerSubmitted}
-                  onChange={(e) => setAnswer([e.target.value])}
+                  onClick={() => setAnswer([option])}
                   style={{
-                    margin: '10px 0',
+                    width: '100%',
                   }}
-                />
+                >
+                  {option}
+                </Button>
               ))}
-              <Button
-                disabled={answer[0] === '' || answerSubmitted}
-                onClick={() => {
-                  if (!answerSubmitted) {
-                    handleSubmitAnswer(answer);
-                  }
-                }}
-              >
-                Submit
-              </Button>
-            </Stack>
-          </Group>
+            </Group>
+            <Space h="md" />
+            <Button
+              disabled={answer[0] === '' || answerSubmitted}
+              onClick={() => {
+                if (!answerSubmitted) {
+                  handleSubmitAnswer(answer);
+                }
+              }}
+            >
+              Submit
+            </Button>
+          </>
         );
       default:
         return null;

@@ -20,7 +20,7 @@ const CurrentQuestion = ({ currentQuestion, renderQuestionInput, answer }) => {
         )}
         <Text size="lg">{currentQuestion.question}</Text>
       </Card>
-      <Space h="sm" />
+      <Space h="lg" />
       {renderQuestionInput(currentQuestion)}
       <QuestionAnswer answer={answer} />
     </div>
