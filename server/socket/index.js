@@ -280,23 +280,26 @@ function hasAlreadyAnswered(participant, questionId) {
 function createAnswer(question, userAnswer, quiz) {
   let score = 0;
   let timeTaken = null;
-  if (
-    question.type === 'openEnded'
-      ? userAnswer
-          .map((a) => a.toLowerCase())
-          .every((ans) =>
-            question.answer.map((a) => a.toLowerCase()).includes(ans)
-          ) // case insensitive comparison
-      : userAnswer.every((ans) => question.answer.includes(ans))
-  ) {
-    if (quiz.scoreByTime) {
-      const timeLimit = question.timeLimit * 1000; // convert to milliseconds
-      timeTaken = Date.now() - quiz.currentQuestionStartTime;
-      score = MAX_SCORE - (timeTaken / timeLimit) * (MAX_SCORE - MIN_SCORE);
-      score = Math.round(score);
-      score = Math.max(MIN_SCORE, score);
-    } else {
-      score = 1;
+  if (userAnswer.length === question.answer.length) {
+    const isAnswerCorrect =
+      question.type === 'openEnded'
+        ? userAnswer
+            .map((a) => a.toLowerCase())
+            .every((ans) =>
+              question.answer.map((a) => a.toLowerCase()).includes(ans)
+            )
+        : userAnswer.every((ans) => question.answer.includes(ans));
+
+    if (isAnswerCorrect) {
+      if (quiz.scoreByTime) {
+        const timeLimit = question.timeLimit * 1000; // convert to milliseconds
+        timeTaken = Date.now() - quiz.currentQuestionStartTime;
+        score = MAX_SCORE - (timeTaken / timeLimit) * (MAX_SCORE - MIN_SCORE);
+        score = Math.round(score);
+        score = Math.max(MIN_SCORE, score);
+      } else {
+        score = 1;
+      }
     }
   }
 
